@@ -11,5 +11,6 @@
 void httpGet();
 void testWithCurl();
 void testMultipleGet();
+void testHttpPostRequests();
 
 #endif

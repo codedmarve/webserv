@@ -8,5 +8,6 @@ int main()
     // testWithCurl();
     // httpGet();
     // testMultipleGet();
+    testHttpPostRequests();
     return (0);
 }

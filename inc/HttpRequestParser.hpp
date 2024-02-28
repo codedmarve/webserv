@@ -39,6 +39,7 @@
 
 // #endif
 
+// HttpRequestParser.hpp
 #ifndef HTTP_REQUEST_PARSER_HPP
 #define HTTP_REQUEST_PARSER_HPP
 
@@ -54,15 +55,14 @@ private:
     std::string body_;
     int content_length_;
 
-    int stringToInt(const std::string &str);
+    void parseHeaders(const std::string &headerLines);
+    void parseContentLength();  // Changed return type
 
 public:
     HttpRequestParser();
     ~HttpRequestParser();
 
     int parseRequest(const std::string &request);
-    void parseHeaders(const std::string &headerLines);
-    int parseContentLength();
 
     std::string getMethod() const;
     std::string getTarget() const;
@@ -72,4 +72,4 @@ public:
     int getContentLength() const;
 };
 
-#endif
+#endif // HTTP_REQUEST_PARSER_HPP
