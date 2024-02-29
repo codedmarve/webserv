@@ -7,6 +7,7 @@
 #include <vector>
 #include <curl/curl.h>
 
+
 void testMultipleGet() {
     // Test different forms of HTTP GET requests
     std::vector<std::string> requests;
@@ -21,24 +22,14 @@ void testMultipleGet() {
     requests.push_back("GET /latest-data HTTP/1.1\r\nHost: www.example.com\r\nIf-Modified-Since: Sat, 26 Feb 2022 12:00:00 GMT\r\n\r\n");
     requests.push_back("GET /api/data HTTP/1.1\r\nHost: www.example.com\r\nAccept: application/json\r\n\r\n");
     requests.push_back("GET /target-page HTTP/1.1\r\nHost: www.example.com\r\nReferer: https://www.referer-example.com/previous-page\r\n\r\n");
+    requests.push_back("GET /resource/123 HTTP/1.1\r\nHost: www.example.com\r\nUser-Agent: MyCustomUserAgent\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nReferer: https://www.referer-example.com/previous-page\r\nConnection: keep-alive\r\nCache-Control: max-age=0\r\n\r\n");
 
     // Create an instance of HttpRequestParser
     HttpRequestParser parser;
 
     // Process each request
     for (size_t i = 0; i < requests.size(); ++i) {
-        std::cout << "Parsing request:\n" << requests[i] << std::endl;
-        int result = parser.parseRequest(requests[i]);
-        std::cout << "Parsing result: " << result << std::endl;
-
-        // Print Headers using iterators
-        std::cout << "Headers:" << std::endl;
-        std::map<std::string, std::string> headers = parser.getHeaders();
-        for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); ++it) {
-            std::cout << it->first << ": " << it->second << std::endl;
-        }
-
-        std::cout << "-----------------------------" << std::endl;
+        parser.printRequest(requests[i]);
     }
 }
 

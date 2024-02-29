@@ -2,15 +2,17 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-#include <iostream>
-#include <string>
 #include <curl/curl.h>
-#include <map>
 #include "./HttpRequestParser.hpp"
 
-void httpGet();
-void testWithCurl();
 void testMultipleGet();
 void testHttpPostRequests();
+void testHttpPutRequests();
+void testMultipleHttpDelete();
+void testMultipleHttpHead();
+void testMultipleHttpPatch();
+void testMultipleHttpOptions();
+void testMultipleHttpConnect();
+
 
 #endif

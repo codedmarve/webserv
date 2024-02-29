@@ -45,6 +45,10 @@
 
 #include <string>
 #include <map>
+#include <iostream>
+#include <cstdlib>
+#include <sstream> 
+#include <vector>
 
 class HttpRequestParser {
 private:
@@ -70,6 +74,8 @@ public:
     std::map<std::string, std::string> getHeaders() const;
     std::string getBody() const;
     int getContentLength() const;
+    void printRequest(const std::string& request);
+
 };
 
 #endif // HTTP_REQUEST_PARSER_HPP

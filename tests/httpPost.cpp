@@ -1,6 +1,5 @@
 
-#include "../inc/HttpRequestParser.hpp"
-#include <iostream>
+#include "../inc/Test.hpp"
 
 void testHttpPostRequests() {
     // Form URL Encoded Data
@@ -23,23 +22,6 @@ void testHttpPostRequests() {
         "  \"age\": 30,\n"
         "  \"active\": true\n"
         "}";
-    std::string nestedJsonRequest =
-        "POST /api/nested-data HTTP/1.1\r\n"
-        "Host: api.example.com\r\n"
-        "Content-Type: application/json\r\n"
-        "\r\n"
-        "{\n"
-        "  \"name\": \"John Doe\",\n"
-        "  \"email\": \"johndoe@example.com\",\n"
-        "  \"age\": 30,\n"
-        "  \"active\": true,\n"
-        "  \"address\": {\n"
-        "    \"street\": \"123 Main St\",\n"
-        "    \"city\": \"Anytown\",\n"
-        "    \"zipcode\": \"12345\"\n"
-        "  }\n"
-        "}";
-
 
     // Multipart Form Data
     std::string multipartFormDataRequest =
@@ -79,26 +61,17 @@ void testHttpPostRequests() {
     HttpRequestParser parser;
 
     std::cout << "Testing Form URL Encoded Data:\n";
-    parser.parseRequest(formUrlEncodedRequest);
-    std::cout << "-------------------------------\n";
+    parser.printRequest(formUrlEncodedRequest);
 
     std::cout << "Testing JSON Data:\n";
-    parser.parseRequest(jsonRequest);
-    std::cout << "-------------------------------\n";
-
-    parser.parseRequest(nestedJsonRequest);
-    std::cout << "-------------------------------\n";
+    parser.printRequest(jsonRequest);
 
     std::cout << "Testing Multipart Form Data:\n";
-    parser.parseRequest(multipartFormDataRequest);
-    std::cout << "-------------------------------\n";
+    parser.printRequest(multipartFormDataRequest);
 
     std::cout << "Testing XML Data:\n";
-    parser.parseRequest(xmlRequest);
-    std::cout << "-------------------------------\n";
+    parser.printRequest(xmlRequest);
 
     std::cout << "Testing Binary Data (Image Upload):\n";
-    parser.parseRequest(binaryDataRequest);
-    std::cout << "-------------------------------\n";
+    parser.printRequest(binaryDataRequest);
 }
-

@@ -2,12 +2,15 @@
 
 int main()
 {
-    /**
-     * TESt HTTP GET
-    */
-    // testWithCurl();
-    // httpGet();
+
     // testMultipleGet();
-    testHttpPostRequests();
+    // testHttpPostRequests();
+    testHttpPutRequests();
+    // testMultipleHttpDelete();
+    // testMultipleHttpHead();
+    // testMultipleHttpPatch();
+    // testMultipleHttpOptions();
+    // testMultipleHttpConnect();
+
     return (0);
 }
