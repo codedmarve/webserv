@@ -1,7 +1,9 @@
 
 #include "../inc/Test.hpp"
 
-void testHttpPostRequests() {
+void httpPost() {
+    std::vector<std::string> postRequests;
+    
     // Form URL Encoded Data
     std::string formUrlEncodedRequest =
         "POST /submit-form HTTP/1.1\r\n"
@@ -58,20 +60,31 @@ void testHttpPostRequests() {
         "\r\n"
         "(binary image data)";
 
+    std::string chunkedBinaryDataRequest =
+        "POST /upload-image HTTP/1.1\r\n"
+        "Host: images.example.com\r\n"
+        "Content-Type: image/jpeg\r\n"
+        "Transfer-Encoding: chunked\r\n"
+        "\r\n"
+        "7\r\n"
+        "chunked\r\n"
+        "8\r\n"
+        "encoding\r\n"
+        "0\r\n"
+        "\r\n";
+
+
+    postRequests.push_back(formUrlEncodedRequest);
+    postRequests.push_back(jsonRequest);
+    postRequests.push_back(multipartFormDataRequest);
+    postRequests.push_back(xmlRequest);
+    postRequests.push_back(binaryDataRequest);
+    postRequests.push_back(chunkedBinaryDataRequest);
+
     HttpRequestParser parser;
 
-    std::cout << "Testing Form URL Encoded Data:\n";
-    parser.printRequest(formUrlEncodedRequest);
-
-    std::cout << "Testing JSON Data:\n";
-    parser.printRequest(jsonRequest);
-
-    std::cout << "Testing Multipart Form Data:\n";
-    parser.printRequest(multipartFormDataRequest);
-
-    std::cout << "Testing XML Data:\n";
-    parser.printRequest(xmlRequest);
-
-    std::cout << "Testing Binary Data (Image Upload):\n";
-    parser.printRequest(binaryDataRequest);
+    for (size_t i = 0; i < postRequests.size(); ++i) {
+        std::cout << "Testing HTTP POST Request " << i + 1 << ":\n";
+        parser.printRequest(postRequests[i]);
+    }
 }

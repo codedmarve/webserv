@@ -1,7 +1,7 @@
 #include "../inc/Test.hpp"
 
 
-void testMultipleHttpHead() {
+void httpHead() {
     // Test different forms of HTTP HEAD requests
     std::vector<std::string> headRequests;
     headRequests.push_back("HEAD /resource/123 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

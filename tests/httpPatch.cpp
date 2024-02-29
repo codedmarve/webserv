@@ -1,6 +1,6 @@
 #include "../inc/Test.hpp"
 
-void testMultipleHttpPatch() {
+void httpPatch() {
     // Test different forms of HTTP PATCH requests
     std::vector<std::string> patchRequests;
     patchRequests.push_back("PATCH /resource/123 HTTP/1.1\r\nHost: www.example.com\r\nContent-Type: application/json\r\nContent-Length: 15\r\n\r\n{\"key\": \"value\"}");

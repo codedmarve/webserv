@@ -1,7 +1,7 @@
 #include "../inc/Test.hpp"
 
 
-void testMultipleHttpConnect() {
+void httpConnect() {
     // Test different forms of HTTP CONNECT requests
     std::vector<std::string> connectRequests;
     connectRequests.push_back("CONNECT www.example.com:443 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

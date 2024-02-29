@@ -1,4 +1,8 @@
-#include "../inc/HttpRequestParser.hpp"
+// #include "../inc/HttpRequestParser.hpp"
+
+// #include <iostream>
+// #include <sstream>
+// #include <exception> // Added for std::terminate()
 
 // HttpRequestParser::HttpRequestParser() : content_length_(0) {}
 
@@ -14,46 +18,43 @@
 //         if (endOfFirstLine != std::string::npos) {
 //             std::string firstLine = headerLines.substr(0, endOfFirstLine);
 //             std::istringstream iss(firstLine);
-//             iss >> method_ >> target_ >> protocol_;
+//             if (!(iss >> method_ >> target_ >> protocol_)) {
+//                 throw std::invalid_argument("Invalid request line format");
+//             }
 
 //             parseHeaders(headerLines.substr(endOfFirstLine + 2)); // Skip "\r\n"
-//             return parseContentLength();
+//             parseContentLength();
+
+//             return 0; // Successfully parsed
 //         }
 //     }
-//     return -1; // Parsing failed
+
+//     throw std::invalid_argument("Invalid request format");
 // }
 
 // void HttpRequestParser::parseHeaders(const std::string &headerLines) {
 //     std::istringstream iss(headerLines);
 //     std::string line;
-//     while (std::getline(iss, line, '\n')) {
-//         size_t pos = line.find(": ");
-//         if (pos != std::string::npos) {
-//             std::string key = line.substr(0, pos);
-//             std::string value = line.substr(pos + 2);
-//             headers_[key] = value;
+//     while (std::getline(iss, line, '\r')) {
+//         if (!line.empty()) {
+//             size_t pos = line.find(": ");
+//             if (pos != std::string::npos) {
+//                 std::string key = line.substr(0, pos);
+//                 std::string value = line.substr(pos + 2);
+//                 headers_[key] = value;
+//             }
 //         }
 //     }
 // }
 
-// int HttpRequestParser::parseContentLength() {
-//     std::map<std::string, std::string>::iterator it = headers_.find("Content-Length");
+// void HttpRequestParser::parseContentLength() {
+//     std::map<std::string, std::string>::const_iterator it = headers_.find("Content-Length");
 //     if (it != headers_.end()) {
-//         content_length_ = stringToInt(it->second);
-//         return 0; // Successfully parsed content length
+//         std::istringstream iss(it->second);
+//         if (!(iss >> content_length_)) {
+//             throw std::invalid_argument("Invalid Content-Length value");
+//         }
 //     }
-//     return -1; // Content-Length header not found
-// }
-
-// int HttpRequestParser::stringToInt(const std::string &str) {
-//     std::istringstream iss(str);
-//     int result;
-//     iss >> result;
-//     return result;
-// }
-
-// int HttpRequestParser::getContentLength() {
-//     return content_length_;
 // }
 
 // std::string HttpRequestParser::getMethod() const {
@@ -76,18 +77,39 @@
 //     return body_;
 // }
 
-// HttpRequestParser.cpp
-#include "HttpRequestParser.hpp"
-#include "HttpRequestParser.hpp"
-#include <iostream>
-#include <sstream>
-#include <exception> // Added for std::terminate()
+// int HttpRequestParser::getContentLength() const {
+//     return content_length_;
+// }
 
-HttpRequestParser::HttpRequestParser() : content_length_(0) {}
+// void HttpRequestParser::printRequest(const std::string& request) {
+//     HttpRequestParser parser;
+//     try {
+//         parser.parseRequest(request);
+//         std::cout << "Method: " << parser.getMethod() << std::endl;
+//         std::cout << "Target: " << parser.getTarget() << std::endl;
+//         std::cout << "Protocol: " << parser.getProtocol() << std::endl;
+//         std::cout << "Headers:" << std::endl;
+//         const std::map<std::string, std::string>& headers = parser.getHeaders();
+//         std::map<std::string, std::string>::const_iterator it;
+//         for (it = headers.begin(); it != headers.end(); ++it) {
+//             std::cout << it->first << ": " << it->second << std::endl;
+//         }
+//         std::cout << "Body: " << parser.getBody() << std::endl;
+//         std::cout << "Content-Length: " << parser.getContentLength() << std::endl;
+//         std::cout << "-------------------------------\n";
+//     } catch (const std::exception& e) {
+//         std::cerr << "Error parsing request: " << e.what() << std::endl;
+//     }
+// }
 
-HttpRequestParser::~HttpRequestParser() {}
 
-int HttpRequestParser::parseRequest(const std::string &request) {
+
+
+#include "../inc/HttpRequestParser.hpp"
+
+HttpRequestParser::HttpRequestParser() {}
+
+void HttpRequestParser::parseRequest(const std::string &request) {
     size_t pos = request.find("\r\n\r\n");
     if (pos != std::string::npos) {
         std::string headerLines = request.substr(0, pos);
@@ -102,9 +124,16 @@ int HttpRequestParser::parseRequest(const std::string &request) {
             }
 
             parseHeaders(headerLines.substr(endOfFirstLine + 2)); // Skip "\r\n"
-            parseContentLength();
 
-            return 0; // Successfully parsed
+            // Check if chunked encoding
+            std::map<std::string, std::string>::iterator it = headers_.find("Transfer-Encoding");
+            if (it != headers_.end() && it->second == "chunked") {
+                parseChunkedBody(body_);
+            } else {
+                parseContentLength();
+            }
+
+            return; // Successfully parsed
         }
     }
 
@@ -126,13 +155,50 @@ void HttpRequestParser::parseHeaders(const std::string &headerLines) {
     }
 }
 
+void HttpRequestParser::parseChunkedBody(const std::string &chunkedBody) {
+    size_t pos = 0;
+    while (pos < chunkedBody.size()) {
+        size_t chunkSizePos = chunkedBody.find("\r\n", pos);
+        if (chunkSizePos == std::string::npos)
+            throw std::invalid_argument("Invalid chunked body");
+
+        std::string chunkSizeStr = chunkedBody.substr(pos, chunkSizePos - pos);
+        size_t chunkSize;
+        std::istringstream iss(chunkSizeStr);
+        if (!(iss >> std::hex >> chunkSize))
+            throw std::invalid_argument("Invalid chunk size format");
+
+        pos = chunkSizePos + 2; // Move past "\r\n"
+
+        if (chunkSize == 0) {
+            // Last chunk
+            break;
+        }
+
+        size_t nextChunkPos = pos + chunkSize;
+        if (nextChunkPos > chunkedBody.size()) {
+            throw std::invalid_argument("Incomplete chunked body");
+        }
+
+        // Append this chunk to the body
+        body_ += chunkedBody.substr(pos, chunkSize);
+
+        pos = nextChunkPos + 2; // Move past chunk data and "\r\n"
+    }
+}
+
 void HttpRequestParser::parseContentLength() {
-    std::map<std::string, std::string>::const_iterator it = headers_.find("Content-Length");
+    std::map<std::string, std::string>::iterator it = headers_.find("Content-Length");
     if (it != headers_.end()) {
         std::istringstream iss(it->second);
-        if (!(iss >> content_length_)) {
+        size_t contentLength;
+        if (!(iss >> contentLength))
             throw std::invalid_argument("Invalid Content-Length value");
-        }
+
+        if (contentLength > body_.size())
+            throw std::invalid_argument("Incomplete body");
+
+        body_ = body_.substr(0, contentLength);
     }
 }
 
@@ -156,10 +222,6 @@ std::string HttpRequestParser::getBody() const {
     return body_;
 }
 
-int HttpRequestParser::getContentLength() const {
-    return content_length_;
-}
-
 void HttpRequestParser::printRequest(const std::string& request) {
     HttpRequestParser parser;
     try {
@@ -174,7 +236,6 @@ void HttpRequestParser::printRequest(const std::string& request) {
             std::cout << it->first << ": " << it->second << std::endl;
         }
         std::cout << "Body: " << parser.getBody() << std::endl;
-        std::cout << "Content-Length: " << parser.getContentLength() << std::endl;
         std::cout << "-------------------------------\n";
     } catch (const std::exception& e) {
         std::cerr << "Error parsing request: " << e.what() << std::endl;

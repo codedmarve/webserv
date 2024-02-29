@@ -1,6 +1,8 @@
 #include "../inc/Test.hpp"
 
-void testHttpPutRequests() {
+void httpPut() {
+    std::vector<std::string> putRequests;
+
     // Form URL Encoded Data
     std::string formUrlEncodedRequest =
         "PUT /update-data HTTP/1.1\r\n"
@@ -8,6 +10,7 @@ void testHttpPutRequests() {
         "Content-Type: application/x-www-form-urlencoded\r\n"
         "\r\n"
         "field1=value1&field2=value2";
+    putRequests.push_back(formUrlEncodedRequest);
 
     // JSON Data
     std::string jsonRequest =
@@ -19,6 +22,7 @@ void testHttpPutRequests() {
         "  \"key1\": \"value1\",\n"
         "  \"key2\": \"value2\"\n"
         "}";
+    putRequests.push_back(jsonRequest);
 
     // XML Data
     std::string xmlRequest =
@@ -30,16 +34,12 @@ void testHttpPutRequests() {
         "  <key1>value1</key1>\n"
         "  <key2>value2</key2>\n"
         "</info>";
+    putRequests.push_back(xmlRequest);
 
-    
     HttpRequestParser parser;
 
-    std::cout << "Testing Form URL Encoded Data:\n";
-    parser.printRequest(formUrlEncodedRequest);
-
-    std::cout << "Testing JSON Data:\n";
-    parser.printRequest(jsonRequest);
-
-    std::cout << "Testing XML Data:\n";
-    parser.printRequest(xmlRequest);
+    for (size_t i = 0; i < putRequests.size(); ++i) {
+        std::cout << "Testing HTTP PUT Request " << i + 1 << ":\n";
+        parser.printRequest(putRequests[i]);
+    }
 }

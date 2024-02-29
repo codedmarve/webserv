@@ -1,7 +1,7 @@
 #include "../inc/Test.hpp"
 
 
-void testMultipleHttpOptions() {
+void httpOptions() {
     // Test different forms of HTTP OPTIONS requests
     std::vector<std::string> optionsRequests;
     optionsRequests.push_back("OPTIONS /resource/123 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

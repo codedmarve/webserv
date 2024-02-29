@@ -1,6 +1,6 @@
 #include "../inc/Test.hpp"
 
-void testMultipleHttpDelete() {
+void httpDelete() {
     // Test different forms of HTTP DELETE requests
     std::vector<std::string> deleteRequests;
     deleteRequests.push_back("DELETE /resource/123 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

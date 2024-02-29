@@ -1,14 +1,10 @@
 #include "../inc/Test.hpp"
-
-
-// Callback function to receive HTTP response
 #include <iostream>
 #include <string>
 #include <vector>
-#include <curl/curl.h>
 
 
-void testMultipleGet() {
+void httpGet() {
     // Test different forms of HTTP GET requests
     std::vector<std::string> requests;
     requests.push_back("GET /hello HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

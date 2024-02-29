@@ -3,14 +3,14 @@
 int main()
 {
 
-    // testMultipleGet();
-    // testHttpPostRequests();
-    testHttpPutRequests();
-    // testMultipleHttpDelete();
-    // testMultipleHttpHead();
-    // testMultipleHttpPatch();
-    // testMultipleHttpOptions();
-    // testMultipleHttpConnect();
+    // httpGet();
+    httpPost();
+    // httpPut();
+    // httpDelete();
+    // httpHead();
+    // httpPatch();
+    // httpOptions();
+    // httpConnect();
 
     return (0);
 }
