@@ -12,7 +12,7 @@ int HttpRequestParser::parseRequest(const std::string &request) {
         if (endOfFirstLine != std::string::npos) {
             std::string requestLine = headerLines.substr(0, endOfFirstLine);
             std::istringstream iss(requestLine);
-            if (!(iss >> method_ >> target_ >> protocol_)) {
+            if (!(iss >> method_ >> uri_ >> protocol_)) {
                 return 400;
             }
 
@@ -98,8 +98,8 @@ std::string HttpRequestParser::getMethod() const {
     return method_;
 }
 
-std::string HttpRequestParser::getTarget() const {
-    return target_;
+std::string HttpRequestParser::getURI() const {
+    return uri_;
 }
 
 std::string HttpRequestParser::getProtocol() const {
@@ -119,7 +119,7 @@ void HttpRequestParser::printRequest(const std::string& request) {
     try {
         parser.parseRequest(request);
         std::cout << "Method: " << parser.getMethod() << std::endl;
-        std::cout << "Target: " << parser.getTarget() << std::endl;
+        std::cout << "Target: " << parser.getURI() << std::endl;
         std::cout << "Protocol: " << parser.getProtocol() << std::endl;
         std::cout << "Headers:" << std::endl;
         const std::map<std::string, std::string>& headers = parser.getHeaders();
@@ -165,3 +165,6 @@ bool HttpRequestParser::isMethodCharValid(char ch) const {
             ch == '*' || ch == '+' || ch == '-' || ch == '.' || ch == '^' || ch == '_' ||
             ch == '`' || ch == '|' || ch == '~' || std::isdigit(ch) || std::isalpha(ch));
 }
+
+
+

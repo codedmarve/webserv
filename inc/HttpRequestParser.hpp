@@ -52,10 +52,18 @@
 class HttpRequestParser {
 private:
     std::string method_;
-    std::string target_;
+    std::string uri_;
     std::string protocol_;
     std::map<std::string, std::string> headers_;
     std::string body_;
+
+    struct IsValidChar {
+        const std::string& validSet;
+        IsValidChar(const std::string& set) : validSet(set) {}
+        bool operator()(char c) const {
+            return validSet.find(c) != std::string::npos;
+        }
+    };
 
 public:
     HttpRequestParser();
@@ -67,9 +75,10 @@ public:
 
     bool isMethodCharValid(char ch) const;
     int parseMethod();
+    int validateURI(const std::string &uri);
 
     std::string getMethod() const;
-    std::string getTarget() const;
+    std::string getURI() const;
     std::string getProtocol() const;
     std::map<std::string, std::string> getHeaders() const;
     std::string getBody() const;
