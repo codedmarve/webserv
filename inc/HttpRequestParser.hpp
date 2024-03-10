@@ -47,7 +47,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <vector>
-
+#include <set>
 
 class HttpRequestParser {
 private:
@@ -60,10 +60,13 @@ private:
 public:
     HttpRequestParser();
 
-    void parseRequest(const std::string &request);
+    int parseRequest(const std::string &request);
     void parseHeaders(const std::string &headerLines);
     void parseChunkedBody(const std::string &chunkedBody);
     void parseContentLength();
+
+    bool isMethodCharValid(char ch) const;
+    int parseMethod();
 
     std::string getMethod() const;
     std::string getTarget() const;
@@ -74,4 +77,4 @@ public:
     void printRequest(const std::string& request);
 };
 
-#endif // HTTP_REQUEST_PARSER_HPP
+#endif
