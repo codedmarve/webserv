@@ -57,13 +57,30 @@ private:
     std::map<std::string, std::string> headers_;
     std::string body_;
 
-    struct IsValidChar {
-        const std::string& validSet;
-        IsValidChar(const std::string& set) : validSet(set) {}
-        bool operator()(char c) const {
-            return validSet.find(c) != std::string::npos;
-        }
-    };
+    bool extractComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
+    bool isValidScheme(const std::string& scheme);
+    bool isValidAuthority(const std::string& authority);
+    bool isValidPath(const std::string& path);
+    bool isValidQuery(const std::string& query);
+    bool isValidFragment(const std::string& fragment);
+    bool isAlpha(char c);
+    bool isDigit(char c);
+    bool isAlphaNum(char c);
+
+
+
+    // struct IsValidChar {
+    //     const std::string& validSet;
+    //     IsValidChar(const std::string& set) : validSet(set) {}
+    //     bool operator()(char c) const {
+    //         return validSet.find(c) != std::string::npos;
+    //     }
+    // };
+
+
+    // Helper struct to check if a character is in a given set of valid characters
+
+    // bool isValidChar(char c, const std::string &validSet);
 
 public:
     HttpRequestParser();
@@ -72,10 +89,11 @@ public:
     void parseHeaders(const std::string &headerLines);
     void parseChunkedBody(const std::string &chunkedBody);
     void parseContentLength();
-
+    int parseRequestLine();
     bool isMethodCharValid(char ch) const;
     int parseMethod();
-    int validateURI(const std::string &uri);
+    bool validateURI(const std::string &uri);
+    int parseRequestLine(std::string headerLines, size_t eofFirstLine);
 
     std::string getMethod() const;
     std::string getURI() const;
@@ -84,6 +102,7 @@ public:
     std::string getBody() const;
 
     void printRequest(const std::string& request);
+
 };
 
 #endif
