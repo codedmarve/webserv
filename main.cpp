@@ -55,13 +55,11 @@ int main()
     // testRequests.push_back("GET https://example.com/#invalid@fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
 
     for (size_t i = 0; i < testRequests.size(); ++i) {
-        std::cout << "Validating URI: " << testRequests[i] << std::endl;
-        if (parser.validateURI(testRequests[i])) {
-            std::cout << "URI is valid!" << std::endl;
-        } else {
-            std::cout << "URI is NOT valid!" << std::endl;
-        }
-        std::cout << "END -> \n" << std::endl;
+        // std::cout << "Validating URI: " << testRequests[i] << std::endl;
+        (parser.validateURI(testRequests[i]))
+            ? std::cout << "URI is valid!" << std::endl
+            : std::cout << "URI is NOT valid!" << std::endl;
+        // std::cout << "END -> \n" << std::endl;
     }
 
     // httpGet();

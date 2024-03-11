@@ -39,7 +39,7 @@ public:
     int parseRequestLine();
     bool isMethodCharValid(char ch) const;
     int parseMethod();
-    bool validateURI(const std::string &uri);
+    int validateURI(const std::string &uri);
     int parseRequestLine(std::string headerLines, size_t eofFirstLine);
     int extractRequestLine(std::string requestLine);
 

@@ -171,12 +171,12 @@ int HttpRequestParser::parseRequestLine(std::string headerLines, size_t eofFirst
                 std::cout << "METHOD is invalid -> Error code: " << status << std::endl;
             }
             status = validateURI(uri_);
+            std::cout << status ;
             if (status == 200) {
                 std::cout << "URI is valid!" << std::endl;
             } else {
                 std::cout << "URI is invalid -> Error code: " << status << std::endl;
             }
-
             return 200; // Successfully parsed
         } catch (const std::invalid_argument& e) {
             // Invalid method or character in method
@@ -284,18 +284,24 @@ bool HttpRequestParser::extractComponents(const std::string& uri, std::string& s
 }
 
 bool HttpRequestParser::isValidScheme(const std::string& scheme) {
-        if (scheme.empty() || !isAlpha(scheme[0])) {
-            return false; // Scheme must start with a letter
-        }
+    if (scheme.empty() || !isAlpha(scheme[0])) {
+        return false; // Scheme must start with a letter
+    }
 
-        const std::string validSchemeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-.";
-        for (size_t i = 0; i < scheme.length(); ++i) {
-            if (!isAlphaNum(scheme[i]) && validSchemeChars.find(scheme[i]) == std::string::npos) {
-                return false;
-            }
-        }
+    std::string lowercaseScheme = scheme;
+    for (size_t i = 0; i < lowercaseScheme.length(); ++i) {
+        lowercaseScheme[i] = std::tolower(lowercaseScheme[i]);
+    }
 
-        return true;
+    const std::string validSchemeChars = "abcdefghijklmnopqrstuvwxyz0123456789+-.!$&'()*+,;=";
+    for (size_t i = 0; i < lowercaseScheme.length(); ++i) {
+        char ch = lowercaseScheme[i];
+        if (!isAlphaNum(ch) && validSchemeChars.find(ch) == std::string::npos) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool HttpRequestParser::isValidAuthority(const std::string& authority) {
@@ -347,25 +353,18 @@ bool HttpRequestParser::isValidPath(const std::string& path) {
 
 bool HttpRequestParser::isValidQuery(const std::string& query) {
     const std::string validQueryChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-        if (!query.empty() && query[0] != '?') {
-            return false; // Query must start with '?'
+    
+    for (size_t i = 0; i < query.length(); ++i) {
+        if (!isAlphaNum(query[i]) && validQueryChars.find(query[i]) == std::string::npos) {
+            return false;
         }
+    }
 
-        for (size_t i = 0; i < query.length(); ++i) {
-            if (!isAlphaNum(query[i]) && validQueryChars.find(query[i]) == std::string::npos) {
-                return false;
-            }
-        }
-
-        return true;
+    return true;
 }
 
 bool HttpRequestParser::isValidFragment(const std::string& fragment) {
     const std::string validFragmentChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-        if (!fragment.empty() && fragment[0] != '#') {
-            return false; // Fragment must start with '#'
-        }
-
         for (size_t i = 0; i < fragment.length(); ++i) {
             if (!isAlphaNum(fragment[i]) && validFragmentChars.find(fragment[i]) == std::string::npos) {
                 return false;
@@ -392,11 +391,11 @@ void HttpRequestParser::print_uri_extracts(const std::string& uri, std::string& 
     std::cout << "scheme: " << scheme << std::endl;
     std::cout << "authority: " << authority << std::endl;
     std::cout << "path: " << path << std::endl;
-    std::cout << "query" << query << std::endl;
+    std::cout << "query: " << query << std::endl;
     std::cout << "fragment: " << fragment << std::endl;
 }
 
-bool HttpRequestParser::validateURI(const std::string& uri) {
+int HttpRequestParser::validateURI(const std::string& uri) {
     if (uri.empty()) {
         return false; // URI cannot be empty
     }
@@ -404,18 +403,29 @@ bool HttpRequestParser::validateURI(const std::string& uri) {
     // Split URI into components
     std::string scheme, authority, path, query, fragment;
     bool hasAuthority = extractComponents(uri, scheme, authority, path, query, fragment);
-
+    // print_uri_extracts(uri, scheme, authority, path, query, fragment);
 
     // Validate each component
     if (!isValidScheme(scheme)) 
-        return false;
+        return 400;
     if (hasAuthority && !isValidAuthority(authority)) 
-        return false;
+        return 400;
     if (!isValidPath(path)) 
-        return false;
+        return 404;
     if (!isValidQuery(query)) 
-        return false;
+        return 405;
     if (!isValidFragment(fragment)) 
-        return false;
-    return true; // All checks passed
+        return 406;
+    std::cout << "DEBUG\n";
+    return 200; // All checks passed
 }
+
+
+
+//  const int INVALID_SCHEME = 400;
+//     const int INVALID_USERINFO = 401;
+//     const int INVALID_HOST = 402;
+//     const int INVALID_PORT = 403;
+//     const int INVALID_PATH = 404;
+//     const int INVALID_QUERY = 405;
+//     const int INVALID_FRAGMENT = 406;
