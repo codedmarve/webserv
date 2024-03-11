@@ -15,17 +15,16 @@ int HttpRequestParser::parseRequest(const std::string &request) {
         body_ = request.substr(pos + 4);
         endOfFirstLine = headerLines.find("\r\n");
         headers = headerLines.substr(endOfFirstLine + 2);
+
         if (endOfFirstLine != std::string::npos)
             requestLine = headerLines.substr(0, endOfFirstLine);
 
         try {
-
             parseRequestLine(headerLines, endOfFirstLine);
             parseHeaders(headers);
 
-            return 200; // Successfully parsed
+            return 200;
         } catch (const std::invalid_argument& e) {
-            // Invalid method or character in method
             return 405; // Method Not Allowed
         }
 
@@ -224,137 +223,156 @@ bool HttpRequestParser::isMethodCharValid(char ch) const {
 
 
 bool HttpRequestParser::extractComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment) {
-    size_t schemeEnd = uri.find(':');
-    if (schemeEnd == std::string::npos) {
-        return false; // Missing scheme
+   size_t schemeEnd = uri.find(':');
+    if (schemeEnd != std::string::npos) {
+        scheme = uri.substr(0, schemeEnd);
+        if (schemeEnd + 3 < uri.length() && uri.substr(schemeEnd, 3) == "://") {
+            size_t authorityStart = schemeEnd + 3;
+            size_t authorityEnd = uri.find_first_of("/?#", authorityStart);
+            if (authorityEnd == std::string::npos) {
+                authorityEnd = uri.length();
+            }
+
+            authority = uri.substr(authorityStart, authorityEnd - authorityStart);
+
+            size_t pathStart = authorityEnd;
+            size_t queryStart = uri.find('?', pathStart);
+            size_t fragmentStart = uri.find('#', pathStart);
+
+            if (queryStart != std::string::npos) {
+                if (fragmentStart != std::string::npos) {
+                    path = uri.substr(pathStart, queryStart - pathStart);
+                    query = uri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
+                    fragment = uri.substr(fragmentStart + 1);
+                } else {
+                    path = uri.substr(pathStart, queryStart - pathStart);
+                    query = uri.substr(queryStart + 1);
+                }
+            } else if (fragmentStart != std::string::npos) {
+                path = uri.substr(pathStart, fragmentStart - pathStart);
+                fragment = uri.substr(fragmentStart + 1);
+            } else {
+                path = uri.substr(pathStart);
+            }
+
+            return true;
+        }
     }
 
-    scheme = uri.substr(0, schemeEnd);
-    if (schemeEnd + 3 < uri.length() && uri.substr(schemeEnd, 3) == "://") {
-        size_t authorityStart = schemeEnd + 3;
-        size_t authorityEnd = uri.find_first_of("/?#", authorityStart);
-        if (authorityEnd == std::string::npos) {
-            authorityEnd = uri.length();
-        }
+    // If no scheme is found, treat the entire URI as the path
+    size_t pathStart = 0;
+    size_t queryStart = uri.find('?', pathStart);
+    size_t fragmentStart = uri.find('#', pathStart);
 
-        authority = uri.substr(authorityStart, authorityEnd - authorityStart);
-
-        size_t pathStart = authorityEnd;
-        size_t queryStart = uri.find('?', pathStart);
-        size_t fragmentStart = uri.find('#', pathStart);
-
-        if (queryStart != std::string::npos) {
-            path = uri.substr(pathStart, queryStart - pathStart);
-        } else if (fragmentStart != std::string::npos) {
-            path = uri.substr(pathStart, fragmentStart - pathStart);
-        } else {
-            path = uri.substr(pathStart);
-        }
-
-        if (queryStart != std::string::npos) {
-            query = uri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
-        }
-
+    if (queryStart != std::string::npos) {
         if (fragmentStart != std::string::npos) {
+            path = uri.substr(pathStart, queryStart - pathStart);
+            query = uri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
             fragment = uri.substr(fragmentStart + 1);
+        } else {
+            path = uri.substr(pathStart, queryStart - pathStart);
+            query = uri.substr(queryStart + 1);
         }
-
-        return true;
+    } else if (fragmentStart != std::string::npos) {
+        path = uri.substr(pathStart, fragmentStart - pathStart);
+        fragment = uri.substr(fragmentStart + 1);
+    } else {
+        path = uri.substr(pathStart);
     }
 
-    return false; // Missing authority
+    return true;
 }
 
 bool HttpRequestParser::isValidScheme(const std::string& scheme) {
-    if (scheme.empty() || !isAlpha(scheme[0])) {
-        return false; // Scheme must start with a letter
-    }
-
-    const std::string validSchemeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-.";
-    for (size_t i = 0; i < scheme.length(); ++i) {
-        if (!isAlphaNum(scheme[i]) && validSchemeChars.find(scheme[i]) == std::string::npos) {
-            return false;
+        if (scheme.empty() || !isAlpha(scheme[0])) {
+            return false; // Scheme must start with a letter
         }
-    }
 
-    return true;
+        const std::string validSchemeChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-.";
+        for (size_t i = 0; i < scheme.length(); ++i) {
+            if (!isAlphaNum(scheme[i]) && validSchemeChars.find(scheme[i]) == std::string::npos) {
+                return false;
+            }
+        }
+
+        return true;
 }
 
 bool HttpRequestParser::isValidAuthority(const std::string& authority) {
-    size_t userinfoEnd = authority.find('@');
-    std::string userinfo = userinfoEnd != std::string::npos ? authority.substr(0, userinfoEnd) : "";
+     size_t userinfoEnd = authority.find('@');
+        std::string userinfo = userinfoEnd != std::string::npos ? authority.substr(0, userinfoEnd) : "";
 
-    size_t hostStart = userinfoEnd != std::string::npos ? userinfoEnd + 1 : 0;
-    size_t portStart = authority.find(':', hostStart);
-    std::string host = portStart != std::string::npos ? authority.substr(hostStart, portStart - hostStart) : authority.substr(hostStart);
+        size_t hostStart = userinfoEnd != std::string::npos ? userinfoEnd + 1 : 0;
+        size_t portStart = authority.find(':', hostStart);
+        std::string host = portStart != std::string::npos ? authority.substr(hostStart, portStart - hostStart) : authority.substr(hostStart);
 
-    std::string port = (portStart != std::string::npos && portStart + 1 < authority.length()) ? authority.substr(portStart + 1) : "";
+        std::string port = (portStart != std::string::npos && portStart + 1 < authority.length()) ? authority.substr(portStart + 1) : "";
 
-    const std::string validAuthorityChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:";
-    for (size_t i = 0; i < userinfo.length(); ++i) {
-        if (!isAlphaNum(userinfo[i]) && validAuthorityChars.find(userinfo[i]) == std::string::npos) {
-            return false;
+        const std::string validAuthorityChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:";
+        for (size_t i = 0; i < userinfo.length(); ++i) {
+            if (!isAlphaNum(userinfo[i]) && validAuthorityChars.find(userinfo[i]) == std::string::npos) {
+                return false;
+            }
         }
-    }
 
-    for (size_t i = 0; i < host.length(); ++i) {
-        if (!isAlphaNum(host[i]) && validAuthorityChars.find(host[i]) == std::string::npos) {
-            return false;
+        for (size_t i = 0; i < host.length(); ++i) {
+            if (!isAlphaNum(host[i]) && validAuthorityChars.find(host[i]) == std::string::npos) {
+                return false;
+            }
         }
-    }
 
-    for (size_t i = 0; i < port.length(); ++i) {
-        if (!isDigit(port[i])) {
-            return false;
+        for (size_t i = 0; i < port.length(); ++i) {
+            if (!isDigit(port[i])) {
+                return false;
+            }
         }
-    }
 
-    return true;
+        return true;
 }
 
 bool HttpRequestParser::isValidPath(const std::string& path) {
-    const std::string validPathChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-    if (!path.empty() && path[0] != '/') {
-        return false; // Path must start with '/'
-    }
-
-    for (size_t i = 0; i < path.length(); ++i) {
-        if (!isAlphaNum(path[i]) && validPathChars.find(path[i]) == std::string::npos) {
-            return false;
+     const std::string validPathChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
+        if (!path.empty() && path[0] != '/') {
+            return false; // Path must start with '/'
         }
-    }
 
-    return true;
+        for (size_t i = 0; i < path.length(); ++i) {
+            if (!isAlphaNum(path[i]) && validPathChars.find(path[i]) == std::string::npos) {
+                return false;
+            }
+        }
+
+        return true;
 }
 
 bool HttpRequestParser::isValidQuery(const std::string& query) {
     const std::string validQueryChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-    if (!query.empty() && query[0] != '?') {
-        return false; // Query must start with '?'
-    }
-
-    for (size_t i = 0; i < query.length(); ++i) {
-        if (!isAlphaNum(query[i]) && validQueryChars.find(query[i]) == std::string::npos) {
-            return false;
+        if (!query.empty() && query[0] != '?') {
+            return false; // Query must start with '?'
         }
-    }
 
-    return true;
+        for (size_t i = 0; i < query.length(); ++i) {
+            if (!isAlphaNum(query[i]) && validQueryChars.find(query[i]) == std::string::npos) {
+                return false;
+            }
+        }
+
+        return true;
 }
 
 bool HttpRequestParser::isValidFragment(const std::string& fragment) {
     const std::string validFragmentChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
-    if (!fragment.empty() && fragment[0] != '#') {
-        return false; // Fragment must start with '#'
-    }
-
-    for (size_t i = 0; i < fragment.length(); ++i) {
-        if (!isAlphaNum(fragment[i]) && validFragmentChars.find(fragment[i]) == std::string::npos) {
-            return false;
+        if (!fragment.empty() && fragment[0] != '#') {
+            return false; // Fragment must start with '#'
         }
-    }
 
-    return true;
+        for (size_t i = 0; i < fragment.length(); ++i) {
+            if (!isAlphaNum(fragment[i]) && validFragmentChars.find(fragment[i]) == std::string::npos) {
+                return false;
+            }
+        }
+
+        return true;
 }
 
 bool HttpRequestParser::isAlpha(char c) {
@@ -369,35 +387,35 @@ bool HttpRequestParser::isAlphaNum(char c) {
     return isAlpha(c) || isDigit(c);
 }
 
+void HttpRequestParser::print_uri_extracts(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment) {
+    std::cout << "uri: " << uri << "\n" << std::endl;
+    std::cout << "scheme: " << scheme << std::endl;
+    std::cout << "authority: " << authority << std::endl;
+    std::cout << "path: " << path << std::endl;
+    std::cout << "query" << query << std::endl;
+    std::cout << "fragment: " << fragment << std::endl;
+}
+
 bool HttpRequestParser::validateURI(const std::string& uri) {
     if (uri.empty()) {
         return false; // URI cannot be empty
     }
-
+    
     // Split URI into components
     std::string scheme, authority, path, query, fragment;
     bool hasAuthority = extractComponents(uri, scheme, authority, path, query, fragment);
 
+
     // Validate each component
-    if (!isValidScheme(scheme)) {
+    if (!isValidScheme(scheme)) 
         return false;
-    }
-
-    if (hasAuthority && !isValidAuthority(authority)) {
+    if (hasAuthority && !isValidAuthority(authority)) 
         return false;
-    }
-
-    if (!isValidPath(path)) {
+    if (!isValidPath(path)) 
         return false;
-    }
-
-    if (!isValidQuery(query)) {
+    if (!isValidQuery(query)) 
         return false;
-    }
-
-    if (!isValidFragment(fragment)) {
+    if (!isValidFragment(fragment)) 
         return false;
-    }
-
     return true; // All checks passed
 }
