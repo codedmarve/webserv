@@ -31,34 +31,37 @@ int main()
 
     HttpRequestParser parser;
     std::vector<std::string> testRequests;
-    
-    testRequests.push_back("GET ftp:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET ://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET 9https://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET h&%ttps://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com:port HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://@example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://exam$ple.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/invalid path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/!invalid_path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/invalid$path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/?invalid=query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/?invalid?query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/?invalid&query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/#invalid fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/#invalid$fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    testRequests.push_back("GET https://example.com/#invalid@fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
 
-    for (size_t i = 0; i < testRequests.size(); ++i) {
-        std::cout << "Validating URI: " << testRequests[i] << std::endl;
-        if (parser.validateURI(testRequests[i])) {
-            std::cout << "URI is valid!" << std::endl;
-        } else {
-            std::cout << "URI is NOT valid!" << std::endl;
-        }
-        std::cout << std::endl;
-    }
+    testRequests.push_back("GET /examplecom HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    parser.parseRequest(testRequests[0]);
+
+    // testRequests.push_back("GET ftp:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET ://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET 9https://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET h&%ttps://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com:port HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://@example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://exam$ple.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/invalid path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/!invalid_path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/invalid$path HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/?invalid=query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/?invalid?query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/?invalid&query HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/#invalid fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/#invalid$fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com/#invalid@fragment HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+
+    // for (size_t i = 0; i < testRequests.size(); ++i) {
+    //     std::cout << "Validating URI: " << testRequests[i] << std::endl;
+    //     if (parser.validateURI(testRequests[i])) {
+    //         std::cout << "URI is valid!" << std::endl;
+    //     } else {
+    //         std::cout << "URI is NOT valid!" << std::endl;
+    //     }
+    //     std::cout << std::endl;
+    // }
 
     // httpGet();
     // httpPost();

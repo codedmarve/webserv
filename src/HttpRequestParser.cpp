@@ -19,6 +19,7 @@ int HttpRequestParser::parseRequest(const std::string &request) {
             requestLine = headerLines.substr(0, endOfFirstLine);
 
         try {
+
             parseRequestLine(headerLines, endOfFirstLine);
             parseHeaders(headers);
 
@@ -135,16 +136,34 @@ void HttpRequestParser::printRequest(const std::string& request) {
     }
 }
 
+int HttpRequestParser::extractRequestLine(std::string requestLine) {
+    std::istringstream iss(requestLine);
+    size_t methodEnd;
+    size_t uriStart;
+    size_t protocolStart;
+
+    methodEnd = requestLine.find(' ');
+    uriStart = methodEnd + 1;
+    protocolStart = requestLine.rfind(' '); 
+
+    // Check if both URI and protocol positions are valid
+    if (methodEnd == std::string::npos || protocolStart == std::string::npos || protocolStart <= uriStart)
+        return 400;
+
+    // Extract METHOD, URI and Protocol
+    method_ = requestLine.substr(0, methodEnd);
+    uri_ = requestLine.substr(uriStart, protocolStart - uriStart);
+    protocol_ = requestLine.substr(protocolStart + 1);
+    return 200;
+}
 
 int HttpRequestParser::parseRequestLine(std::string headerLines, size_t eofFirstLine) {
     int status = 0;
 
     if (eofFirstLine != std::string::npos) {
         std::string requestLine = headerLines.substr(0, eofFirstLine);
-        std::istringstream iss(requestLine);
-        if (!(iss >> method_ >> uri_ >> protocol_)) {
-            return 400;
-        }
+        extractRequestLine(requestLine);
+
         try {
             status = parseMethod();
             if (status == 200) {
@@ -195,9 +214,6 @@ int HttpRequestParser::parseMethod() {
 
 bool HttpRequestParser::isMethodCharValid(char ch) const {
     // According to RFC 7230, valid characters for method are:
-    // tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*"
-    //        / "+" / "-" / "." / "^" / "_" / "`" / "|"
-    //        / "~" / DIGIT / ALPHA
     return (ch == '!' || ch == '#' || ch == '$' || ch == '%' || ch == '&' || ch == '\'' ||
             ch == '*' || ch == '+' || ch == '-' || ch == '.' || ch == '^' || ch == '_' ||
             ch == '`' || ch == '|' || ch == '~' || std::isdigit(ch) || std::isalpha(ch));
