@@ -18,7 +18,7 @@ private:
     std::map<std::string, std::string> headers_;
     std::string body_;
 
-    bool extractComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
+    bool extractURIComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
     bool isValidScheme(const std::string& scheme);
     bool isValidAuthority(const std::string& authority);
     bool isValidPath(const std::string& path);
@@ -28,6 +28,13 @@ private:
     bool isDigit(char c);
     bool isAlphaNum(char c);
     void print_uri_extracts(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
+    bool isUnreserved(char c);
+    bool isSubDelim(char c);
+    bool isHexDigit(char c);
+    bool isValidIPv6(const std::string& ipv6);
+    int isValidProtocol(const std::string& protocol);
+
+
 
 public:
     HttpRequestParser();
@@ -36,12 +43,12 @@ public:
     void parseHeaders(const std::string &headerLines);
     void parseChunkedBody(const std::string &chunkedBody);
     void parseContentLength();
-    int parseRequestLine();
+    int parseRequestLine(std::string requestLine);
     bool isMethodCharValid(char ch) const;
     int parseMethod();
     int validateURI(const std::string &uri);
     int parseRequestLine(std::string headerLines, size_t eofFirstLine);
-    int extractRequestLine(std::string requestLine);
+    int extractRequestLineData(std::string requestLine);
 
     std::string getMethod() const;
     std::string getURI() const;

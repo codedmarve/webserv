@@ -3,7 +3,6 @@
 #include <string>
 #include <vector>
 
-
 void httpGet() {
     // Test different forms of HTTP GET requests
     std::vector<std::string> requests;

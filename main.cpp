@@ -33,7 +33,7 @@ int main()
     std::vector<std::string> testRequests;
 
     testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
-    parser.parseRequest(testRequests[0]);
+    // parser.parseRequest(testRequests[0]);
 
     // testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
     // testRequests.push_back("GET ftp:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
@@ -56,7 +56,7 @@ int main()
 
     for (size_t i = 0; i < testRequests.size(); ++i) {
         // std::cout << "Validating URI: " << testRequests[i] << std::endl;
-        (parser.validateURI(testRequests[i]))
+        (parser.parseRequest(testRequests[i]))
             ? std::cout << "URI is valid!" << std::endl
             : std::cout << "URI is NOT valid!" << std::endl;
         // std::cout << "END -> \n" << std::endl;
