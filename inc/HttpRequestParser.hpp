@@ -33,6 +33,7 @@ private:
     bool isHexDigit(char c);
     bool isValidIPv6(const std::string& ipv6);
     int isValidProtocol(const std::string& protocol);
+    std::string trim(const std::string& str);
 
 
 
