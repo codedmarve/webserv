@@ -41,7 +41,7 @@ public:
     HttpRequestParser();
 
     int parseRequest(const std::string &request);
-    void parseHeaders(const std::string &headerLines);
+    int parseHeaders(const std::string &headerLines);
     void parseChunkedBody(const std::string &chunkedBody);
     void parseContentLength();
     int parseRequestLine(std::string requestLine);

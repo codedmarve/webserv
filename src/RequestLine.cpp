@@ -292,6 +292,8 @@ int HttpRequestParser::validateURI(const std::string& uri) {
     std::string scheme, authority, path, query, fragment;
     bool hasAuthority = extractURIComponents(uri, scheme, authority, path, query, fragment);
     // print_uri_extracts(uri, scheme, authority, path, query, fragment);
+
+
     // Validate each component
     if (!isValidScheme(scheme)) 
         return 400;

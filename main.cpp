@@ -32,7 +32,8 @@ int main()
     HttpRequestParser parser;
     std::vector<std::string> testRequests;
 
-    testRequests.push_back("GET /path/to/resource HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    testRequests.push_back("POST /api/users HTTP/1.1\r\nHost: api.example.com\r\nContent-Type: application/json\r\n\r\n{\"name\": \"John Doe\",\"email\": \"johndoe@example.com\",\"age\": 30,\"active\": true}"
+);
     // parser.parseRequest(testRequests[0]);
 
     // testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
@@ -57,10 +58,15 @@ int main()
     for (size_t i = 0; i < testRequests.size(); ++i) {
         // std::cout << "Validating URI: " << testRequests[i] << std::endl;
         (parser.parseRequest(testRequests[i]))
-            ? std::cout << "URI is valid!" << std::endl
-            : std::cout << "URI is NOT valid!" << std::endl;
+            ? std::cout << "URI is valid!\n" << std::endl
+            : std::cout << "URI is NOT valid!\n" << std::endl;
         // std::cout << "END -> \n" << std::endl;
     }
+    // const std::map<std::string, std::string>& headers = parser.getHeaders();
+    // std::map<std::string, std::string>::const_iterator it;
+    // for (it = headers.begin(); it != headers.end(); ++it) {
+    //     std::cout << it->first << ": " << it->second << std::endl;
+    // }
 
     // httpGet();
     // httpPost();
