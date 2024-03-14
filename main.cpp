@@ -32,7 +32,7 @@ int main()
     HttpRequestParser parser;
     std::vector<std::string> testRequests;
 
-    testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    testRequests.push_back("GET /path/to/resource HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
     // parser.parseRequest(testRequests[0]);
 
     // testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");

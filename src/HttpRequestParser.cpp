@@ -25,6 +25,7 @@ int HttpRequestParser::parseRequest(const std::string &request) {
 
         try {
             parseRequestLine(requestLine);
+            // std::cout << headers;
             parseHeaders(headers);
 
             return 200;

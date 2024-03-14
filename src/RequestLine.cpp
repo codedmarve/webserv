@@ -129,9 +129,11 @@ bool HttpRequestParser::extractURIComponents(const std::string& uri, std::string
 }
 
 bool HttpRequestParser::isValidScheme(const std::string& scheme) {
-    if (scheme.empty() || !isAlpha(scheme[0])) {
+    if (scheme.empty()) 
+        return true;
+
+    if (!isAlpha(scheme[0]))
         return false; // Scheme must start with a letter
-    }
 
     std::string lowercaseScheme = scheme;
     for (size_t i = 0; i < lowercaseScheme.length(); ++i) {
@@ -150,6 +152,8 @@ bool HttpRequestParser::isValidScheme(const std::string& scheme) {
 }
 
 bool HttpRequestParser::isValidAuthority(const std::string& authority) {
+    if (authority.empty())
+        return true;
     size_t userinfoEnd = authority.find('@');
     std::string userinfo = userinfoEnd != std::string::npos ? authority.substr(0, userinfoEnd) : "";
 
@@ -232,6 +236,8 @@ bool HttpRequestParser::isValidPath(const std::string& path) {
 
 
 bool HttpRequestParser::isValidQuery(const std::string& query) {
+    if (query.empty())
+        return true;
     const std::string validQueryChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
     
     for (size_t i = 0; i < query.length(); ++i) {
@@ -254,6 +260,8 @@ bool HttpRequestParser::isValidQuery(const std::string& query) {
 }
 
 bool HttpRequestParser::isValidFragment(const std::string& fragment) {
+    if (fragment.empty())
+        return true;
     const std::string validFragmentChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
     
     for (size_t i = 0; i < fragment.length(); ++i) {
