@@ -353,18 +353,14 @@ bool HttpRequestParser::isValidIPv6(const std::string& ipv6) {
 }
 
 int HttpRequestParser::isValidProtocol(const std::string& protocol) {
-    // Protocol must start with "HTTP/". Format should be "HTTP/x.y"
+    // Format should be "HTTP/x.y"
     if (protocol.substr(0, 5) != "HTTP/")
         return false;
 
     // Check version format
     std::string version = protocol.substr(5);
-    if (version.size() < 3)
+    if (version.size() < 3 || version[0] != '1' || version[1] != '.')
         return 505; // Not Supported
-
-    if (version[0] != '1' || version[1] != '.') {
-        return 505;
-    }
 
     // Check if the rest of the version are digits
     for (size_t i = 2; i < version.size(); i++) {

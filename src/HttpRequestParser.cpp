@@ -9,6 +9,9 @@ int HttpRequestParser::parseRequest(const std::string &request) {
     std::string headers;
     std::string requestLine;
 
+    // init data
+    isChunked_ = false;
+
     pos = request.find("\r\n\r\n");
     if (pos != std::string::npos)
     {

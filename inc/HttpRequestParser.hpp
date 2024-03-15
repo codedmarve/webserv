@@ -17,6 +17,9 @@ private:
     std::string protocol_;
     std::map<std::string, std::string> headers_;
     std::string body_;
+    bool isChunked_;
+    size_t length_;
+    int chunk_size_;
 
     bool extractURIComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
     bool isValidScheme(const std::string& scheme);
