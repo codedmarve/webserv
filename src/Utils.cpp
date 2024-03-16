@@ -71,3 +71,12 @@ std::string HttpRequestParser::trim(const std::string& str) {
     return str.substr(start, end - start + 1);
 }
 
+unsigned int HttpRequestParser::hexToDecimal(const std::string& hex) {
+    std::stringstream ss;
+    ss << std::hex << hex;
+    unsigned int decimal;
+    if (!(ss >> decimal)) {
+        throw std::invalid_argument("Invalid hex value");
+    }
+    return decimal;
+}

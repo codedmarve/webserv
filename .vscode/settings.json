@@ -72,7 +72,8 @@
     "mutex": "cpp",
     "ratio": "cpp",
     "variant": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "regex": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "clang",
   "C_Cpp_Runner.cppCompilerPath": "clang++",

@@ -38,6 +38,7 @@ private:
     int isValidProtocol(const std::string& protocol);
     std::string trim(const std::string& str);
 
+    unsigned int hexToDecimal(const std::string& hex);
 
 
 public:
@@ -45,7 +46,9 @@ public:
 
     int parseRequest(const std::string &request);
     int parseHeaders(const std::string &headerLines);
-    void parseChunkedBody(const std::string &chunkedBody);
+    // void parseChunkedBody(const std::string &chunkedBody);
+    std::string parseBody(const std::string& contentType);
+    void parseChunkedBody(const std::string& chunkedBody);
     void parseContentLength();
     int parseRequestLine(std::string requestLine);
     bool isMethodCharValid(char ch) const;
@@ -61,6 +64,22 @@ public:
     std::string getBody() const;
 
     void printRequest(const std::string& request);
+
+
+
+    bool validateJson(const std::string& jsonString);
+    bool isValidClosingBracket(char opening, char closing);
+    std::string extractTag(const std::string& line);
+    bool validateXml(const std::string& xmlString);
+    bool isValidKeyValuePair(const std::string& pair);
+    bool isValidUrlEncoded(const std::string& str);
+    bool validateFormData(const std::string& formData);
+    bool validatePlainText(const std::string& text);
+    bool isPrintableAscii(char c);
+    std::vector<std::string> splitMultipartData(const std::string& data, const std::string& boundary);
+    bool validateMultipartData(const std::string& data, const std::string& boundary);
+    bool  validateBinaryData (std::string data);
+
 
 };
 

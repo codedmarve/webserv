@@ -62,11 +62,11 @@ int main()
             : std::cout << "URI is NOT valid!\n" << std::endl;
         // std::cout << "END -> \n" << std::endl;
     }
-    // const std::map<std::string, std::string>& headers = parser.getHeaders();
-    // std::map<std::string, std::string>::const_iterator it;
-    // for (it = headers.begin(); it != headers.end(); ++it) {
-    //     std::cout << it->first << ": " << it->second << std::endl;
-    // }
+    const std::map<std::string, std::string>& headers = parser.getHeaders();
+    std::map<std::string, std::string>::const_iterator it;
+    for (it = headers.begin(); it != headers.end(); ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
 
     // httpGet();
     // httpPost();
