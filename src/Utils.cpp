@@ -40,13 +40,13 @@ bool HttpRequestParser::isAlphaNum(char c) {
     return isAlpha(c) || isDigit(c);
 }
 
-void HttpRequestParser::print_uri_extracts(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment) {
-    std::cout << "uri: " << uri << "\n" << std::endl;
-    std::cout << "scheme: " << scheme << std::endl;
-    std::cout << "authority: " << authority << std::endl;
-    std::cout << "path: " << path << std::endl;
-    std::cout << "query: " << query << std::endl;
-    std::cout << "fragment: " << fragment << std::endl;
+void HttpRequestParser::print_uri_extracts() {
+    std::cout << "uri: " << uri_ << "\n" << std::endl;
+    std::cout << "scheme: " << scheme_ << std::endl;
+    std::cout << "authority: " << authority_ << std::endl;
+    std::cout << "path: " << path_ << std::endl;
+    std::cout << "query: " << query_ << std::endl;
+    std::cout << "fragment: " << frag_ << std::endl;
 }
 
 

@@ -17,11 +17,16 @@ private:
     std::string protocol_;
     std::map<std::string, std::string> headers_;
     std::string body_;
+    std::string scheme_;
+    std::string authority_;
+    std::string path_;
+    std::string query_;
+    std::string frag_;
     bool isChunked_;
     size_t length_;
     int chunk_size_;
 
-    bool extractURIComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
+    bool extractURIComponents();
     bool isValidScheme(const std::string& scheme);
     bool isValidAuthority(const std::string& authority);
     bool isValidPath(const std::string& path);
@@ -30,7 +35,7 @@ private:
     bool isAlpha(char c);
     bool isDigit(char c);
     bool isAlphaNum(char c);
-    void print_uri_extracts(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment);
+    void print_uri_extracts();
     bool isUnreserved(char c);
     bool isSubDelim(char c);
     bool isHexDigit(char c);
@@ -53,7 +58,7 @@ public:
     int parseRequestLine(std::string requestLine);
     bool isMethodCharValid(char ch) const;
     int parseMethod();
-    int validateURI(const std::string &uri);
+    int validateURI();
     int parseRequestLine(std::string headerLines, size_t eofFirstLine);
     int extractRequestLineData(std::string requestLine);
 

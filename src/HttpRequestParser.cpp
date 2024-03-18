@@ -15,19 +15,21 @@ int HttpRequestParser::parseRequest(const std::string &request) {
     pos = request.find("\r\n\r\n");
     if (pos != std::string::npos)
     {
-        headerLines = request.substr(0, pos);
+        headerLines = request.substr(0, pos + 2);
+
         body_ = request.substr(pos + 4);
         endOfFirstLine = headerLines.find("\r\n");
         
-        headers = headerLines.substr(endOfFirstLine + 2);
-
-        if (endOfFirstLine != std::string::npos)
-            requestLine = headerLines.substr(0, endOfFirstLine);
-        else
-            return 400;
 
         try {
-            parseRequestLine(requestLine);
+            if (endOfFirstLine != std::string::npos)
+            {
+                requestLine = headerLines.substr(0, endOfFirstLine);
+                headers = headerLines.substr(endOfFirstLine + 2);
+                parseRequestLine(requestLine);
+                if (headers.empty() && authority_.empty())
+                    return 400;
+            }
             parseHeaders(headers);
 
             return 200;

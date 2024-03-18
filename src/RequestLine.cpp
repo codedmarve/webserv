@@ -31,7 +31,7 @@ int HttpRequestParser::parseRequestLine(std::string requestLine) {
         status = parseMethod();
         if (status != 200)
             std::cout << "METHOD is invalid -> Error code: " << status << std::endl;
-        status = validateURI(uri_);
+        status = validateURI();
         if (status != 200) 
             std::cout << "URI is invalid -> Error code: " << status << std::endl;
         status = isValidProtocol(protocol_);
@@ -67,37 +67,37 @@ int HttpRequestParser::parseMethod() {
     return 200; // OK
 }
 
-bool HttpRequestParser::extractURIComponents(const std::string& uri, std::string& scheme, std::string& authority, std::string& path, std::string& query, std::string& fragment) {
-   size_t schemeEnd = uri.find(':');
+bool HttpRequestParser::extractURIComponents() {
+   size_t schemeEnd = uri_.find(':');
     if (schemeEnd != std::string::npos) {
-        scheme = uri.substr(0, schemeEnd);
-        if (schemeEnd + 3 < uri.length() && uri.substr(schemeEnd, 3) == "://") {
+        scheme_ = uri_.substr(0, schemeEnd);
+        if (schemeEnd + 3 < uri_.length() && uri_.substr(schemeEnd, 3) == "://") {
             size_t authorityStart = schemeEnd + 3;
-            size_t authorityEnd = uri.find_first_of("/?#", authorityStart);
+            size_t authorityEnd = uri_.find_first_of("/?#", authorityStart);
             if (authorityEnd == std::string::npos) {
-                authorityEnd = uri.length();
+                authorityEnd = uri_.length();
             }
 
-            authority = uri.substr(authorityStart, authorityEnd - authorityStart);
+            authority_ = uri_.substr(authorityStart, authorityEnd - authorityStart);
 
             size_t pathStart = authorityEnd;
-            size_t queryStart = uri.find('?', pathStart);
-            size_t fragmentStart = uri.find('#', pathStart);
+            size_t queryStart = uri_.find('?', pathStart);
+            size_t fragmentStart = uri_.find('#', pathStart);
 
             if (queryStart != std::string::npos) {
                 if (fragmentStart != std::string::npos) {
-                    path = uri.substr(pathStart, queryStart - pathStart);
-                    query = uri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
-                    fragment = uri.substr(fragmentStart + 1);
+                    path_ = uri_.substr(pathStart, queryStart - pathStart);
+                    query_ = uri_.substr(queryStart + 1, fragmentStart - (queryStart + 1));
+                    frag_ = uri_.substr(fragmentStart + 1);
                 } else {
-                    path = uri.substr(pathStart, queryStart - pathStart);
-                    query = uri.substr(queryStart + 1);
+                    path_ = uri_.substr(pathStart, queryStart - pathStart);
+                    query_ = uri_.substr(queryStart + 1);
                 }
             } else if (fragmentStart != std::string::npos) {
-                path = uri.substr(pathStart, fragmentStart - pathStart);
-                fragment = uri.substr(fragmentStart + 1);
+                path_ = uri_.substr(pathStart, fragmentStart - pathStart);
+                frag_ = uri_.substr(fragmentStart + 1);
             } else {
-                path = uri.substr(pathStart);
+                path_ = uri_.substr(pathStart);
             }
 
             return true;
@@ -106,23 +106,23 @@ bool HttpRequestParser::extractURIComponents(const std::string& uri, std::string
 
     // If no scheme is found, treat the entire URI as the path
     size_t pathStart = 0;
-    size_t queryStart = uri.find('?', pathStart);
-    size_t fragmentStart = uri.find('#', pathStart);
+    size_t queryStart = uri_.find('?', pathStart);
+    size_t fragmentStart = uri_.find('#', pathStart);
 
     if (queryStart != std::string::npos) {
         if (fragmentStart != std::string::npos) {
-            path = uri.substr(pathStart, queryStart - pathStart);
-            query = uri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
-            fragment = uri.substr(fragmentStart + 1);
+            path_ = uri_.substr(pathStart, queryStart - pathStart);
+            query_ = uri_.substr(queryStart + 1, fragmentStart - (queryStart + 1));
+            frag_ = uri_.substr(fragmentStart + 1);
         } else {
-            path = uri.substr(pathStart, queryStart - pathStart);
-            query = uri.substr(queryStart + 1);
+            path_ = uri_.substr(pathStart, queryStart - pathStart);
+            query_ = uri_.substr(queryStart + 1);
         }
     } else if (fragmentStart != std::string::npos) {
-        path = uri.substr(pathStart, fragmentStart - pathStart);
-        fragment = uri.substr(fragmentStart + 1);
+        path_ = uri_.substr(pathStart, fragmentStart - pathStart);
+        frag_ = uri_.substr(fragmentStart + 1);
     } else {
-        path = uri.substr(pathStart);
+        path_ = uri_.substr(pathStart);
     }
 
     return true;
@@ -283,27 +283,26 @@ bool HttpRequestParser::isValidFragment(const std::string& fragment) {
     return true;
 }
 
-int HttpRequestParser::validateURI(const std::string& uri) {
-    if (uri.empty()) {
+int HttpRequestParser::validateURI() {
+    if (uri_.empty()) {
         return false; // URI cannot be empty
     }
     
     // Split URI into components
-    std::string scheme, authority, path, query, fragment;
-    bool hasAuthority = extractURIComponents(uri, scheme, authority, path, query, fragment);
-    // print_uri_extracts(uri, scheme, authority, path, query, fragment);
+    bool hasAuthority = extractURIComponents();
+    // print_uri_extracts();
 
 
     // Validate each component
-    if (!isValidScheme(scheme)) 
+    if (!isValidScheme(scheme_)) 
         return 400;
-    if (hasAuthority && !isValidAuthority(authority)) 
+    if (hasAuthority && !isValidAuthority(authority_)) 
         return 400;
-    if (!isValidPath(path)) 
+    if (!isValidPath(path_)) 
         return 404;
-    if (!isValidQuery(query)) 
+    if (!isValidQuery(query_)) 
         return 405;
-    if (!isValidFragment(fragment)) 
+    if (!isValidFragment(frag_)) 
         return 406;
     return 200; // All checks passed
 }

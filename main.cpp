@@ -32,11 +32,10 @@ int main()
     HttpRequestParser parser;
     std::vector<std::string> testRequests;
 
-    testRequests.push_back("POST /api/users HTTP/1.1\r\nHost: api.example.com\r\nContent-Type: application/json\r\n\r\n{\"name\": \"John Doe\",\"email\": \"johndoe@example.com\",\"age\": 30,\"active\": true}"
-);
+    testRequests.push_back("POST /api/users HTTP/1.1\r\nContent-Type: application/json\r\nContent-Length: 42\r\n\r\n{\"name\": \"John Doe\",\"email\": \"johndoe@example.com\",\"age\": 30,\"active\": true}");
     // parser.parseRequest(testRequests[0]);
 
-    // testRequests.push_back("GET https://www.example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
+    // testRequests.push_back("GET https://example.com:8080/path/to/resource?param1=value1&param2=value2#section2 HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
     // testRequests.push_back("GET ftp:/example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
     // testRequests.push_back("GET ://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
     // testRequests.push_back("GET 9https://example.com HTTP/1.1\r\nHost: www.example.com\r\n\r\n");
