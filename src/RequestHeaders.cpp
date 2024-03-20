@@ -60,7 +60,7 @@ int HttpRequestParser::parseHeaders(const std::string& headerLines) {
             }
         }
     }
-    if (headers_["Host"].empty() && authority_.empty())
+    if ((headers_.find("Host") != headers_.end() && authority_.empty()))
         return 400;
 
     return 200; // OK: Headers parsed successfully

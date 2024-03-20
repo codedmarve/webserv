@@ -2,7 +2,7 @@
 
 HttpRequestParser::HttpRequestParser() {}
 
-int HttpRequestParser::parseRequest(const std::string &request) {
+int HttpRequestParser::parseRequest(const std::string &buffer) {
     size_t pos;
     std::string headerLines;
     size_t endOfFirstLine;
@@ -10,14 +10,16 @@ int HttpRequestParser::parseRequest(const std::string &request) {
     std::string requestLine;
 
     // init data
+    request_ = "";
     isChunked_ = false;
+    request_ += buffer;
 
-    pos = request.find("\r\n\r\n");
+    pos = request_.find("\r\n\r\n");
     if (pos != std::string::npos)
     {
-        headerLines = request.substr(0, pos + 2);
+        headerLines = request_.substr(0, pos + 2);
 
-        body_ = request.substr(pos + 4);
+        body_ = request_.substr(pos + 4);
         endOfFirstLine = headerLines.find("\r\n");
         
 

@@ -12,6 +12,7 @@
 
 class HttpRequestParser {
 private:
+    std::string request_;
     std::string method_;
     std::string uri_;
     std::string protocol_;
