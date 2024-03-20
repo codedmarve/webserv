@@ -83,10 +83,3 @@ std::string HttpRequestParser::getBody() const {
 
 
 
-//  const int INVALID_SCHEME = 400;
-//     const int INVALID_USERINFO = 401;
-//     const int INVALID_HOST = 402;
-//     const int INVALID_PORT = 403;
-//     const int INVALID_PATH = 404;
-//     const int INVALID_QUERY = 405;
-//     const int INVALID_FRAGMENT = 406;

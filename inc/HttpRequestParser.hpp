@@ -28,7 +28,7 @@ private:
 
     bool extractURIComponents();
     bool isValidScheme(const std::string& scheme);
-    bool isValidAuthority(const std::string& authority);
+    int isValidAuthority(const std::string& authority);
     bool isValidPath(const std::string& path);
     bool isValidQuery(const std::string& query);
     bool isValidFragment(const std::string& fragment);

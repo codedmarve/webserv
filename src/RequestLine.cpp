@@ -151,9 +151,9 @@ bool HttpRequestParser::isValidScheme(const std::string& scheme) {
     return true;
 }
 
-bool HttpRequestParser::isValidAuthority(const std::string& authority) {
+int HttpRequestParser::isValidAuthority(const std::string& authority) {
     if (authority.empty())
-        return true;
+        return 400;
     size_t userinfoEnd = authority.find('@');
     std::string userinfo = userinfoEnd != std::string::npos ? authority.substr(0, userinfoEnd) : "";
 
@@ -166,26 +166,26 @@ bool HttpRequestParser::isValidAuthority(const std::string& authority) {
     const std::string validAuthorityChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:";
     for (size_t i = 0; i < userinfo.length(); ++i) {
         if (!isUnreserved(userinfo[i]) && !isSubDelim(userinfo[i]) && userinfo[i] != ':') {
-            return false;
+            return 401;
         }
     }
 
     // Check host, allowing for IPv6 and percent-encoded characters
     if (host.empty()) {
-        return false; // Host cannot be empty
+        return 402; // Host cannot be empty
     }
 
     if (host[0] == '[' && host[host.length() - 1] == ']') {
         // IPv6 address format, remove brackets for validation
         std::string ipv6Host = host.substr(1, host.length() - 2);
         if (!isValidIPv6(ipv6Host)) {
-            return false;
+            return 402;
         }
     } else {
         // Regular hostname or IPv4 address
         for (size_t i = 0; i < host.length(); ++i) {
             if (!isUnreserved(host[i]) && !isSubDelim(host[i]) && host[i] != ':') {
-                return false;
+                return 402;
             }
         }
     }
@@ -194,16 +194,16 @@ bool HttpRequestParser::isValidAuthority(const std::string& authority) {
     if (!port.empty()) {
         for (size_t i = 0; i < port.length(); ++i) {
             if (!isDigit(port[i])) {
-                return false;
+                return 403;
             }
         }
         int portValue = atoi(port.c_str());
         if (portValue < 0 || portValue > 65535) {
-            return false; // Port out of valid range
+            return 403; // Port out of valid range
         }
     }
 
-    return true;
+    return 200;
 }
 
 
@@ -369,3 +369,19 @@ int HttpRequestParser::isValidProtocol(const std::string& protocol) {
 
     return 200;
 }
+
+
+
+
+
+
+
+
+
+//  const int INVALID_SCHEME = 400;
+//     const int INVALID_USERINFO = 401;
+//     const int INVALID_HOST = 402;
+//     const int INVALID_PORT = 403;
+//     const int INVALID_PATH = 404;
+//     const int INVALID_QUERY = 405;
+//     const int INVALID_FRAGMENT = 406;
