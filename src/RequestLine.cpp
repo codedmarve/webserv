@@ -22,24 +22,36 @@ int HttpRequestParser::extractRequestLineData(std::string requestLine) {
     return 200;
 }
 
-int HttpRequestParser::parseRequestLine(std::string requestLine) {
-    int status = 0;
+int HttpRequestParser::parseRequestLine(std::string buffer) {
+    int httpStatus = 0;
+    size_t endOfFirstLine;
+    std::string requestLine;
+
+    endOfFirstLine = buffer.find("\r\n");
+    if (endOfFirstLine != std::string::npos)
+        requestLine = buffer.substr(0, endOfFirstLine);
+    else
+        return 400;
 
     extractRequestLineData(requestLine);
 
     try {
-        status = parseMethod();
-        if (status != 200)
-            std::cout << "METHOD is invalid -> Error code: " << status << std::endl;
-        status = validateURI();
-        if (status != 200) 
-            std::cout << "URI is invalid -> Error code: " << status << std::endl;
-        status = isValidProtocol(protocol_);
-        if (status != 200) 
-            std::cout << "Protocol is invalid -> Error code: " << status << std::endl;
-        return 200; // Successfully parsed
-    } catch (const std::invalid_argument& e) {
-        // Invalid method or character in method
+        httpStatus = parseMethod();
+        if (httpStatus != 200)
+            std::cout << "METHOD is invalid -> Error code: " << httpStatus << std::endl;
+        httpStatus = validateURI();
+        if (httpStatus != 200) 
+            std::cout << "URI is invalid -> Error code: " << httpStatus << std::endl;
+        httpStatus = isValidProtocol(protocol_);
+        if (httpStatus != 200) 
+            std::cout << "Protocol is invalid -> Error code: " << httpStatus << std::endl;
+
+        if (httpStatus == 200){ // Update buffer_section_ to indicate the next section to process
+            buffer_section_ = HEADERS;
+            buffer.erase(0, endOfFirstLine + 2); // +2 to also remove the "\r\n"
+        }
+        return httpStatus;
+    } catch (const std::invalid_argument& e) { // Invalid method or char in method
         return 405; // Method Not Allowed
     }
 }

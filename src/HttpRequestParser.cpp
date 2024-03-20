@@ -29,25 +29,15 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
 
     if (buffer_section_ == REQUEST_LINE)
     {
-        endOfFirstLine = req_buffer_.find("\r\n");
-        if (endOfFirstLine != std::string::npos)
-        {
-            requestLine = req_buffer_.substr(0, endOfFirstLine);
-            httpStatus = parseRequestLine(requestLine);
-            // if (headers.empty() && authority_.empty())
-            //     return 400;
-        } else {
 
-        }
-        // httpStatus = requestLine(request_);
+        httpStatus = parseRequestLine(req_buffer_); 
     }
     
     if (buffer_section_ == HEADERS)
     {
-        // httpStatus = parseHeaders();
+        httpStatus = parseHeaders();
     }
-    // if (buffer_section_ == PREBODY)
-    //     httpStatus = prebody();
+
     // if (buffer_section_ == BODY)
     //     httpStatus = body();
     // if (buffer_section_ == CHUNK)

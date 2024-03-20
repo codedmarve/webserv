@@ -56,7 +56,7 @@ public:
     ~HttpRequestParser();
 
     int parseRequest(std::string &buffer);
-    int parseHeaders(const std::string &headerLines);
+    // int parseHeaders(const std::string &headerLines);
     // void parseChunkedBody(const std::string &chunkedBody);
     std::string parseBody(const std::string& contentType);
     void parseChunkedBody(const std::string& chunkedBody);
@@ -65,7 +65,7 @@ public:
     bool isMethodCharValid(char ch) const;
     int parseMethod();
     int validateURI();
-    int parseRequestLine(std::string headerLines, size_t eofFirstLine);
+    // int parseRequestLine(std::string headerLines, size_t eofFirstLine);
     int extractRequestLineData(std::string requestLine);
 
     std::string getMethod() const;
@@ -121,6 +121,7 @@ public:
     bool isValidHeaderChar(char c);
     bool isValidHeaderFormat(const std::string& header, const std::string& value);
     int parseHeaders();
+    int parseRequestLine(std::string buffer);
 };
 
 #endif
