@@ -61,7 +61,7 @@ public:
     std::string parseBody(const std::string& contentType);
     void parseChunkedBody(const std::string& chunkedBody);
     void parseContentLength();
-    int parseRequestLine(std::string requestLine);
+    // int parseRequestLine(std::string requestLine);
     bool isMethodCharValid(char ch) const;
     int parseMethod();
     int validateURI();
@@ -102,7 +102,6 @@ public:
     enum Section {
         REQUEST_LINE,
         HEADERS,
-        PREBODY,
         BODY,
         CHUNK,
         COMPLETE,
@@ -121,7 +120,7 @@ public:
     bool isValidHeaderChar(char c);
     bool isValidHeaderFormat(const std::string& header, const std::string& value);
     int parseHeaders();
-    int parseRequestLine(std::string buffer);
+    int parseRequestLine();
 };
 
 #endif

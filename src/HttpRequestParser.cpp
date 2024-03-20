@@ -17,9 +17,7 @@ HttpRequestParser::~HttpRequestParser() {
 
 int HttpRequestParser::parseRequest(std::string &buffer) {
     size_t httpStatus = 0;
-    // size_t pos;
     std::string headerLines;
-    size_t endOfFirstLine;
     std::string headers;
     std::string requestLine;
 
@@ -28,15 +26,10 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     buffer.clear();
 
     if (buffer_section_ == REQUEST_LINE)
-    {
-
-        httpStatus = parseRequestLine(req_buffer_); 
-    }
+        httpStatus = parseRequestLine();
     
     if (buffer_section_ == HEADERS)
-    {
         httpStatus = parseHeaders();
-    }
 
     // if (buffer_section_ == BODY)
     //     httpStatus = body();
