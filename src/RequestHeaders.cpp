@@ -156,33 +156,33 @@ bool HttpRequestParser::isValidHeaderFormat(const std::string& header, const std
 
 
 bool HttpRequestParser::isValidHeaderChar(char c) {
-    // Valid characters for header: A-Z, a-z, 0-9, '-', '_', and '.'
+    // Valid characters: A-Z, a-z, 0-9, '-', '_', and '.'
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
            (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.';
 }
 
 bool HttpRequestParser::isValidHeaderValueChar(char c) {
-    // Valid characters for header value: Any printable ASCII character except ':'
+    // Any printable ASCII character except ':'
     return (c >= 32 && c <= 126) && c != ':';
 }
 
-void HttpRequestParser::handleSpecialHeaders(const std::string& header, const std::string& value) {
+void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::string& value) {
     // Check for "Transfer-Encoding" header
-    if (header == "Transfer-Encoding" && value == "chunked") {
+    if (key == "Transfer-Encoding" && value == "chunked") {
         isChunked_ = true;
     }
 
     // Check for "Content-Length" header
-    if (header == "Content-Length") {
+    if (key == "Content-Length") {
         // Check if the value is a valid integer
         if (value.find_first_not_of("0123456789") != std::string::npos) {
             std::cerr << "Invalid 'Content-Length' header value." << std::endl;
             throw std::invalid_argument("Invalid 'Content-Length' header value");
         }
 
-        // Convert the value to an integer
+        
         try {
-             std::istringstream iss(value);
+             std::istringstream iss(value); // Convert the value to an integer
             iss >> length_;
         } catch (const std::exception& e) {
             std::cerr << "Error parsing 'Content-Length' header: " << e.what() << std::endl;
@@ -191,16 +191,18 @@ void HttpRequestParser::handleSpecialHeaders(const std::string& header, const st
     }
 
     // Check for "Host" header
-    if (header == "Host") {
+    if (key == "Host") {
         // If Host header is empty or contains '@', it's invalid
         if (value.empty() || value.find('@') != std::string::npos) {
             std::cerr << "Invalid 'Host' header value." << std::endl;
             throw std::invalid_argument("Invalid 'Host' header value");
         }
+        /// @todo validate host using our validate uri method and make "@" valid
     }
 
     // Method Check
-    if (header == "Method") {
+    if (key == "Method") {
+        /// @todo this part needs to be thought through
         // If Method is not "POST" or "PUT", it's invalid
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;

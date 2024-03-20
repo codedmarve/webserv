@@ -28,6 +28,8 @@ bool HttpRequestParser::isMethodCharValid(char ch) const {
             ch == '`' || ch == '|' || ch == '~' || std::isdigit(ch) || std::isalpha(ch));
 }
 
+
+
 bool HttpRequestParser::isAlpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
