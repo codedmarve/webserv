@@ -34,4 +34,46 @@
 
 
 
+std::string HttpRequestParser::parseBody(const std::string& contentType) {
 
+    if (request_.length() >= length_)
+    {
+        
+    }
+
+
+    if (isChunked_) {
+        // Parse chunked body
+        parseChunkedBody(body_);
+    }
+
+    // Additional validation or parsing logic based on content type
+    if (contentType.find("application/json") != std::string::npos) {
+        // JSON body
+        validateJson(body_);
+        return body_;
+    } else if (contentType.find("application/xml") != std::string::npos) {
+        // XML body
+        validateXml(body_);
+        return body_;
+    } else if (contentType.find("application/x-www-form-urlencoded") != std::string::npos) {
+        // Form data
+        validateFormData(body_);
+        return body_;
+    } else if (contentType.find("text/plain") != std::string::npos) {
+        // Plain text body
+        validatePlainText(body_);
+        return body_;
+    } else if (contentType.find("multipart/form-data") != std::string::npos) {
+        // Multipart data
+        // validateMultipartData(body_);
+        return body_;
+    } else if (contentType.find("application/octet-stream") != std::string::npos) {
+        // Binary data
+        validateBinaryData(body_);
+        return body_;
+    } else {
+        // Unsupported content type
+        throw std::runtime_error("Unsupported content type: " + contentType);
+    }
+}
