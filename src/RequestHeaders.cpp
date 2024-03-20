@@ -91,61 +91,50 @@ int HttpRequestParser::parseHeaders() {
     std::string headerVal;
 
     while ((headerEnd = req_buffer_.find("\r\n")) != std::string::npos) {
-        // if /r/n is in index 0 it would mean end of headers
-        if (req_buffer_.find("\r\n") == 0) {
+        
+        if (req_buffer_.find("\r\n") == 0) { // if /r/n is in index 0 it would mean end of headers
             req_buffer_.erase(0, headerEnd + 2);
             buffer_section_ = BODY;
             break;
         }
 
-        // find header key
+        // find headerKey
         if ((colonPos = req_buffer_.find(':', 0)) != std::string::npos) {
             if (colonPos == 0 || req_buffer_[colonPos - 1] == ' ')
-                return 400; // Bad Request: Invalid header format
+                return 400;
 
-            headerKey = req_buffer_.substr(0, colonPos);
-            headerVal = req_buffer_.substr(colonPos + 1, headerEnd - colonPos - 1);
+            headerKey = trimmer(req_buffer_.substr(0, colonPos));
+            headerVal = trimmer(req_buffer_.substr(colonPos + 1, headerEnd - colonPos - 1));
 
-            // Remove leading and trailing whitespaces from header and value
-            headerKey = trimmer(headerKey);
-            headerVal = trimmer(headerVal);
-
-            // Check for valid header format
             if (!isValidHeaderFormat(headerKey, headerVal))
-                return 400; // Bad Request: Invalid header format
+                return 400;
             
-
-             // Special handling for headers
             try {
                 handleSpecialHeaders(headerKey, headerVal);
             } catch (const std::invalid_argument& e) {
                 std::cerr << "Error processing header: " << e.what() << std::endl;
-                return 400; // Bad Request: Invalid header value
+                return 400;
             }
 
-            // Store the header key-value pair
             headers_[headerKey] = headerVal;
         } else {
-            return 400; // Bad Request: Invalid header format
+            return 400;
         }
         req_buffer_.erase(0, headerEnd + 2);
     }
 
-    return 200; // OK: Headers parsed successfully
+    return 200;
 }
 
 bool HttpRequestParser::isValidHeaderFormat(const std::string& header, const std::string& value) {
-    // Check for empty header or value
     if (header.empty() || value.empty())
         return false;
 
-    // Check for valid header characters
     for (std::string::const_iterator it = header.begin(); it != header.end(); ++it) {
         if (!isValidHeaderChar(*it))
             return false;
     }
 
-    // Check for valid value characters
     for (std::string::const_iterator it = value.begin(); it != value.end(); ++it) {
         if (!isValidHeaderValueChar(*it))
             return false;
@@ -167,20 +156,15 @@ bool HttpRequestParser::isValidHeaderValueChar(char c) {
 }
 
 void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::string& value) {
-    // Check for "Transfer-Encoding" header
-    if (key == "Transfer-Encoding" && value == "chunked") {
+    if (key == "Transfer-Encoding" && value == "chunked")
         isChunked_ = true;
-    }
 
-    // Check for "Content-Length" header
     if (key == "Content-Length") {
-        // Check if the value is a valid integer
         if (value.find_first_not_of("0123456789") != std::string::npos) {
             std::cerr << "Invalid 'Content-Length' header value." << std::endl;
             throw std::invalid_argument("Invalid 'Content-Length' header value");
         }
 
-        
         try {
              std::istringstream iss(value); // Convert the value to an integer
             iss >> length_;
@@ -190,9 +174,7 @@ void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::
         }
     }
 
-    // Check for "Host" header
     if (key == "Host") {
-        // If Host header is empty or contains '@', it's invalid
         if (value.empty() || value.find('@') != std::string::npos) {
             std::cerr << "Invalid 'Host' header value." << std::endl;
             throw std::invalid_argument("Invalid 'Host' header value");
@@ -200,10 +182,8 @@ void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::
         /// @todo validate host using our validate uri method and make "@" valid
     }
 
-    // Method Check
     if (key == "Method") {
         /// @todo this part needs to be thought through
-        // If Method is not "POST" or "PUT", it's invalid
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;
             throw std::invalid_argument("Unsupported HTTP method");
