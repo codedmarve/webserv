@@ -156,8 +156,11 @@ bool HttpRequestParser::isValidHeaderValueChar(char c) {
 }
 
 void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::string& value) {
-    if (key == "Transfer-Encoding" && value == "chunked")
+    if (key == "Transfer-Encoding" && value == "chunked") {
         isChunked_ = true;
+        buffer_section_ = CHUNK;
+        chunk_status_ = CHUNK_SIZE;
+    }
 
     if (key == "Content-Length") {
         if (value.find_first_not_of("0123456789") != std::string::npos) {

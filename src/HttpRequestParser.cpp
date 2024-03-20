@@ -31,18 +31,20 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     if (buffer_section_ == HEADERS)
         httpStatus = parseHeaders();
 
-    // if (buffer_section_ == BODY)
-    //     httpStatus = body();
-    // if (buffer_section_ == CHUNK)
-    //     httpStatus = chunk();
-    // if (buffer_section_== COMPLETE || httpStatus == 1) {
-    //     buffer_section_ = COMPLETE;
-    //     return httpStatus;
-    // }
-    // else if (buffer_section_ == ERROR || httpStatus > 1) {
-    //     buffer_section_ = ERROR;
-    //     return httpStatus;
-    // }
+    if (buffer_section_ == BODY)
+        httpStatus = parseBody();
+
+    if (buffer_section_ == CHUNK)
+        httpStatus = parseChunkedBody();
+
+    if (buffer_section_== COMPLETE || httpStatus == 1) {
+        buffer_section_ = COMPLETE;
+        return httpStatus;
+    }
+    else if (buffer_section_ == ERROR || httpStatus > 1) {
+        buffer_section_ = ERROR;
+        return httpStatus;
+    }
     return httpStatus;
 
 

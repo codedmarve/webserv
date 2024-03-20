@@ -11,6 +11,7 @@
 #include <cstdlib>
 # include <algorithm>
 #include <sys/time.h>
+#include <limits>
 
 class HttpRequestParser {
 private:
@@ -58,7 +59,7 @@ public:
     int parseRequest(std::string &buffer);
     // int parseHeaders(const std::string &headerLines);
     // void parseChunkedBody(const std::string &chunkedBody);
-    std::string parseBody(const std::string& contentType);
+    // std::string parseBody(const std::string& contentType);
     void parseChunkedBody(const std::string& chunkedBody);
     void parseContentLength();
     // int parseRequestLine(std::string requestLine);
@@ -96,7 +97,7 @@ public:
 /**
  * NEW STUFFS
 */
-    int chunk_size_;
+    size_t chunk_size_;
     std::string req_buffer_;
 
     enum Section {
@@ -107,11 +108,17 @@ public:
         COMPLETE,
         ERROR
     };
+    enum ChunkStatus {
+        // CHUNK,
+        CHUNK_BODY,
+        CHUNK_SIZE
+    };
 
     int body_offset_; // track current pos in req body and append next chunk there
     Section buffer_section_;
     struct timeval start_tv_;
     struct timeval last_tv_;
+    ChunkStatus chunk_status_;
 
 
     std::string trimmer(const std::string& str);
@@ -121,6 +128,10 @@ public:
     bool isValidHeaderFormat(const std::string& header, const std::string& value);
     int parseHeaders();
     int parseRequestLine();
+    int parseBody();
+    int parseChunkTrailer();
+    int parseChunkedBody();
+    int parseChunkSize(const std::string& hex);
 };
 
 #endif
