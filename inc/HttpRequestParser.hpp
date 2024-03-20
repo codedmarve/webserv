@@ -9,10 +9,12 @@
 #include <vector>
 #include <set>
 #include <cstdlib>
+# include <algorithm>
+#include <sys/time.h>
 
 class HttpRequestParser {
 private:
-    std::string request_;
+
     std::string method_;
     std::string uri_;
     std::string protocol_;
@@ -25,7 +27,9 @@ private:
     std::string frag_;
     bool isChunked_;
     size_t length_;
-    int chunk_size_;
+
+
+
 
     bool extractURIComponents();
     bool isValidScheme(const std::string& scheme);
@@ -49,8 +53,9 @@ private:
 
 public:
     HttpRequestParser();
+    ~HttpRequestParser();
 
-    int parseRequest(const std::string &request);
+    int parseRequest(std::string &buffer);
     int parseHeaders(const std::string &headerLines);
     // void parseChunkedBody(const std::string &chunkedBody);
     std::string parseBody(const std::string& contentType);
@@ -69,7 +74,7 @@ public:
     std::map<std::string, std::string> getHeaders() const;
     std::string getBody() const;
 
-    void printRequest(const std::string& request);
+    void printRequest(std::string& request);
 
 
 
@@ -87,6 +92,35 @@ public:
     bool  validateBinaryData (std::string data);
 
 
+
+/**
+ * NEW STUFFS
+*/
+    int chunk_size_;
+    std::string req_buffer_;
+
+    enum Section {
+        REQUEST_LINE,
+        HEADERS,
+        PREBODY,
+        BODY,
+        CHUNK,
+        COMPLETE,
+        ERROR
+    };
+
+    int body_offset_; // track current pos in req body and append next chunk there
+    Section buffer_section_;
+    struct timeval start_tv_;
+    struct timeval last_tv_;
+
+
+    std::string trimmer(const std::string& str);
+    void handleSpecialHeaders(const std::string& header, const std::string& value);
+    bool isValidHeaderValueChar(char c);
+    bool isValidHeaderChar(char c);
+    bool isValidHeaderFormat(const std::string& header, const std::string& value);
+    int parseHeaders();
 };
 
 #endif

@@ -36,10 +36,10 @@
 
 std::string HttpRequestParser::parseBody(const std::string& contentType) {
 
-    if (request_.length() >= length_)
-    {
+    // if (request_.length() >= length_)
+    // {
         
-    }
+    // }
 
 
     // if (isChunked_) {

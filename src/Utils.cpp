@@ -1,7 +1,7 @@
 #include "../inc/HttpRequestParser.hpp"
 
 
-void HttpRequestParser::printRequest(const std::string& request) {
+void HttpRequestParser::printRequest(std::string& request) {
     HttpRequestParser parser;
     try {
         parser.parseRequest(request);

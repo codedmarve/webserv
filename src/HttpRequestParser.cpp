@@ -1,46 +1,119 @@
 #include "../inc/HttpRequestParser.hpp"
 
-HttpRequestParser::HttpRequestParser() {}
+HttpRequestParser::HttpRequestParser() {
+    body_offset_ = 0;
+    chunk_size_ = 0;
+    buffer_section_ = REQUEST_LINE;
+    protocol_ = "HTTP/1.1";
+    req_buffer_ = "";
+    isChunked_ = false;
+    gettimeofday(&start_tv_, NULL);
+}
 
-int HttpRequestParser::parseRequest(const std::string &buffer) {
-    size_t pos;
+
+HttpRequestParser::~HttpRequestParser() {
+
+}
+
+int HttpRequestParser::parseRequest(std::string &buffer) {
+    size_t httpStatus = 0;
+    // size_t pos;
     std::string headerLines;
     size_t endOfFirstLine;
     std::string headers;
     std::string requestLine;
 
-    // init data
-    request_ = "";
-    isChunked_ = false;
-    request_ += buffer;
+    gettimeofday(&last_tv_, NULL);
+    req_buffer_ += buffer;
+    buffer.clear();
 
-    pos = request_.find("\r\n\r\n");
-    if (pos != std::string::npos)
+    if (buffer_section_ == REQUEST_LINE)
     {
-        headerLines = request_.substr(0, pos + 2);
+        endOfFirstLine = req_buffer_.find("\r\n");
+        if (endOfFirstLine != std::string::npos)
+        {
+            requestLine = req_buffer_.substr(0, endOfFirstLine);
+            httpStatus = parseRequestLine(requestLine);
+            // if (headers.empty() && authority_.empty())
+            //     return 400;
+        } else {
 
-        body_ = request_.substr(pos + 4);
-        endOfFirstLine = headerLines.find("\r\n");
+        }
+        // httpStatus = requestLine(request_);
+    }
+    
+    if (buffer_section_ == HEADERS)
+    {
+        // httpStatus = parseHeaders();
+    }
+    // if (buffer_section_ == PREBODY)
+    //     httpStatus = prebody();
+    // if (buffer_section_ == BODY)
+    //     httpStatus = body();
+    // if (buffer_section_ == CHUNK)
+    //     httpStatus = chunk();
+    // if (buffer_section_== COMPLETE || httpStatus == 1) {
+    //     buffer_section_ = COMPLETE;
+    //     return httpStatus;
+    // }
+    // else if (buffer_section_ == ERROR || httpStatus > 1) {
+    //     buffer_section_ = ERROR;
+    //     return httpStatus;
+    // }
+    return httpStatus;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // init data
+
+
+    // pos = request_.find("\r\n\r\n");
+    // if (pos != std::string::npos)
+    // {
+    //     headerLines = request_.substr(0, pos + 2);
+
+    //     body_ = request_.substr(pos + 4);
+    //     endOfFirstLine = headerLines.find("\r\n");
         
 
-        try {
-            if (endOfFirstLine != std::string::npos)
-            {
-                requestLine = headerLines.substr(0, endOfFirstLine);
-                headers = headerLines.substr(endOfFirstLine + 2);
-                parseRequestLine(requestLine);
-                if (headers.empty() && authority_.empty())
-                    return 400;
-            }
-            parseHeaders(headers);
+    //     try {
+    //         if (endOfFirstLine != std::string::npos)
+    //         {
+    //             requestLine = headerLines.substr(0, endOfFirstLine);
+    //             headers = headerLines.substr(endOfFirstLine + 2);
+    //             parseRequestLine(requestLine);
+    //             if (headers.empty() && authority_.empty())
+    //                 return 400;
+    //         }
+    //         parseHeaders(headers);
 
-            return 200;
-        } catch (const std::invalid_argument& e) {
-            return 405; // Method Not Allowed
-        }
+    //         return 200;
+    //     } catch (const std::invalid_argument& e) {
+    //         return 405; // Method Not Allowed
+    //     }
 
-    } else
-        throw std::invalid_argument("Invalid request format");
+    // } else
+    //     throw std::invalid_argument("Invalid request format");
     return 200;
 }
 
