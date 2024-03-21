@@ -11,6 +11,6 @@ void httpPatch() {
     HttpRequestParser parser;
     // Process each PATCH request
     for (size_t i = 0; i < patchRequests.size(); ++i) {
-        parser.printRequest(patchRequests[i]);
+        // parser.printRequest(patchRequests[i]);
     }
 }

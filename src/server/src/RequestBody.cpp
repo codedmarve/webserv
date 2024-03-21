@@ -1,9 +1,8 @@
-#include "../inc/HttpRequestParser.hpp"
+#include "../../../inc/HttpRequestParser.hpp"
 
 
 int HttpRequestParser::parseBody() {
 
-        std::cout << "SPEICIAL\n";
     if (req_buffer_.length() >= length_)
     {
         body_.insert(body_offset_, req_buffer_, 0, length_);

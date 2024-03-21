@@ -12,6 +12,8 @@ void httpHead();
 void httpPatch();
 void httpOptions();
 void httpConnect();
+int chunkedGet();
+int chunkedPost();
 
 
 #endif

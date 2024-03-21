@@ -1,4 +1,4 @@
-#include "../inc/HttpRequestParser.hpp"
+#include "../../../inc/HttpRequestParser.hpp"
 
 HttpRequestParser::HttpRequestParser() {
     body_offset_ = 0;
@@ -25,10 +25,12 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     req_buffer_ += buffer;
     buffer.clear();
 
-    /// @note This if/else logic depends on how we wanna handle buffer
+    std::cout << req_buffer_ << std::endl;
+
     if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
-    } else if (buffer_section_ == HEADERS) {
+    }
+    if (buffer_section_ == HEADERS) {
         httpStatus = parseHeaders();
     } else if (buffer_section_ == SPECIAL_HEADERS) {
         httpStatus = checkSpecialHeaders();

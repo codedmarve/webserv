@@ -85,6 +85,6 @@ void httpPost() {
 
     for (size_t i = 0; i < postRequests.size(); ++i) {
         std::cout << "Testing HTTP POST Request " << i + 1 << ":\n";
-        parser.printRequest(postRequests[i]);
+        // parser.printRequest(postRequests[i]);
     }
 }

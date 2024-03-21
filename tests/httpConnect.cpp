@@ -11,6 +11,6 @@ void httpConnect() {
     HttpRequestParser parser;
     // Process each CONNECT request
     for (size_t i = 0; i < connectRequests.size(); ++i) {
-        parser.printRequest(connectRequests[i]);
+        // parser.printRequest(connectRequests[i]);
     }
 }

@@ -12,6 +12,6 @@ void httpOptions() {
     HttpRequestParser parser;
     // Process each OPTIONS request
     for (size_t i = 0; i < optionsRequests.size(); ++i) {
-        parser.printRequest(optionsRequests[i]);
+        // parser.printRequest(optionsRequests[i]);
     }
 }

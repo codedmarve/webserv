@@ -15,6 +15,6 @@ void httpDelete() {
     HttpRequestParser parser;
     // Process each DELETE request
     for (size_t i = 0; i < deleteRequests.size(); ++i) {
-        parser.printRequest(deleteRequests[i]);
+        // parser.printRequest(deleteRequests[i]);
     }
 }

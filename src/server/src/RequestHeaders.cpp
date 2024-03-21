@@ -1,4 +1,4 @@
-#include "../inc/HttpRequestParser.hpp"
+#include "../../../inc/HttpRequestParser.hpp"
 
 /// @todo enforce certain header constraints specified in the RFC (e.g., no whitespace around the colon, no empty header keys).
 
@@ -70,8 +70,8 @@ bool HttpRequestParser::checkSpecialHeaders() {
         std::string value = headers_["Transfer-Encoding"];
         if (value == "chunked") {
             isChunked_ = true;
-            chunk_status_ = CHUNK_SIZE;
             buffer_section_ = CHUNK;
+            chunk_status_ = CHUNK_SIZE;
         } else {
             return false;
         }

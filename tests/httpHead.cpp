@@ -13,6 +13,6 @@ void httpHead() {
     HttpRequestParser parser;
     // Process each HEAD request
     for (size_t i = 0; i < headRequests.size(); ++i) {
-        parser.printRequest(headRequests[i]);
+        // parser.printRequest(headRequests[i]);
     }
 }

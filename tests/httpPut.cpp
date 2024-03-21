@@ -40,6 +40,6 @@ void httpPut() {
 
     for (size_t i = 0; i < putRequests.size(); ++i) {
         std::cout << "Testing HTTP PUT Request " << i + 1 << ":\n";
-        parser.printRequest(putRequests[i]);
+        // parser.printRequest(putRequests[i]);
     }
 }

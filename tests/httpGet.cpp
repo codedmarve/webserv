@@ -24,7 +24,7 @@ void httpGet() {
 
     // Process each request
     for (size_t i = 0; i < requests.size(); ++i) {
-        parser.printRequest(requests[i]);
+        // parser.printRequest(requests[i]);
     }
 }
 

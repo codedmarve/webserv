@@ -80,29 +80,43 @@
 //     return (0);
 // }
 
-#include <iostream>
-#include <fstream>
-#include <string>
+// #include <iostream>
+// #include <fstream>
+// #include <string>
+// int main() {
+//     std::ifstream infile("test_data.txt");
+//     std::string line;
+//     std::string buffer;
+//     HttpRequestParser parser;
+
+//     bool result = false; 
+    
+//     while (std::getline(infile, line)) {
+//         buffer += line + "\r\n";
+//         result = parser.parseRequest(buffer);
+//     }
+
+//     parser.printRequest(parser);
+
+
+//     if (result) {
+//         std::cout << " Request parsed successfully." << std::endl;
+//     } else {
+//         std::cout << " Failed to parse request." << std::endl;
+//     }
+
+//     return 0;
+// }
+
+
+// #include <iostream>
+// #include <fstream>
+// #include "HttpRequestParser.h" // Include your header file
 
 int main() {
-    std::ifstream infile("test_data.txt");
-    std::string line;
-    std::string buffer;
-    HttpRequestParser parser;
+    // chunkedGet();
 
-    bool result;
-    
-    while (std::getline(infile, line)) {
-        buffer += line + "\n"; // Mimic reading data into buffer
-        result = parser.parseRequest(buffer);
-    }
-    std::cout << parser.getMethod();
-    // Call your parseRequest function with the buffer
-    if (result) {
-        std::cout << "Request parsed successfully." << std::endl;
-    } else {
-        std::cout << "Failed to parse request." << std::endl;
-    }
-
+    chunkedPost();
     return 0;
 }
+
