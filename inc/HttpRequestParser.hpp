@@ -124,8 +124,8 @@ public:
     std::string trimmer(const std::string& str);
     void handleSpecialHeaders(const std::string& header, const std::string& value);
     bool isValidHeaderValueChar(char c);
-    bool isValidHeaderChar(char c);
-    bool isValidHeaderFormat(const std::string& header, const std::string& value);
+    bool isValidHeaderChar(unsigned char c);
+    bool isValidHeaderFormat(const std::string& header);
     int parseHeaders();
     int parseRequestLine();
     int parseBody();

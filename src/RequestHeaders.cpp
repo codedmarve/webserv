@@ -1,88 +1,6 @@
 #include "../inc/HttpRequestParser.hpp"
 
-// int HttpRequestParser::parseHeaders(const std::string& headerLines) {
-//     std::istringstream iss(headerLines);
-//     std::string line;
-//     std::string currentHeader;
-
-//     // std::cout << "DEBUG\n";
-//     while (std::getline(iss, line, '\n')) {
-//         line = trim(line);
-
-//         if (line.empty()) // Empty line indicates end of headers
-//             break;
-
-//         if (line[0] == ' ' || line[0] == '\t') {
-//             if (!currentHeader.empty()) { // Multi-line header continuation
-//                 headers_[currentHeader] += " " + line; // Append to the previous header value
-//             }
-//         } else {
-//             // New header line
-//             size_t pos = line.find(":");
-//             if (pos != std::string::npos) {
-//                 std::string key = trim(line.substr(0, pos));
-//                 std::string value = trim(line.substr(pos + 1));
-//                 headers_[key] = value;
-//                 currentHeader = key; // Save current header for multi-line continuation
-
-//                 // Check for "Host" header
-//                 if (key == "Host" && value.empty() && authority_.empty()) {
-//                     std::cerr << "Empty 'Host' header." << std::endl;
-//                     // [important] validate Host header here
-//                     return 400; // Bad Request: Empty Host header
-//                 }
-
-//                 // Check for "Transfer-Encoding" header
-//                 if (key == "Transfer-Encoding" && value == "chunked") {
-//                     isChunked_ = true;
-//                 }
-
-//                 // Check for "Content-Length" header
-//                 if (key == "Content-Length") {
-//                     // Check if the value is a valid integer
-//                     if (value.find_first_not_of("0123456789") != std::string::npos) {
-//                         std::cerr << "Invalid 'Content-Length' header value." << std::endl;
-//                         return 400; // Bad Request: Invalid Content-Length header value
-//                     }
-
-//                     // Convert the value to an integer
-//                     try {
-//                         std::istringstream iss(value);
-//                         iss >> length_;
-//                         if (length_ < 0) {
-//                             throw std::invalid_argument("Negative content-length");
-//                         }
-//                     } catch (const std::exception& e) {
-//                         std::cerr << "Error parsing 'Content-Length' header: " << e.what() << std::endl;
-//                         return 400; // Bad Request: Error parsing Content-Length header
-//                     }
-//                 } 
-//             }
-//         }
-//     }
-//     if ((headers_.find("Host") != headers_.end() && authority_.empty()))
-//         return 400;
-
-//     return 200; // OK: Headers parsed successfully
-
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/// @todo enforce certain header constraints specified in the RFC (e.g., no whitespace around the colon, no empty header keys).
 
 int HttpRequestParser::parseHeaders() {
     size_t headerEnd;
@@ -106,7 +24,7 @@ int HttpRequestParser::parseHeaders() {
             headerKey = trimmer(req_buffer_.substr(0, colonPos));
             headerVal = trimmer(req_buffer_.substr(colonPos + 1, headerEnd - colonPos - 1));
 
-            if (!isValidHeaderFormat(headerKey, headerVal))
+            if (!isValidHeaderFormat(headerKey))
                 return 400;
             
             try {
@@ -126,34 +44,23 @@ int HttpRequestParser::parseHeaders() {
     return 200;
 }
 
-bool HttpRequestParser::isValidHeaderFormat(const std::string& header, const std::string& value) {
-    if (header.empty() || value.empty())
+bool HttpRequestParser::isValidHeaderFormat(const std::string& header) {
+    if (header.empty())
         return false;
 
     for (std::string::const_iterator it = header.begin(); it != header.end(); ++it) {
         if (!isValidHeaderChar(*it))
             return false;
     }
-
-    for (std::string::const_iterator it = value.begin(); it != value.end(); ++it) {
-        if (!isValidHeaderValueChar(*it))
-            return false;
-    }
-
     return true;
 }
 
 
-bool HttpRequestParser::isValidHeaderChar(char c) {
-    // Valid characters: A-Z, a-z, 0-9, '-', '_', and '.'
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
-           (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.';
+bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
+    // Valid characters: Visible ASCII characters and obs-text(obsolete-text) (128-255) => Check ASCII table 
+    return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
 }
 
-bool HttpRequestParser::isValidHeaderValueChar(char c) {
-    // Any printable ASCII character except ':'
-    return (c >= 32 && c <= 126) && c != ':';
-}
 
 void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::string& value) {
     if (key == "Transfer-Encoding" && value == "chunked") {
@@ -185,13 +92,13 @@ void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::
         /// @todo validate host using our validate uri method and make "@" valid
     }
 
-    if (key == "Method") {
-        /// @todo this part needs to be thought through
-        if (value != "POST" && value != "PUT") {
-            std::cerr << "Unsupported HTTP method: " << value << std::endl;
-            throw std::invalid_argument("Unsupported HTTP method");
-        }
-    }
+    // if (key == "Method") {
+    //     /// @todo this part needs to be thought through
+    //     if (value != "POST" && value != "PUT") {
+    //         std::cerr << "Unsupported HTTP method: " << value << std::endl;
+    //         throw std::invalid_argument("Unsupported HTTP method");
+    //     }
+    // }
 }
 
 

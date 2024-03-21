@@ -37,69 +37,13 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     if (buffer_section_ == CHUNK)
         httpStatus = parseChunkedBody();
 
-    if (buffer_section_== COMPLETE || httpStatus == 1) {
+    if (buffer_section_ == COMPLETE || httpStatus == 200) {
         buffer_section_ = COMPLETE;
-        return httpStatus;
     }
-    else if (buffer_section_ == ERROR || httpStatus > 1) {
+    else if (buffer_section_ == ERROR || httpStatus != 200) {
         buffer_section_ = ERROR;
-        return httpStatus;
     }
     return httpStatus;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // init data
-
-
-    // pos = request_.find("\r\n\r\n");
-    // if (pos != std::string::npos)
-    // {
-    //     headerLines = request_.substr(0, pos + 2);
-
-    //     body_ = request_.substr(pos + 4);
-    //     endOfFirstLine = headerLines.find("\r\n");
-        
-
-    //     try {
-    //         if (endOfFirstLine != std::string::npos)
-    //         {
-    //             requestLine = headerLines.substr(0, endOfFirstLine);
-    //             headers = headerLines.substr(endOfFirstLine + 2);
-    //             parseRequestLine(requestLine);
-    //             if (headers.empty() && authority_.empty())
-    //                 return 400;
-    //         }
-    //         parseHeaders(headers);
-
-    //         return 200;
-    //     } catch (const std::invalid_argument& e) {
-    //         return 405; // Method Not Allowed
-    //     }
-
-    // } else
-    //     throw std::invalid_argument("Invalid request format");
-    return 200;
 }
 
 void HttpRequestParser::parseContentLength() {
