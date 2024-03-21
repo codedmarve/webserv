@@ -25,8 +25,11 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     req_buffer_ += buffer;
     buffer.clear();
 
-    if (buffer_section_ == REQUEST_LINE)
+    if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
+        std::cout << req_buffer_ << "   " << httpStatus << std::endl;
+
+    }
     
     if (buffer_section_ == HEADERS)
         httpStatus = parseHeaders();
