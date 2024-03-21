@@ -12,7 +12,7 @@ int HttpRequestParser::parseHeaders() {
         
         if (req_buffer_.find("\r\n") == 0) { // if /r/n is in index 0 it would mean end of headers
             req_buffer_.erase(0, headerEnd + 2);
-            buffer_section_ = BODY;
+            buffer_section_ = SPECIAL_HEADERS;
             break;
         }
 
@@ -26,13 +26,6 @@ int HttpRequestParser::parseHeaders() {
 
             if (!isValidHeaderFormat(headerKey))
                 return 400;
-            
-            try {
-                handleSpecialHeaders(headerKey, headerVal);
-            } catch (const std::invalid_argument& e) {
-                std::cerr << "Error processing header: " << e.what() << std::endl;
-                return 400;
-            }
 
             headers_[headerKey] = headerVal;
         } else {
@@ -61,46 +54,57 @@ bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
     return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
 }
 
-
-void HttpRequestParser::handleSpecialHeaders(const std::string& key, const std::string& value) {
-    if (key == "Transfer-Encoding" && value == "chunked") {
-        isChunked_ = true;
-        buffer_section_ = CHUNK;
-        chunk_status_ = CHUNK_SIZE;
-    }
-
-    if (key == "Content-Length") {
-        if (value.find_first_not_of("0123456789") != std::string::npos) {
-            std::cerr << "Invalid 'Content-Length' header value." << std::endl;
-            throw std::invalid_argument("Invalid 'Content-Length' header value");
-        }
-
-        try {
-             std::istringstream iss(value); // Convert the value to an integer
-            iss >> length_;
-        } catch (const std::exception& e) {
-            std::cerr << "Error parsing 'Content-Length' header: " << e.what() << std::endl;
-            throw std::invalid_argument("Error parsing 'Content-Length' header");
-        }
-    }
-
-    if (key == "Host") {
+bool HttpRequestParser::checkSpecialHeaders() {
+    if (headers_.count("Host")) {
+        std::string value = headers_["Host"];
         if (value.empty() || value.find('@') != std::string::npos) {
             std::cerr << "Invalid 'Host' header value." << std::endl;
-            throw std::invalid_argument("Invalid 'Host' header value");
+            return false;
         }
         /// @todo validate host using our validate uri method and make "@" valid
     }
 
-    // if (key == "Method") {
-    //     /// @todo this part needs to be thought through
-    //     if (value != "POST" && value != "PUT") {
-    //         std::cerr << "Unsupported HTTP method: " << value << std::endl;
-    //         throw std::invalid_argument("Unsupported HTTP method");
-    //     }
-    // }
-}
+    if (headers_.count("Transfer-Encoding")) {
+        std::string value = headers_["Transfer-Encoding"];
+        if (value == "chunked") {
+            isChunked_ = true;
+            buffer_section_ = CHUNK;
+            chunk_status_ = CHUNK_SIZE;
+        } else {
+            return false;
+        }
+    } else if (headers_.count("Content-Length")) {
+        std::string value = headers_["Content-Length"];
+        if (value.find_first_not_of("0123456789") != std::string::npos) {
+            std::cerr << "Invalid 'Content-Length' header value." << std::endl;
+            return false;
+        }
+        try {
+            // Convert the value to an integer
+            std::istringstream iss(value); 
+            iss >> length_;
+        } catch (const std::exception& e) {
+            std::cerr << "Error parsing 'Content-Length' header: " << e.what() << std::endl;
+            return false;
+        }
+        buffer_section_ = BODY;
+    } else {
+        return false; 
+    }
 
+
+
+    if (headers_.count("Method")) {
+        /// @todo this part needs to be thought through
+        std::string value = headers_["Method"];
+        if (value != "POST" && value != "PUT") {
+            std::cerr << "Unsupported HTTP method: " << value << std::endl;
+            throw std::invalid_argument("Unsupported HTTP method");
+        }
+    }
+
+    return true;
+}
 
 std::string HttpRequestParser::trimmer(const std::string& str) {
     size_t start = str.find_first_not_of(" \t");

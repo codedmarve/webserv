@@ -103,6 +103,7 @@ public:
     enum Section {
         REQUEST_LINE,
         HEADERS,
+        SPECIAL_HEADERS,
         BODY,
         CHUNK,
         COMPLETE,
@@ -132,6 +133,7 @@ public:
     int parseChunkTrailer();
     int parseChunkedBody();
     int parseChunkSize(const std::string& hex);
+    bool checkSpecialHeaders();
 };
 
 #endif

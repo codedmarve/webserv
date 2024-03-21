@@ -96,7 +96,7 @@ int main() {
         buffer += line + "\n"; // Mimic reading data into buffer
         result = parser.parseRequest(buffer);
     }
-
+    std::cout << parser.getMethod();
     // Call your parseRequest function with the buffer
     if (result) {
         std::cout << "Request parsed successfully." << std::endl;

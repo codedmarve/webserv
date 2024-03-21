@@ -24,9 +24,11 @@ int HttpRequestParser::extractRequestLineData(std::string requestLine) {
 
 int HttpRequestParser::parseRequestLine() {
     int httpStatus = 0;
-    size_t endOfFirstLine;
+    size_t endOfFirstLine = 0;
     std::string requestLine;
 
+
+    std::cout << endOfFirstLine << "\n";
     endOfFirstLine = req_buffer_.find("\r\n");
     if (endOfFirstLine != std::string::npos)
         requestLine = req_buffer_.substr(0, endOfFirstLine);
@@ -295,16 +297,12 @@ bool HttpRequestParser::isValidFragment(const std::string& fragment) {
 }
 
 int HttpRequestParser::validateURI() {
-    if (uri_.empty()) {
-        return false; // URI cannot be empty
-    }
-    
-    // Split URI into components
+    if (uri_.empty())
+        return false;
+
     bool hasAuthority = extractURIComponents();
     // print_uri_extracts();
 
-
-    // Validate each component
     if (!isValidScheme(scheme_)) 
         return 400;
     if (hasAuthority && !isValidAuthority(authority_)) 
@@ -315,7 +313,7 @@ int HttpRequestParser::validateURI() {
         return 405;
     if (!isValidFragment(frag_)) 
         return 406;
-    return 200; // All checks passed
+    return 200;
 }
 
 

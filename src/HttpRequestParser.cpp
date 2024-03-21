@@ -24,15 +24,15 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     gettimeofday(&last_tv_, NULL);
     req_buffer_ += buffer;
     buffer.clear();
-
     if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
-        std::cout << req_buffer_ << "   " << httpStatus << std::endl;
-
     }
     
     if (buffer_section_ == HEADERS)
         httpStatus = parseHeaders();
+
+    if (buffer_section_ == SPECIAL_HEADERS)
+        httpStatus = checkSpecialHeaders();
 
     if (buffer_section_ == BODY)
         httpStatus = parseBody();
