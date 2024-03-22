@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   parsFunc.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: novsiann <novsiann@student.42.fr>          +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 13:06:39 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/17 13:53:52 by novsiann         ###   ########.fr       */
+/*   Updated: 2024/03/22 11:53:19 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/AllHeaders.hpp"
+#include "../../inc/AllHeaders.hpp"
 
 std::vector<std::string> customSplit(const std::string &s, char delim) {
     std::vector<std::string> port_list;

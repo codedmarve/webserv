@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   DomainResolve.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 14:48:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/14 15:08:56 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/22 12:08:05 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/AllHeaders.hpp"
+#include "../../inc/AllHeaders.hpp"
 
     IpAddressResolver::IpAddressResolver() {
         memset(&addressHints, 0, sizeof(addressHints)); // clear addressHints structure

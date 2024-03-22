@@ -3,46 +3,46 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/17 18:51:19 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/22 12:07:32 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/AllHeaders.hpp"
+// #include "../inc/AllHeaders.hpp"
 
-int main(int argc, char **argv) {
-      if (argc < 2)
-        ft_errors(argv[0],1); 
-    DataBase base;
-    base.execParser(argv);    
-    // base.printKeyValue();
+// int main(int argc, char **argv) {
+//       if (argc < 2)
+//         ft_errors(argv[0],1); 
+//     DataBase base;
+//     base.execParser(argv);    
+//     // base.printKeyValue();
     
-    Servers servers(base.getKeyValue());
+//     Servers servers(base.getKeyValue());
     
-    // std::map<std::string, std::vector<std::string> > keyValues = base.getKeyValue();
-    // for(std::map<std::string, std::vector<std::string> >::iterator it = keyValues.begin(); it != keyValues.end(); it++)
-    // {
-    //     std::cout << it->first << " : ";
-    //     for(std::vector<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
-    //         std::cout << *it2 << " ";
-    //     std::cout << std::endl;
-    // }
-    // IpAddressResolver resolver; // create an instance of the IpAddressResolver class
+//     // std::map<std::string, std::vector<std::string> > keyValues = base.getKeyValue();
+//     // for(std::map<std::string, std::vector<std::string> >::iterator it = keyValues.begin(); it != keyValues.end(); it++)
+//     // {
+//     //     std::cout << it->first << " : ";
+//     //     for(std::vector<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++)
+//     //         std::cout << *it2 << " ";
+//     //     std::cout << std::endl;
+//     // }
+//     // IpAddressResolver resolver; // create an instance of the IpAddressResolver class
 
-    // // // resolve the IP address of the given hostname
-    // if (resolver.resolve("127.0.0.1:8001") != 0) {
-    //     std::cerr << "getaddrinfo: " << gai_strerror(errno) << std::endl;
-    //     return 2;
-    // }
+//     // // // resolve the IP address of the given hostname
+//     // if (resolver.resolve("127.0.0.1:8001") != 0) {
+//     //     std::cerr << "getaddrinfo: " << gai_strerror(errno) << std::endl;
+//     //     return 2;
+//     // }
 
-    // // print the resolved IP addresses
-    // resolver.print();
-    // (void)argc;
-    // (void)argv;
-    return 0;
-}
+//     // // print the resolved IP addresses
+//     // resolver.print();
+//     // (void)argc;
+//     // (void)argv;
+//     return 0;
+// }
 
 //Socket creation template
 // int main() {
