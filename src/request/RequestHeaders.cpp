@@ -53,7 +53,8 @@ bool HttpRequestParser::isValidHeaderFormat(const std::string& header) {
 
 bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
     // Valid characters: Visible ASCII characters and obs-text(obsolete-text) (128-255) => Check ASCII table 
-    return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
+    // return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
+    return (c >= 0x21 && c <= 0x7E) || ((c & 0x80) != 0 && c != 0x7F);
 }
 
 bool HttpRequestParser::checkSpecialHeaders() {

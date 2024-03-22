@@ -2,11 +2,11 @@ NAME = webserv
 
 # COMPILER
 CC = c++
-CFLAGS = -Werror -Wall -Wextra -std=c++98 -pedantic -fsanitize=address
+CFLAGS = -Werror -Wall -Wextra -std=c++98 -fsanitize=address
 RM = rm -rf
 
 # DIRECTORIES
-SRC =	$(wildcard *.cpp **/*.cpp **/*/*.cpp)
+SRC =	$(wildcard *.cpp **/*.cpp **/*/*.cpp **/*/*/*.cpp)
 OBJ_DIR = obj
 SRC_DIR = src
 INC_DIR = inc

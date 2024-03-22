@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   DataBase.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: novsiann <novsiann@student.42.fr>          +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/17 13:33:13 by novsiann         ###   ########.fr       */
+/*   Updated: 2024/03/22 12:44:10 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/DataBase.hpp"
+#include "../../inc/DataBase.hpp"
 
 DataBase::DataBase(){}
 

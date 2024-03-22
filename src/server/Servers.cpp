@@ -3,15 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Servers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/20 15:30:28 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/22 12:46:50 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Servers.hpp"
-#include "../../../inc/HttpRequestParser.hpp"
+#include "../../inc/Servers.hpp"
+#include "../../inc/HttpRequestParser.hpp"
 
 Servers::Servers(std::map<std::string, std::vector<std::string> > keyValues) : _server_fds(), _keyValues(keyValues){
 	createServers();

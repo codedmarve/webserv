@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandle.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/14 14:29:18 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/22 12:46:31 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/CgiHandle.hpp"
+#include "../../inc/CgiHandle.hpp"
 
 CgiHandle::CgiHandle()
 : _cgi_path(NULL), _cgi_pid(-1), _exit_status(0){}
@@ -29,6 +29,7 @@ CgiHandle& CgiHandle::operator=(const CgiHandle &other){
 	this->_cgi_path = other._cgi_path;
 	this->_cgi_pid = other._cgi_pid;
 	this->_exit_status = other._exit_status;
+	return *this;
 }
 
 void CgiHandle::initEnv(){
