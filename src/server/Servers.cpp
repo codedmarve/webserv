@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/22 12:46:50 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/23 16:54:09 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,7 +289,7 @@ std::vector<std::string> Servers::getPorts(){
 	std::vector<std::string> ports_temp;
 	std::vector<std::string> ports;
 
-	for (int i = 0; i != INT_MAX; i++){//config.find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != config.end(); i++){
+	for (int i = 0; i != std::numeric_limits<int>::max(); i++) {//config.find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != config.end(); i++){
 		ss.str("");
 		ss << i;
 		std::string server_name = "server[" + ss.str() + "]";

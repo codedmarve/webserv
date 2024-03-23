@@ -3,42 +3,49 @@
 /*                                                        :::      ::::::::   */
 /*   AllHeaders.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: novsiann <novsiann@student.42.fr>          +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/17 13:33:09 by novsiann         ###   ########.fr       */
+/*   Updated: 2024/03/23 17:13:46 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef ALLHEADERS_HPP
 # define ALLHEADERS_HPP
 
-#include <unistd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/epoll.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-#include <cstring>
-#include <sstream>
-#include <fstream>
+
 #include <algorithm>
+#include <arpa/inet.h>
 #include <cctype>
 #include <cstdlib>
-#include <limits>
-#include <limits.h>
+#include <cstring>
+#include <fcntl.h>
+#include <fstream>
 #include <iomanip>
+#include <iostream>
+#include <limits>
+#include <map>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <cstring>
+#include <sys/epoll.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
+
 #include "DataBase.hpp"
 #include "Servers.hpp"
 #include "CgiHandle.hpp"
 #include "DomainResolve.hpp"
+#include "HttpRequestParser.hpp"
+#include "HttpResponse.hpp"
+#include "MimeTypes.hpp"
+#include "HttpStatusCode.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
