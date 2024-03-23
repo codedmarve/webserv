@@ -2,8 +2,6 @@
 
 
 int HttpRequestParser::parseBody() {
-
-        std::cout << "SPEICIAL\n";
     if (req_buffer_.length() >= length_)
     {
         body_.insert(body_offset_, req_buffer_, 0, length_);
@@ -17,6 +15,7 @@ int HttpRequestParser::parseBody() {
     }
     return 200;
 }
+
 
 int HttpRequestParser::parseChunkedBody() {
     size_t end;

@@ -3,17 +3,14 @@
 HttpRequestParser::HttpRequestParser() {
     body_offset_ = 0;
     chunk_size_ = 0;
+    req_buffer_ = "";
     buffer_section_ = REQUEST_LINE;
     protocol_ = "HTTP/1.1";
-    req_buffer_ = "";
     isChunked_ = false;
     gettimeofday(&start_tv_, NULL);
 }
 
-
-HttpRequestParser::~HttpRequestParser() {
-
-}
+HttpRequestParser::~HttpRequestParser() {}
 
 int HttpRequestParser::parseRequest(std::string &buffer) {
     size_t httpStatus = 0;
@@ -28,11 +25,14 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     /// @note This if/else logic depends on how we wanna handle buffer
     if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
-    } else if (buffer_section_ == HEADERS) {
+    }
+    if (buffer_section_ == HEADERS) {
         httpStatus = parseHeaders();
-    } else if (buffer_section_ == SPECIAL_HEADERS) {
+    }
+    if (buffer_section_ == SPECIAL_HEADERS) {
         httpStatus = checkSpecialHeaders();
-    } else if (buffer_section_ == BODY) {
+    }
+    if (buffer_section_ == BODY) {
         httpStatus = parseBody();
     } else if (buffer_section_ == CHUNK) {
         httpStatus = parseChunkedBody();

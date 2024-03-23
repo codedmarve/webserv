@@ -21,10 +21,11 @@ int HttpRequestParser::parseHeaders() {
         if ((colonPos = req_buffer_.find(':', 0)) != std::string::npos) {
             if (colonPos == 0 || req_buffer_[colonPos - 1] == ' ')
                 return 400;
-
             headerKey = trimmer(req_buffer_.substr(0, colonPos));
             headerVal = trimmer(req_buffer_.substr(colonPos + 1, headerEnd - colonPos - 1));
 
+            std::transform(headerKey.begin(), headerKey.end(), headerKey.begin(), ::tolower);
+            
             if (!isValidHeaderFormat(headerKey))
                 return 400;
 
@@ -58,8 +59,8 @@ bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
 }
 
 bool HttpRequestParser::checkSpecialHeaders() {
-    if (headers_.count("Host")) {
-        std::string value = headers_["Host"];
+    if (headers_.count("host")) {
+        std::string value = headers_["host"];
         if (value.empty() || value.find('@') != std::string::npos) {
             std::cerr << "Invalid 'Host' header value." << std::endl;
             return false;
@@ -67,8 +68,8 @@ bool HttpRequestParser::checkSpecialHeaders() {
         /// @todo validate host using our validate uri method and make "@" valid
     }
 
-    if (headers_.count("Transfer-Encoding")) {
-        std::string value = headers_["Transfer-Encoding"];
+    if (headers_.count("transfer-encoding")) {
+        std::string value = headers_["transfer-encoding"];
         if (value == "chunked") {
             isChunked_ = true;
             chunk_status_ = CHUNK_SIZE;
@@ -76,8 +77,8 @@ bool HttpRequestParser::checkSpecialHeaders() {
         } else {
             return false;
         }
-    } else if (headers_.count("Content-Length")) {
-        std::string value = headers_["Content-Length"];
+    } else if (headers_.count("content-length")) {
+        std::string value = headers_["content-length"];
         if (value.find_first_not_of("0123456789") != std::string::npos) {
             std::cerr << "Invalid 'Content-Length' header value." << std::endl;
             return false;
@@ -97,9 +98,9 @@ bool HttpRequestParser::checkSpecialHeaders() {
 
 
 
-    if (headers_.count("Method")) {
+    if (headers_.count("method")) {
         /// @todo this part needs to be thought through
-        std::string value = headers_["Method"];
+        std::string value = headers_["method"];
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;
             throw std::invalid_argument("Unsupported HTTP method");

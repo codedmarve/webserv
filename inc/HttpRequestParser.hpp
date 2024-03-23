@@ -12,6 +12,7 @@
 # include <algorithm>
 #include <sys/time.h>
 #include <limits>
+#include <cstring>
 
 class HttpRequestParser {
 private:
@@ -134,6 +135,7 @@ public:
     int parseChunkSize(const std::string& hex);
     bool checkSpecialHeaders();
     void printRequest(HttpRequestParser parser);
+    int parseTrailers();
 };
 
 #endif

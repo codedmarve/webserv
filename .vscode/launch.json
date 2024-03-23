@@ -6,8 +6,8 @@
       "type": "lldb",
       "request": "launch",
       "args": [],
-      "cwd": "/Users/oduwoledare/atoms/webserv2",
-      "program": "/Users/oduwoledare/atoms/webserv2/build/Debug/outDebug"
+      "cwd": "/home/drey/Documents/webserv",
+      "program": "/home/drey/Documents/webserv/build/Debug/outDebug"
     }
   ]
 }
