@@ -1,16 +1,16 @@
-#ifndef HTTPSTATUSCODES_HPP
-#define HTTPSTATUSCODES_HPP
+// #ifndef HTTPSTATUSCODES_HPP
+// #define HTTPSTATUSCODES_HPP
 
-#include "./AllHeaders.hpp"
+// #include "./AllHeaders.hpp"
 
-class HttpStatusCodes {
-private:
-    std::map<int, std::string> codeMap;
+// class HttpStatusCodes {
+// private:
+//     std::map<int, std::string> codeMap;
 
-public:
-    HttpStatusCodes();
-    ~HttpStatusCodes();
-    std::string getStatusCode(int code);
-};
+// public:
+//     HttpStatusCodes();
+//     ~HttpStatusCodes();
+//     std::string getStatusCode(int code);
+// };
 
-#endif
+// #endif

@@ -8,61 +8,7 @@
 
 class Response {
 public:
-  int GET() {
-    // Check if file exists
-    if (!file_.exists()) {
-      logError("File Not Found: " + file_.getPath());
-      return 404; // File Not Found
-    }
-
-    std::string status_line = "HTTP/1.1 200 OK\r\n";
-
-    // Set Date header
-    headers_["Date"] = getCurrentDateTime();
-
-    // Check if autoindex is enabled and file is a directory
-    if (config_.getAutoindex() && file_.is_directory()) {
-      headers_["Content-Type"] = "text/html"; // MIME type for HTML
-      body_ = file_.autoIndex(config_.getRequestTarget());
-    } else {
-      // Determine MIME type based on file extension
-      std::string mime_type = getMimeType(file_.getMimeExtension());
-      if (mime_type.empty()) {
-        mime_type = "application/octet-stream"; // Default MIME type
-      }
-      headers_["Content-Type"] = mime_type;
-
-      body_ = file_.getContent();
-    }
-
-    // Set Content-Length header
-    headers_["Content-Length"] = std::to_string(body_.length());
-
-    // Content Compression
-    if (shouldCompress()) {
-      headers_["Content-Encoding"] = "gzip";
-      body_ = compressBody(body_);
-    }
-
-    // Security Headers
-    headers_["X-Content-Type-Options"] = "nosniff";
-    headers_["X-Frame-Options"] = "DENY";
-    headers_["Content-Security-Policy"] = "default-src 'self'";
-
-    // Construct the full response
-    std::ostringstream response_stream;
-    response_stream << status_line;
-    for (std::map<std::string, std::string>::const_iterator it = headers_.begin(); it != headers_.end(); ++it) {
-      response_stream << it->first << ": " << it->second << "\r\n";
-    }
-    response_stream << "\r\n"; // End of headers
-    response_stream << body_;
-
-    // Update the response string
-    response_ = response_stream.str();
-
-    return 200;
-  }
+  
 
 private:
   std::map<std::string, std::string> headers_;
