@@ -6,6 +6,7 @@
 class HttpStatusCodes {
 private:
     std::map<int, std::string> codeMap;
+
 public:
     HttpStatusCodes();
     ~HttpStatusCodes();

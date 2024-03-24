@@ -1,5 +1,9 @@
 #include "../../inc/HttpRequestParser.hpp"
 
+/// @todo
+// handle error codes
+// implement missing getters e.g get header by key
+
 HttpRequestParser::HttpRequestParser() {
     body_offset_ = 0;
     chunk_size_ = 0;

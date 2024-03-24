@@ -1,18 +1,7 @@
 #ifndef HTTP_REQUEST_PARSER_HPP
 #define HTTP_REQUEST_PARSER_HPP
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <sstream>
-#include <stdexcept>
-#include <vector>
-#include <set>
-#include <cstdlib>
-# include <algorithm>
-#include <sys/time.h>
-#include <limits>
-#include <cstring>
+#include "./AllHeaders.hpp"
 
 class HttpRequestParser {
 private:
@@ -29,8 +18,6 @@ private:
     std::string frag_;
     bool isChunked_;
     size_t length_;
-
-
 
 
     bool extractURIComponents();
