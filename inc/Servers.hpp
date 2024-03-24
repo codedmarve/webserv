@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/17 20:30:04 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/24 21:27:59 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ class Servers {
 		void	initEvents();
 		std::vector<std::string> getPorts();
 		std::map<std::string, std::vector<std::string> > getKeyValue() const;
-		std::string getURL(int client_fd);
+		bool getRequest(int client_fd, std::string &request);
 
 		//Temporal function until we have a completed config file
 		void handleIncomingConnection(int server_fd);
