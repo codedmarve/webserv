@@ -33,7 +33,7 @@ int Response::buildErrorPage(int status_code) {
     const std::string& errorPage = config_.getErrorPages()[status_code]; // get errorpage from 
     if (!errorPage.empty()) {
         std::string target = "/" + errorPage; // Assuming errorPage is already a valid path
-        std::string cur_target = "/" + getPath();
+        std::string cur_target = "/" + config_.getPath();
 
         // Redirect to custom error page if different from current target
         if (target != cur_target) {
