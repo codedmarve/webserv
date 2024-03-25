@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/25 00:40:54 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/25 00:52:18 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,14 +171,15 @@ void Servers::handleIncomingConnection(int server_fd){
 
 	//WARNING: THE FOLLOWING WHILE LOOP IS INFINITE. IT WILL ONLY STOP WHEN THE CLIENT CLOSES THE CONNECTION.
 	//WHILE USING THE THUNDER BROWSER, PRESS "CANCEL REQUEST" AND THE CONNECTION WILL BE CLOSED.
-	//THEN, USE THE printREQUEST TO SEE THE REQUEST.
-	
+	//THEN, USE THE printREQUEST to SEE
 	while (finish != true){	
 		finish = getRequest(new_socket, request);
 		std::cout << "Count: " << count++ << std::endl;
 		// std::cout << "Request: " << request << std::endl;
 		// send (new_socket, request.c_str(), request.size(), 0);
 		// parser.parseRequest(request);
+		// if (request.find("EOF") != std::string::npos)
+		// 	finish = true;
 	}
 	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
@@ -369,10 +370,14 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	{
 		return true;
 	}
-	else if (bytes == -1)
+	if (bytes == -1)
 	{
-		std::cerr << "Recv failed" << std::endl;
-		return true;
+		if (errno == EAGAIN && errno == EWOULDBLOCK)
+			return true ;
+		else{
+			std::cerr << "Recv failed" << std::endl;
+			return true;
+		}
 	}
 	return false;
 }
