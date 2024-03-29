@@ -20,7 +20,7 @@ private:
     size_t length_;
 
 
-    bool extractURIComponents();
+    int extractURIComponents();
     bool isValidScheme(const std::string& scheme);
     int isValidAuthority(const std::string& authority);
     bool isValidPath(const std::string& path);
@@ -120,9 +120,14 @@ public:
     int parseChunkTrailer();
     int parseChunkedBody();
     int parseChunkSize(const std::string& hex);
-    bool checkSpecialHeaders();
+    int checkSpecialHeaders();
     void printRequest(HttpRequestParser parser);
     int parseTrailers();
+    std::string &getQuery();
+    std::string &getHeader(std::string key);
+    void extractPathQueryFragment(size_t pathStart, size_t queryStart, size_t fragmentStart);
+    /// @todo
+    // getPort
 };
 
 #endif

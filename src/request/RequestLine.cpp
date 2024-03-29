@@ -22,105 +22,56 @@ int HttpRequestParser::extractRequestLineData(std::string requestLine) {
     return 200;
 }
 
+
 int HttpRequestParser::parseRequestLine() {
-    int httpStatus = 0;
-    size_t endOfFirstLine = 0;
-    std::string requestLine;
 
-
-    endOfFirstLine = req_buffer_.find("\r\n");
-    if (endOfFirstLine != std::string::npos)
-        requestLine = req_buffer_.substr(0, endOfFirstLine);
-    else
+    size_t endOfFirstLine = req_buffer_.find("\r\n");
+    if (endOfFirstLine == std::string::npos)
         return 400;
 
-    extractRequestLineData(requestLine);
+    std::string requestLine = req_buffer_.substr(0, endOfFirstLine);
 
-    try {
-        httpStatus = parseMethod();
-        if (httpStatus != 200)
-            return httpStatus;
-        httpStatus = validateURI();
-        if (httpStatus != 200) 
-            return httpStatus;
-        httpStatus = isValidProtocol(protocol_);
-        if (httpStatus != 200) 
-            return httpStatus;
-
-        // Update the next section to process
-        buffer_section_ = HEADERS;
-        req_buffer_.erase(0, endOfFirstLine + 2); // +2 removes the "\r\n"
+    int httpStatus = extractRequestLineData(requestLine);
+    if (httpStatus != 200)
         return httpStatus;
-    } catch (const std::invalid_argument& e) {
-        return 405;
-    }
+
+    httpStatus = parseMethod();
+    if (httpStatus != 200)
+        return httpStatus;
+
+    httpStatus = validateURI();
+    if (httpStatus != 200)
+        return httpStatus;
+
+    httpStatus = isValidProtocol(protocol_);
+    if (httpStatus != 200)
+        return httpStatus;
+
+    buffer_section_ = HEADERS;
+    req_buffer_.erase(0, endOfFirstLine + 2);
+    
+    return 200;
 }
 
+
 int HttpRequestParser::parseMethod() {
-    // Set of valid HTTP methods
     static const std::string validMethodsArray[] = {
         "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD", "TRACE", "CONNECT"
     };
     static const std::set<std::string> validMethods(validMethodsArray, validMethodsArray + sizeof(validMethodsArray) / sizeof(validMethodsArray[0]));
 
     // Check if the method is valid and in uppercase
-    if (validMethods.find(method_) == validMethods.end()) {
-        // throw std::invalid_argument("Invalid HTTP method");
+    if (validMethods.find(method_) == validMethods.end())
         return 501;
-    }
 
-    // Check each character for validity
     for (std::string::const_iterator it = method_.begin(); it != method_.end(); ++it) {
-        if (!isMethodCharValid(*it)) {
-            // throw std::invalid_argument("Invalid character in HTTP method");
+        if (!isMethodCharValid(*it))
             return 400;
-        }
     }
-    return 200; // OK
+    return 200;
 }
 
-bool HttpRequestParser::extractURIComponents() {
-   size_t schemeEnd = uri_.find(':');
-    if (schemeEnd != std::string::npos) {
-        scheme_ = uri_.substr(0, schemeEnd);
-        if (schemeEnd + 3 < uri_.length() && uri_.substr(schemeEnd, 3) == "://") {
-            size_t authorityStart = schemeEnd + 3;
-            size_t authorityEnd = uri_.find_first_of("/?#", authorityStart);
-            if (authorityEnd == std::string::npos) {
-                authorityEnd = uri_.length();
-            }
-
-            authority_ = uri_.substr(authorityStart, authorityEnd - authorityStart);
-
-            size_t pathStart = authorityEnd;
-            size_t queryStart = uri_.find('?', pathStart);
-            size_t fragmentStart = uri_.find('#', pathStart);
-
-            if (queryStart != std::string::npos) {
-                if (fragmentStart != std::string::npos) {
-                    path_ = uri_.substr(pathStart, queryStart - pathStart);
-                    query_ = uri_.substr(queryStart + 1, fragmentStart - (queryStart + 1));
-                    frag_ = uri_.substr(fragmentStart + 1);
-                } else {
-                    path_ = uri_.substr(pathStart, queryStart - pathStart);
-                    query_ = uri_.substr(queryStart + 1);
-                }
-            } else if (fragmentStart != std::string::npos) {
-                path_ = uri_.substr(pathStart, fragmentStart - pathStart);
-                frag_ = uri_.substr(fragmentStart + 1);
-            } else {
-                path_ = uri_.substr(pathStart);
-            }
-
-            return true;
-        }
-    }
-
-    // If no scheme is found, treat the entire URI as the path
-    size_t pathStart = 0;
-    size_t queryStart = uri_.find('?', pathStart);
-    size_t fragmentStart = uri_.find('#', pathStart);
-
+void HttpRequestParser::extractPathQueryFragment(size_t pathStart, size_t queryStart, size_t fragmentStart) {
     if (queryStart != std::string::npos) {
         if (fragmentStart != std::string::npos) {
             path_ = uri_.substr(pathStart, queryStart - pathStart);
@@ -136,8 +87,44 @@ bool HttpRequestParser::extractURIComponents() {
     } else {
         path_ = uri_.substr(pathStart);
     }
+}
 
-    return true;
+int HttpRequestParser::extractURIComponents() {
+    size_t schemeEnd;
+    size_t pathStart;
+    size_t queryStart;
+    size_t fragmentStart;
+    size_t authorityStart;
+    size_t authorityEnd;
+
+    schemeEnd = uri_.find(':');
+    if (schemeEnd != std::string::npos) {
+        scheme_ = uri_.substr(0, schemeEnd);
+        if (schemeEnd + 3 < uri_.length() && uri_.substr(schemeEnd, 3) == "://") {
+            authorityStart = schemeEnd + 3;
+            authorityEnd = uri_.find_first_of("/?#", authorityStart);
+            if (authorityEnd == std::string::npos)
+                authorityEnd = uri_.length();
+
+            authority_ = uri_.substr(authorityStart, authorityEnd - authorityStart);
+            pathStart = authorityEnd;
+            queryStart = uri_.find('?', pathStart);
+            fragmentStart = uri_.find('#', pathStart);
+
+            extractPathQueryFragment(pathStart, queryStart, fragmentStart);
+
+            return (path_.empty() && uri_ != "/") ? 400 : 200;
+        }
+    }
+
+    // If no scheme is found, treat the entire URI as the path
+    pathStart = 0;
+    queryStart = uri_.find('?', pathStart);
+    fragmentStart = uri_.find('#', pathStart);
+
+    extractPathQueryFragment(pathStart, queryStart, fragmentStart);
+    
+    return (path_.empty() && uri_ != "/") ? 400 : 200;
 }
 
 bool HttpRequestParser::isValidScheme(const std::string& scheme) {
@@ -299,12 +286,12 @@ int HttpRequestParser::validateURI() {
     if (uri_.empty())
         return false;
 
-    bool hasAuthority = extractURIComponents();
+    int hasAuthority = extractURIComponents();
     // print_uri_extracts();
 
     if (!isValidScheme(scheme_)) 
         return 400;
-    if (hasAuthority && !isValidAuthority(authority_)) 
+    if (hasAuthority == 200 && !isValidAuthority(authority_)) 
         return 400;
     if (!isValidPath(path_)) 
         return 404;

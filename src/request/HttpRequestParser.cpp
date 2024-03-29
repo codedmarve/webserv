@@ -43,11 +43,11 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     }
 
     /// @todo we'll sort this out when errorhandling is sorted
-    // if (buffer_section_ == COMPLETE || httpStatus == 200) {
-    //     buffer_section_ = COMPLETE;
-    // } else if (buffer_section_ == ERROR || httpStatus != 200) {
-    //     buffer_section_ = ERROR;
-    // }
+    if (buffer_section_ == COMPLETE || httpStatus == 1000) {
+        buffer_section_ = COMPLETE;
+    } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 1000)) {
+        buffer_section_ = ERROR;
+    }
 
     return httpStatus;
 }
@@ -87,7 +87,13 @@ std::string HttpRequestParser::getBody() const {
     return body_;
 }
 
+std::string &HttpRequestParser::getQuery() {
+  return query_;
+}
 
+std::string &HttpRequestParser::getHeader(std::string key) {
+  return headers_[key];
+}
 
 
 

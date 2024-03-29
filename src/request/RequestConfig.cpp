@@ -10,6 +10,6 @@ void RequestConfig::setTarget(std::string target) {
 }
 
 std::string &RequestConfig::getTarget() {
-  std::cout << target_ << " <<= DEBUG 1\n";
   return target_;
 }
+

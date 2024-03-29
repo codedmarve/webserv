@@ -58,12 +58,12 @@ bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
     return (c >= 0x21 && c <= 0x7E) || ((c & 0x80) != 0 && c != 0x7F);
 }
 
-bool HttpRequestParser::checkSpecialHeaders() {
+int HttpRequestParser::checkSpecialHeaders() {
     if (headers_.count("host")) {
         std::string value = headers_["host"];
         if (value.empty() || value.find('@') != std::string::npos) {
             std::cerr << "Invalid 'Host' header value." << std::endl;
-            return false;
+            return 400;
         }
         /// @todo validate host using our validate uri method and make "@" valid
     }
@@ -75,13 +75,13 @@ bool HttpRequestParser::checkSpecialHeaders() {
             chunk_status_ = CHUNK_SIZE;
             buffer_section_ = CHUNK;
         } else {
-            return false;
+            return 400;
         }
     } else if (headers_.count("content-length")) {
         std::string value = headers_["content-length"];
         if (value.find_first_not_of("0123456789") != std::string::npos) {
             std::cerr << "Invalid 'Content-Length' header value." << std::endl;
-            return false;
+            return 400;
         }
         try {
             // Convert the value to an integer
@@ -89,11 +89,11 @@ bool HttpRequestParser::checkSpecialHeaders() {
             iss >> length_;
         } catch (const std::exception& e) {
             std::cerr << "Error parsing 'Content-Length' header: " << e.what() << std::endl;
-            return false;
+            return 400;
         }
         buffer_section_ = BODY;
     } else {
-        return false; 
+        return 1000; // should be 400 but I need a unique value
     }
 
 
@@ -103,11 +103,11 @@ bool HttpRequestParser::checkSpecialHeaders() {
         std::string value = headers_["method"];
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;
-            throw std::invalid_argument("Unsupported HTTP method");
+            return 1000; // should be 405 but I need a unique value
         }
     }
 
-    return true;
+    return 200;
 }
 
 std::string HttpRequestParser::trimmer(const std::string& str) {

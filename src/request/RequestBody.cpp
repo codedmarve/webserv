@@ -9,7 +9,7 @@ int HttpRequestParser::parseBody() {
         req_buffer_.clear();
 
         if (body_.length() == length_)
-          return 1;
+          return 1000;
         else
           return 400;
     }
@@ -32,7 +32,7 @@ int HttpRequestParser::parseChunkedBody() {
             if (chunk_size_ == 0) {
                 if (!req_buffer_.empty())
                     return parseChunkTrailer();
-                return 0; // Finished parsing chunked body and trailers
+                return 1000; // Finished parsing chunked body and trailers
             }
 
             // Append chunk data to request body
@@ -49,7 +49,7 @@ int HttpRequestParser::parseChunkedBody() {
             }
         }
     }
-    return 1; // Incomplete chunk, need more data
+    return 200; // Incomplete chunk, need more data
 }
 
 int HttpRequestParser::parseChunkSize(const std::string& hex) {
@@ -99,7 +99,9 @@ int HttpRequestParser::parseChunkTrailer() {
             // If no separator found, it's an invalid format
             return 400; // Bad Request: Invalid header format
         }
+        /// @note i might need to uncomment depending on our final implementation
+        // req_buffer_.erase(0, end + 2);
     }
 
-    return 0; // OK: Chunk trailer parsed successfully
+    return 1000; // OK: Chunk trailer parsed successfully
 }
