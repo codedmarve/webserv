@@ -6,11 +6,11 @@
 // # include "InputArgs.hpp"
 // # include "Client.hpp"
 // # include "Utils.hpp"
-# include "../../inc/AllHeaders.hpp"
+# include "./AllHeaders.hpp"
 
 // class Client;
 // class InputArgs;
-class Request;
+class HttpRequestParser;
 // class ServerConfig;
 // struct Listen;
 
@@ -46,7 +46,7 @@ class RequestConfig {
   std::string &getBody();
   std::string &getAuth();
   std::map<std::string, std::string> &getCGI();
-  std::map<std::string, std::string, s_compare> &getHeaders();
+  // std::map<std::string, std::string, s_compare> &getHeaders();
   std::string &getHeader(std::string key);
   size_t &getClientMaxBodySize();
   std::string &getProtocol();

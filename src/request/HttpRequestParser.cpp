@@ -42,7 +42,6 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
         httpStatus = parseChunkedBody();
     }
 
-    /// @todo we'll sort this out when errorhandling is sorted
     if (buffer_section_ == COMPLETE || httpStatus == 1000) {
         buffer_section_ = COMPLETE;
     } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 1000)) {
@@ -95,7 +94,13 @@ std::string &HttpRequestParser::getHeader(std::string key) {
   return headers_[key];
 }
 
+void HttpRequestParser::setTarget(std::string target) {
+  target_ = target;
+}
 
+std::string &HttpRequestParser::getTarget() {
+  return target_;
+}
 
 
 

@@ -1,6 +1,6 @@
 #include "../../inc/AllHeaders.hpp"
 
-Response::Response(RequestConfig &config, int worker_id, int error_code) : config_(config), worker_id_(worker_id) {
+Response::Response(HttpRequestParser &req_config, int worker_id, int error_code) : req_config_(req_config), worker_id_(worker_id) {
   error_code_ = error_code;
   status_code_ = 0;
   total_sent_ = 0;
@@ -28,61 +28,62 @@ void Response::clear() {
 
 
 
-int Response::buildErrorPage(int status_code) {
-    // Check if custom error page is defined for the status code
-    const std::string& errorPage = config_.getErrorPages()[status_code]; // get errorpage from 
-    if (!errorPage.empty()) {
-        std::string target = "/" + errorPage; // Assuming errorPage is already a valid path
-        std::string cur_target = "/" + config_.getPath();
+// int Response::buildErrorPage(int status_code) {
+//     // Check if custom error page is defined for the status code
+//     /// @note from server config
+//     const std::string& errorPage = config_.getErrorPages()[status_code]; // get errorpage from 
+//     if (!errorPage.empty()) {
+//         std::string target = "/" + errorPage; // Assuming errorPage is already a valid path
+//         std::string cur_target = "/" + config_.getPath();
 
-        // Redirect to custom error page if different from current target
-        if (target != cur_target) {
-            config_.setMethod("GET");
-            redirect_ = true;
-            redirect_code_ = status_code;
-            redirect_target_ = target;
-            return 0;
-        }
-    }
+//         // Redirect to custom error page if different from current target
+//         if (target != cur_target) {
+//             config_.setMethod("GET");
+//             redirect_ = true;
+//             redirect_code_ = status_code;
+//             redirect_target_ = target;
+//             return 0;
+//         }
+//     }
 
-    // Default error page
-    std::ostringstream bodyStream;
-    bodyStream << "<html>\r\n";
-    bodyStream << "<head><title>" << status_code << " " << getHttpStatusCode(status_code) << "</title></head>\r\n";
-    bodyStream << "<body>\r\n";
-    bodyStream << "<center><h1>" << status_code << " " << getHttpStatusCode(status_code) << "</h1></center>\r\n";
+//     // Default error page
+//     std::ostringstream bodyStream;
+//     bodyStream << "<html>\r\n";
+//     bodyStream << "<head><title>" << status_code << " " << getHttpStatusCode(status_code) << "</title></head>\r\n";
+//     bodyStream << "<body>\r\n";
+//     bodyStream << "<center><h1>" << status_code << " " << getHttpStatusCode(status_code) << "</h1></center>\r\n";
     
-    // Check if Server header is available
-    if (headers_.count("Server") > 0) {
-        bodyStream << "<hr><center>" << headers_["Server"] << "</center>\r\n";
-    }
+//     // Check if Server header is available
+//     if (headers_.count("Server") > 0) {
+//         bodyStream << "<hr><center>" << headers_["Server"] << "</center>\r\n";
+//     }
     
-    bodyStream << "</body>\r\n";
-    bodyStream << "</html>\r\n";
+//     bodyStream << "</body>\r\n";
+//     bodyStream << "</html>\r\n";
 
-    std::string body = bodyStream.str();
+//     std::string body = bodyStream.str();
 
-    // Set headers for the error page
-    headers_["Content-Type"] = getMimeType(".html");
-    headers_["Content-Length"] = ft::to_string(body.length());
+//     // Set headers for the error page
+//     headers_["Content-Type"] = getMimeType(".html");
+//     headers_["Content-Length"] = ft::to_string(body.length());
 
-    // Additional headers based on status code
-    switch (status_code) {
-        case 401:
-            headers_["WWW-Authenticate"] = "Basic realm=\"Access to restricted area\"";
-            break;
-        case 408:
-        case 503:
-            headers_["Connection"] = "close";
-            if (status_code == 503)
-                headers_["Retry-After"] = "30";
-            break;
-        default:
-            break;
-    }
+//     // Additional headers based on status code
+//     switch (status_code) {
+//         case 401:
+//             headers_["WWW-Authenticate"] = "Basic realm=\"Access to restricted area\"";
+//             break;
+//         case 408:
+//         case 503:
+//             headers_["Connection"] = "close";
+//             if (status_code == 503)
+//                 headers_["Retry-After"] = "30";
+//             break;
+//         default:
+//             break;
+//     }
 
-    return status_code;
-}
+//     return status_code;
+// }
 
 void logError(const std::string& message) {
   std::cerr << "ERROR: " << message << std::endl;
@@ -90,61 +91,61 @@ void logError(const std::string& message) {
 }
 
 
-int GET() {
-    // Check if file exists
-    if (!file_.exists()) {
-      logError("File Not Found: " + file_.getPath());
-      return 404; // File Not Found
-    }
+// int GET() {
+//     // Check if file exists
+//     if (!file_.exists()) {
+//       logError("File Not Found: " + file_.getPath());
+//       return 404; // File Not Found
+//     }
 
-    std::string status_line = "HTTP/1.1 200 OK\r\n";
+//     std::string status_line = "HTTP/1.1 200 OK\r\n";
 
-    // Set Date header
-    headers_["Date"] = getCurrentDateTime();
+//     // Set Date header
+//     headers_["Date"] = getCurrentDateTime();
 
-    // Check if autoindex is enabled and file is a directory
-    if (config_.getAutoindex() && file_.is_directory()) {
-      headers_["Content-Type"] = "text/html"; // MIME type for HTML
-      body_ = file_.autoIndex(config_.getRequestTarget());
-    } else {
-      // Determine MIME type based on file extension
-      std::string mime_type = getMimeType(file_.getMimeExtension());
-      if (mime_type.empty()) {
-        mime_type = "application/octet-stream"; // Default MIME type
-      }
-      headers_["Content-Type"] = mime_type;
+//     // Check if autoindex is enabled and file is a directory
+//     if (config_.getAutoindex() && file_.is_directory()) {
+//       headers_["Content-Type"] = "text/html"; // MIME type for HTML
+//       body_ = file_.autoIndex(config_.getRequestTarget());
+//     } else {
+//       // Determine MIME type based on file extension
+//       std::string mime_type = getMimeType(file_.getMimeExtension());
+//       if (mime_type.empty()) {
+//         mime_type = "application/octet-stream"; // Default MIME type
+//       }
+//       headers_["Content-Type"] = mime_type;
 
-      body_ = file_.getContent();
-    }
+//       body_ = file_.getContent();
+//     }
 
-    // Set Content-Length header
-    headers_["Content-Length"] = std::to_string(body_.length());
+//     // Set Content-Length header
+//     headers_["Content-Length"] = std::to_string(body_.length());
 
-    // Content Compression
-    if (shouldCompress()) {
-      headers_["Content-Encoding"] = "gzip";
-      body_ = compressBody(body_);
-    }
+//     // Content Compression
+//     if (shouldCompress()) {
+//       headers_["Content-Encoding"] = "gzip";
+//       body_ = compressBody(body_);
+//     }
 
-    // Security Headers
-    headers_["X-Content-Type-Options"] = "nosniff";
-    headers_["X-Frame-Options"] = "DENY";
-    headers_["Content-Security-Policy"] = "default-src 'self'";
+//     // Security Headers
+//     headers_["X-Content-Type-Options"] = "nosniff";
+//     headers_["X-Frame-Options"] = "DENY";
+//     headers_["Content-Security-Policy"] = "default-src 'self'";
 
-    // Construct the full response
-    std::ostringstream response_stream;
-    response_stream << status_line;
-    for (std::map<std::string, std::string>::const_iterator it = headers_.begin(); it != headers_.end(); ++it) {
-      response_stream << it->first << ": " << it->second << "\r\n";
-    }
-    response_stream << "\r\n"; // End of headers
-    response_stream << body_;
+//     // Construct the full response
+//     std::ostringstream response_stream;
+//     response_stream << status_line;
+//     for (std::map<std::string, std::string>::const_iterator it = headers_.begin(); it != headers_.end(); ++it) {
+//       response_stream << it->first << ": " << it->second << "\r\n";
+//     }
+//     response_stream << "\r\n"; // End of headers
+//     response_stream << body_;
 
-    // Update the response string
-    response_ = response_stream.str();
+//     // Update the response string
+//     response_ = response_stream.str();
 
-    return 200;
-  }
+//     return 200;
+//   }
 
 std::string Response::getCurrentDateTime() {
   char buffer[80];
@@ -193,12 +194,12 @@ std::string Response::response_log(LogLevel level) {
   std::string ret;
 
   if (level == INFO) {
-    ret = "[status: " + ft::to_string(status_code_) + " " + getHttpStatusCode(status_code_) + "]";
+    ret = "[status: " + to_string(status_code_) + " " + getHttpStatusCode(status_code_) + "]";
     if (headers_.count("Content-Length")) {
       ret += " [length: " + headers_["Content-Length"] + "]";
     }
   } else if (level > INFO) {
-    ret = "\n\n[status: " + ft::to_string(status_code_) + " " + getHttpStatusCode(status_code_) + "]\n";
+    ret = "\n\n[status: " + to_string(status_code_) + " " + getHttpStatusCode(status_code_) + "]\n";
     if (!response_.empty()) {
       size_t max_header_size = std::min(header_size_, response_.size());
       ret += response_.substr(0, max_header_size);

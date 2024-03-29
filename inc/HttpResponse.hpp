@@ -9,7 +9,7 @@ extern pthread_mutex_t g_write;
 
 class Response {
 public:
-    Response(RequestConfig &config, int worker_id, int error_code = 0);
+    Response(HttpRequestParser &config, int worker_id, int error_code = 0);
     ~Response();
 
     typedef int (Response::*type)();
@@ -35,7 +35,7 @@ public:
     bool redirect();
     std::string redirect_target();
     std::string response_log(LogLevel level);
-    std::string Response::getCurrentDateTime();
+    std::string getCurrentDateTime();
     void logError(const std::string& message);
 
     int GET();
@@ -47,12 +47,12 @@ public:
     std::string getResponseBody();
     int send(int fd);
 
-    bool redirect_;
-    int redirect_code_;
-    std::string redirect_target_;
+    // bool redirect_;
+    // int redirect_code_;
+    // std::string redirect_target_;
 
 private:
-    RequestConfig &config_;
+    HttpRequestParser &req_config_;
     // File file_;
     int error_code_;
     int worker_id_;

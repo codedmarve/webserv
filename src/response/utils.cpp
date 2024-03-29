@@ -168,3 +168,39 @@ std::string getHttpStatusCode(int code) {
     std::map<int, std::string>::iterator it = codeMap.find(code);
     return (it != codeMap.end()) ? it->second : "Unknown";
 }
+
+
+std::string Utils::to_lower(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
+    return result;
+}
+
+std::string Utils::to_upper(const std::string& s) {
+    std::string result = s;
+    std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::toupper(c); });
+    return result;
+}
+
+std::string Utils::trim_left(const std::string& str, char c) {
+    std::string result = str;
+    result.erase(result.begin(), std::find_if(result.begin(), result.end(), [c](unsigned char ch) { return ch != c; }));
+    return result;
+}
+
+std::string Utils::trim_right(const std::string& str, char c) {
+    std::string result = str;
+    result.erase(std::find_if(result.rbegin(), result.rend(), [c](unsigned char ch) { return ch != c; }).base(), result.end());
+    return result;
+}
+
+std::string Utils::unique_char(const std::string& str) {
+    std::string result = str;
+    std::sort(result.begin(), result.end());
+    result.erase(std::unique(result.begin(), result.end()), result.end());
+    return result;
+}
+
+int Utils::stoi(const std::string& str, std::size_t *pos, int base) {
+    return std::stoi(str, pos, base);
+}

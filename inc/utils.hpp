@@ -1,26 +1,28 @@
-#ifndef STRINGUTILS_HPP
-#define STRINGUTILS_HPP
+#pragma once
 
-#include "./AllHeaders.hpp"
+#include <string>
+#include <sstream>
+#include <algorithm>
 
-std::string to_lower(std::string s);
-std::string to_upper(std::string s);
-std::string trim_left(std::string str, char c);
-std::string trim_right(std::string str, char c);
-std::string unique_char(std::string str);
-int stoi(const std::string &str, std::size_t *pos = 0, int base = 10);
+class Utils {
+public:
+    static std::string to_lower(const std::string& s);
+    static std::string to_upper(const std::string& s);
+    static std::string trim_left(const std::string& str, char c);
+    static std::string trim_right(const std::string& str, char c);
+    static std::string unique_char(const std::string& str);
+    static int stoi(const std::string& str, std::size_t *pos = nullptr, int base = 10);
 
-template<typename T>
-std::string to_string(T number) {
-    std::stringstream ss;
-    ss << number;
-    return ss.str();
-}
+    template<typename T>
+    static std::string to_string(T number) {
+        std::stringstream ss;
+        ss << number;
+        return ss.str();
+    }
 
-struct s_compare {
-    bool operator() (const std::string& lhs, const std::string& rhs) const {
-        return to_lower(lhs) < to_lower(rhs);
+    struct s_compare {
+        bool operator() (const std::string& lhs, const std::string& rhs) const {
+            return Utils::to_lower(lhs) < Utils::to_lower(rhs);
+        };
     };
 };
-
-#endif
