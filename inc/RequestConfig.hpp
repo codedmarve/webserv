@@ -16,7 +16,7 @@ class Request;
 
 class RequestConfig {
  public:
-  RequestConfig(Request &request);
+  RequestConfig(HttpRequestParser &request);
   ~RequestConfig();
 
     enum LogLevel {
@@ -60,7 +60,7 @@ class RequestConfig {
   std::string log(LogLevel level);
 
  private:
-  Request &request_;
+  HttpRequestParser &request_;
 //   Listen &host_port_;
 //   std::vector<ServerConfig> &servers_;
 //   Client &client_;

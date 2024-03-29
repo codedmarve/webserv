@@ -1,6 +1,6 @@
 #include "../../inc/AllHeaders.hpp"
 
-RequestConfig::RequestConfig(Request &request) : request_(request){}
+RequestConfig::RequestConfig(HttpRequestParser &request) : request_(request){}
 
 RequestConfig::~RequestConfig() {}
 
