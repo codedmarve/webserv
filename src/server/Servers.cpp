@@ -6,18 +6,20 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/24 03:37:58 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/29 08:18:27 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Servers.hpp"
 #include "../../inc/HttpRequestParser.hpp"
 
+//Servers constuctor
 Servers::Servers(std::map<std::string, std::vector<std::string> > keyValues) : _server_fds(), _keyValues(keyValues){
 	createServers();
 	initEvents();
 }
 
+//Servers destructor
 Servers::~Servers() {
 	for (std::vector<int>::iterator it = _server_fds.begin(); it != _server_fds.end(); ++it)
 		close(*it);
@@ -27,7 +29,6 @@ Servers::~Servers() {
 // Create socket
 int Servers::createSocket(){
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	// fcntl(server_fd, F_SETFL, O_NONBLOCK);
 	if (server_fd == -1) {
 		std::cerr << "Socket creation failed" << std::endl;
 		return (0);
@@ -35,18 +36,6 @@ int Servers::createSocket(){
 	_server_fds.push_back(server_fd);
 	return (1);
 }
-
-// Bind socket
-// void Servers::bindSocket(int port){
-// 	struct sockaddr_in address;
-// 	address.sin_family = AF_INET;
-// 	address.sin_addr.s_addr = htonl(INADDR_ANY);
-// 	address.sin_port = htons(port);
-// 	if (bind(_server_fds.back(), (struct sockaddr *)&address, sizeof(address)) == -1) {
-// 		std::cerr << "Bind failed" << std::endl;
-// 		return;
-// 	}
-// }
 
 // Bind socket
 int Servers::bindSocket(std::string s_port){
@@ -72,15 +61,16 @@ int Servers::bindSocket(std::string s_port){
 		ss >> port;
 		c_ip = ip_string.c_str();
 	}
+	int opt = 1;
+	setsockopt(_server_fds.back(), SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
 	struct sockaddr_in address;
+	std::memset(&address, 0, sizeof(address));
 	address.sin_family = AF_INET;
 	if (c_ip != NULL)
 		address.sin_addr.s_addr = inet_addr(c_ip);
 	else
 		address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	// address.sin_addr.s_addr = htonl(INADDR_ANY);
 	address.sin_port = htons(port);
-	// std::cout << "Binding server to IP: " << ip_string << ", port: " << port << std::endl;
 	if (bind(_server_fds.back(), (struct sockaddr *)&address, sizeof(address)) == -1) {
 		std::cerr << "Bind failed" << std::endl;
 		return (0);
@@ -91,15 +81,15 @@ int Servers::bindSocket(std::string s_port){
 
 // Create epoll instance
 void	Servers::createEpoll(){
-	int epoll_fd = epoll_create1(0);// We create an epoll instance
+	int epoll_fd = epoll_create1(0);
 	this->_epoll_fds = epoll_fd;
 	if (epoll_fd < 0) {
 		std::cerr << "Epoll creation failed" << std::endl;
 		exit(1);
 	}
-	
 }
 
+// Listen on socket
 int Servers::listenSocket(){
 	if (listen(_server_fds.back(), SOMAXCONN) == -1) {
 		std::cerr << "Listen failed" << std::endl;
@@ -108,17 +98,17 @@ int Servers::listenSocket(){
 	return (1);
 }
 
+// Combine file descriptors into epoll instance
 int Servers::combineFds(){
-	// int flags = fcntl(_server_fds.back(), F_GETFL, 0);// We set the appropriate flags for the server
 	int flags = fcntl(_server_fds.back(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	if (flags == -1)// || fcntl(_server_fds.back(), F_SETFL, flags | O_NONBLOCK) == -1) 
+	if (flags == -1)
 	{
 		std::cerr << "Fcntl failed" << std::endl;
 		return (0);
 	}
 	struct epoll_event event;
 	std::memset(&event, 0, sizeof(event));
-	event.events = EPOLLIN; //| EPOLLET;
+	event.events = EPOLLIN;
 	event.data.fd = _server_fds.back();
 	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_ADD, _server_fds.back(), &event) == -1) {
 		std::cerr << "Epoll_ctl failed" << std::endl;
@@ -127,55 +117,16 @@ int Servers::combineFds(){
 	return (1);
 }
 
-// int number = 123;
-//     std::stringstream ss;
-//     ss << number;
-//     std::string str = ss.str();
-
+// Get file descriptors for servers
 void Servers::createServers(){
 	
-	// this->_server_ports["server.listen"].push_back("8001  8003 8004 8005");
-	// this->_server_ports["server.listen"].push_back("8082");
-	// this->_server_ports["server.listen"].push_back("8082");
 	std::cout << "Creating servers" << std::endl;
 	std::vector<std::string> ports;
-	createEpoll(); //We create an epoll instance
+	createEpoll();
 	ports = getPorts();
-	// for (int i = 0; i != INT_MAX; i++){//config.find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != config.end(); i++){
-	// 	ss.str("");
-	// 	ss << i;
-	// 	std::string server = "server[" + ss.str() + "].listen";
-	// 	std::cout << server << std::endl;
-	// 	std::map<std::string, std::vector<std::string> >::iterator it_server = config.find(server);
-	// 	std::map<std::string, std::vector<std::string> >::iterator it_http = config.find("http." + server);
-	// 	if (it_server != config.end() || it_http != config.end()){
-	// 		if (it_server != config.end())
-	// 			ports_temp = it_server->second;
-	// 		else if (it_http != config.end())
-	// 			ports_temp = it_http->second;
-	// 		for (std::vector<std::string>::iterator it2 = ports_temp.begin(); it2 != ports_temp.end(); it2++){
-	// 			if (std::find(ports.begin(), ports.end(), *it2) == ports.end())
-	// 				ports.push_back(*it2);
-	// 		}
-	// 	}
-	// 	// if (it != database.getKeyValue().end())
-	// 	// 	std::cout << it->first << std::endl;
-
-	// 	// if (database.getKeyValue().find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != database.getKeyValue().end())
-	// 	// 	std::cout << database.getKeyValue().find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]")->first << std::endl;
-	// 	// std::cout << "I am here" << std::endl;
-	// 	// std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	// 	else
-	// 		break;
-	// }
 	for (std::vector<std::string>::iterator it2 = ports.begin(); it2 != ports.end(); it2++) {
 		if (!checkSocket(*it2)){
-			//We create a singular socket
 			if (createSocket()){
-				// int enable = 1;
-				// setsockopt(_server_fds.back(), SOL_SOCKET, SO_KEEPALIVE, &enable, sizeof(enable));
-				// setsockopt(_server_fds.back(), SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
-				// bindSocket(std::atoi(it2->c_str())); //We bind the socket to the port
 				if (!bindSocket(*it2) || !listenSocket() || !combineFds())
 					_server_fds.pop_back();
 				else
@@ -183,40 +134,22 @@ void Servers::createServers(){
 					assignDomain(*it2, _server_fds.back());
 					std::cout << "Server created on port " << _ip_to_server[_server_fds.back()] << ", server:" << _server_fds.back() << std::endl;
 				}
-				// listenSocket(_server_fds.back());
-				// combineFds(); //We combine the server and epoll fds
-				// IpAddressResolver resolver;
-				// std::string hostname = 
-				// resolver.resolve("127.0.0.1:8001");
-				// listen(_server_fds.back(), SOMAXCONN);
-				// std::cout << "Server fd: " << _server_fds.back() << std::endl;
 			}
 		}
 	}
-	for (std::map<int, std::vector<std::string> >::iterator it = _domain_to_server.begin(); it != _domain_to_server.end(); it++){
-		std::cout << "Server fd: " << it->first;
-		for (std::vector<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++){
-			std::cout << " Domain: " << *it2;
-		}
-		std::cout << std::endl;
-	}
 }
 
+// Handle incoming connection from clients
 void Servers::handleIncomingConnection(int server_fd){
-	// struct sockaddr_in address;
-	// int addrlen = sizeof(address);
-	// int new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-	// if (new_socket == -1) {
-	// 	// std::cerr << "Accept failed" << std::endl;
-	// 	return ;
-	// }
 	struct sockaddr_in address;
+	// struct timeval timeout;
+	std::string request;
     socklen_t addrlen = sizeof(address);
-	// std::cout << "Argument server_fd: " << server_fd << std::endl;
     char ip[INET_ADDRSTRLEN];
     int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+	bool finish = false;
     if (new_socket == -1) {
-        // std::cerr << "Accept failed with error: " << strerror(errno) << std::endl;
+        std::cerr << "Accept failed." << std::endl;
         return;
     }
 	if (inet_ntop(AF_INET, &(address.sin_addr), ip, INET_ADDRSTRLEN) == NULL) {
@@ -225,41 +158,46 @@ void Servers::handleIncomingConnection(int server_fd){
     	return;
 }
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << std::endl;
-	std::string url = getURL(new_socket);
-	std::cout << "Initial URL: " << url << std::endl <<std::endl;
+	int flags = fcntl(new_socket, F_SETFL, FD_CLOEXEC, O_NONBLOCK);//COMMENT THE 0_NONBLOCK LINE IF THE BEHAVIOUR IS UNDEFINED.
+	if (flags == -1)
+	{
+		std::cerr << "Fcntl failed" << std::endl;
+		close(new_socket);
+		return;
+	}
 	HttpRequestParser parser;
-	parser.parseRequest(url);
-	std::cout << "Requested URL: " << std::endl;
-	parser.printRequest(parser);
+	int count = 0;
+
+
+	//WARNING: THE FOLLOWING WHILE LOOP IS INFINITE. IT WILL ONLY STOP WHEN THE CLIENT CLOSES THE CONNECTION.
+	//WHILE USING THE THUNDER BROWSER, PRESS "CANCEL REQUEST" AND THE CONNECTION WILL BE CLOSED.
+	//THEN, USE THE printREQUEST to SEE
+	while (finish != true){	
+		finish = getRequest(new_socket, request);
+		std::cout << "Count: " << count++ << std::endl;
+		// std::cout << "Request: " << request << std::endl;
+		// send (new_socket, request.c_str(), request.size(), 0);
+		// parser.parseRequest(request);
+		// if (request.find("EOF") != std::string::npos)
+		// 	finish = true;
+	}
+	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());
 	if (bytes == -1) {
 		std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
 		return;
 	}
+	// std::cout << "I am here now!!" << std::endl;
     // Close the socket
     if (close(new_socket) == -1)
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
 }
 
-void Servers::printServerAddress(int server_fd) {
-    struct sockaddr_in address;
-    socklen_t addrlen = sizeof(address);
-    
-    if (getsockname(server_fd, (struct sockaddr *)&address, &addrlen) == -1) {
-        std::cerr << "Getsockname failed" << std::endl;
-        return;
-    }
-
-    char ip[INET_ADDRSTRLEN];
-    inet_ntop(AF_INET, &(address.sin_addr), ip, INET_ADDRSTRLEN);
-    std::cout << "Server is listening on IP: " << ip << ", Port: " << ntohs(address.sin_port) << std::endl;
-}
-
+// Initialize events that will be handled by epoll
 void Servers::initEvents(){
 	while (true){
 		try{
-		// for (std::vector<int>::iterator it = _epoll_fds.begin(); it != _epoll_fds.end(); ++it){
 			struct epoll_event events[_server_fds.size()];
 			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size(), -1);
 			if (n == -1) {
@@ -269,8 +207,6 @@ void Servers::initEvents(){
 			for (int i = 0; i < n; i++) {
 				for (std::vector<int>::iterator it2 = _server_fds.begin(); it2 != _server_fds.end(); ++it2) {
 					if (events[i].data.fd == *it2) {
-						// std::cout << "Incoming connection" << std::endl;
-						// printServerAddress(*it2);
 						std::cout << "Incoming connection on server: " << *it2 << std::endl;
 						handleIncomingConnection(*it2);
 					}
@@ -282,6 +218,7 @@ void Servers::initEvents(){
 	}
 }
 
+// Getting ports from config file
 std::vector<std::string> Servers::getPorts(){
 	
 	std::map<std::string, std::vector<std::string> > config = getKeyValue();
@@ -289,7 +226,7 @@ std::vector<std::string> Servers::getPorts(){
 	std::vector<std::string> ports_temp;
 	std::vector<std::string> ports;
 
-	for (int i = 0; i != std::numeric_limits<int>::max(); i++) {//config.find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != config.end(); i++){
+	for (int i = 0; i != std::numeric_limits<int>::max(); i++){
 		ss.str("");
 		ss << i;
 		std::string server_name = "server[" + ss.str() + "]";
@@ -314,23 +251,16 @@ std::vector<std::string> Servers::getPorts(){
 			}
 		}
 		else if (it_server_name != config.end() && it_server == config.end()){
-			// std::cerr << "No listen directive found for server[" << i << "], setting port to 80" << std::endl;
 			if (std::find(ports.begin(), ports.end(), "80") == ports.end())
 				ports.push_back("80");
 		}
-		// if (it != database.getKeyValue().end())
-		// 	std::cout << it->first << std::endl;
-
-		// if (database.getKeyValue().find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]") != database.getKeyValue().end())
-		// 	std::cout << database.getKeyValue().find("server[" + static_cast<std::ostringstream*>(&(ss << i))->str() + "]")->first << std::endl;
-		// std::cout << "I am here" << std::endl;
-		// std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 		else
 			return (ports);
 	}
 	return (ports);
 }
 
+// Getting local domains and saving them to a map for each server
 void Servers::assignLocalDomain(int server_fd){
 	std::map<std::string, std::vector<std::string> > config = getKeyValue();
 	for (std::map<std::string, std::vector<std::string> >::iterator it_domain = config.begin(); it_domain != config.end(); it_domain++){
@@ -350,6 +280,7 @@ void Servers::assignLocalDomain(int server_fd){
 	}
 }
 
+// Getting domains and saving them to a map for each server
 void Servers::assignDomain(std::string port, int server_fd){
 	if (port == "80")
 		assignLocalDomain(server_fd);
@@ -360,13 +291,10 @@ void Servers::assignDomain(std::string port, int server_fd){
 		{
 			if (*it2 == port){
 				std::string server_name = it->first;
-				// std::size_t pos = server_name.find("server[");
 				std::size_t pos = server_name.find("]");
 				server_name = server_name.substr(0, pos + 1);
 				std::string domain = server_name + ".server_name";
-				// std::cout << "Domain: " << domain << std::endl;
 				std::map<std::string, std::vector<std::string> >::iterator it_domain = config.find(domain);
-				// std::cout << "Domain: " << *it_domain->second.begin() << std::endl;
 				if (it_domain != config.end()){
 					for (std::vector<std::string>::iterator it3 = it_domain->second.begin(); it3 != it_domain->second.end(); it3++){
 						if (std::find(_domain_to_server[server_fd].begin(), _domain_to_server[server_fd].end(), *it3) == _domain_to_server[server_fd].end())
@@ -382,14 +310,12 @@ void Servers::assignDomain(std::string port, int server_fd){
 	}
 }
 
-// std::vector<std::string> Servers::getServerPort(std::string listen) const {
-// 	return (this->_server_ports.at(listen));
-// }
-
+// Getter for config file
 std::map<std::string, std::vector<std::string> > Servers::getKeyValue() const {
 	return (this->_keyValues);
 }
 
+// Check if port is valid
 int Servers::checkSocketPort(std::string port){
 	for (std::string::iterator it = port.begin(); it != port.end(); it++)
 	{
@@ -402,6 +328,7 @@ int Servers::checkSocketPort(std::string port){
 	return (0);
 }
 
+// Check if ip is valid
 int Servers::checkSocket(std::string ip){
 	std::string ip_string;
 	std::string port_string;
@@ -413,7 +340,6 @@ int Servers::checkSocket(std::string ip){
 		ss_ip << ip;
 		getline(ss_ip, ip_string, ':');
 		ss_ip >> port_string;
-		// std::cout << "IP: " << ip_string << " Port: " << port_string << std::endl;
 		if (checkSocketPort(port_string) == 1)
 			return 1;
 	}
@@ -430,20 +356,28 @@ int Servers::checkSocket(std::string ip){
 	return 0;
 }
 
-std::string Servers::getURL(int client_fd){
+bool Servers::getRequest(int client_fd, std::string &request){
 	
-	std::string url;
-	char buffer[2048];
-	ssize_t bytes;
-	while ((bytes = recv(client_fd, buffer, 2048, 0)) > 0){
-		if (bytes == -1){
-			std::cerr << "Read failed" << std::endl;
-			return ("");
-		}
-		url += buffer;
-		if (bytes < 2048)
-			break;
+	char buffer[4096];
+	request.clear();
+	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes > 0)
+	{
+		buffer[bytes] = '\0';
+		request.append(buffer, bytes);
 	}
-	return (url);
+	if (bytes == 0)// || bytes < 4095)
+	{
+		return true;
+	}
+	if (bytes == -1)
+	{
+		if (errno == EAGAIN && errno == EWOULDBLOCK)
+			return true ;
+		else{
+			std::cerr << "Recv failed" << std::endl;
+			return true;
+		}
+	}
+	return false;
 }
-
