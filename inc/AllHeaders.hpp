@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/23 17:13:46 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/29 14:57:03 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
+# include <regex.h>
 
 #include "DataBase.hpp"
 #include "Servers.hpp"
@@ -46,6 +47,8 @@
 #include "HttpResponse.hpp"
 #include "MimeTypes.hpp"
 #include "HttpStatusCode.hpp"
+#include "RequestConfig.hpp"
+#include "utils.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
