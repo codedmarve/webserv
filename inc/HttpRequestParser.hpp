@@ -5,22 +5,22 @@
 
 class HttpRequestParser {
 private:
-
     std::string method_;
     std::string uri_;
-    std::string protocol_;
-    std::map<std::string, std::string> headers_;
-    std::string body_;
     std::string scheme_;
     std::string authority_;
     std::string path_;
     std::string query_;
     std::string frag_;
-    bool isChunked_;
+    std::string target_;
+    std::string protocol_;
+    std::map<std::string, std::string> headers_;
+    std::string body_;
+    std::string req_buffer_;
     size_t length_;
     size_t chunk_size_;
-    std::string req_buffer_;
-    int body_offset_; // track current pos in req body and append next chunk there
+    bool isChunked_;
+    int body_offset_; // track curr reqbody pos, then += next chunk
     struct timeval start_tv_;
     struct timeval last_tv_;
 
@@ -79,6 +79,7 @@ private:
     void extractPathQueryFragment(size_t pathStart);
     void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
     std::string decodeURIComponent(const std::string& str);
+    void setTarget(std::string target);
 
 
 public:
@@ -87,13 +88,16 @@ public:
 
     int parseRequest(std::string &buffer);
 
-    std::string getMethod() const;
-    std::string getURI() const;
-    std::string getProtocol() const;
-    std::string getBody() const;
+    std::string &getMethod();
+    std::string &getURI();
+    std::string &getPath();
     std::string &getQuery();
+    std::string &getFragment();
+    std::string &getProtocol();
+    std::string &getBody();
     std::string &getHeader(std::string key);
     std::map<std::string, std::string> getHeaders() const;
+    std::string &getTarget();
 
     void printRequest(HttpRequestParser parser);
 };

@@ -66,15 +66,15 @@ void HttpRequestParser::parseContentLength() {
     }
 }
 
-std::string HttpRequestParser::getMethod() const {
+std::string &HttpRequestParser::getMethod() {
     return method_;
 }
 
-std::string HttpRequestParser::getURI() const {
+std::string &HttpRequestParser::getURI() {
     return uri_;
 }
 
-std::string HttpRequestParser::getProtocol() const {
+std::string &HttpRequestParser::getProtocol() {
     return protocol_;
 }
 
@@ -82,25 +82,34 @@ std::map<std::string, std::string> HttpRequestParser::getHeaders() const {
     return headers_;
 }
 
-std::string HttpRequestParser::getBody() const {
+std::string &HttpRequestParser::getBody() {
     return body_;
+}
+
+std::string &HttpRequestParser::getPath() {
+  return path_;
 }
 
 std::string &HttpRequestParser::getQuery() {
   return query_;
 }
 
+std::string &HttpRequestParser::getFragment() {
+  return frag_;
+}
+
+
 std::string &HttpRequestParser::getHeader(std::string key) {
   return headers_[key];
 }
 
-// void HttpRequestParser::setTarget(std::string target) {
-//   target_ = target;
-// }
+void HttpRequestParser::setTarget(std::string target) {
+  target_ = target;
+}
 
-// std::string &HttpRequestParser::getTarget() {
-//   return target_;
-// }
+std::string &HttpRequestParser::getTarget() {
+  return target_;
+}
 
 
 

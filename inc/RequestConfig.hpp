@@ -3,16 +3,9 @@
 
 
 
-// # include "InputArgs.hpp"
-// # include "Client.hpp"
-// # include "Utils.hpp"
 # include "./AllHeaders.hpp"
 
-// class Client;
-// class InputArgs;
 class HttpRequestParser;
-// class ServerConfig;
-// struct Listen;
 
 class RequestConfig {
  public:
@@ -24,13 +17,6 @@ class RequestConfig {
         INFO,
         DEBUG
     };
-
-//   void setup(InputArgs &options);
-
-//   ServerConfig *getServerForRequest(std::vector<ServerConfig> &servers);
-//   ServerConfig *getLocationForRequest(ServerConfig *server, std::string &target);
-//   Client &getClient();
-//   ServerConfig *match_regexp(std::vector<ServerConfig*> &locations, std::string &target);
 
 
   void redirectLocation(std::string target);
