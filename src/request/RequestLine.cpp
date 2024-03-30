@@ -71,7 +71,28 @@ int HttpRequestParser::parseMethod() {
     return 200;
 }
 
-void HttpRequestParser::extractPathQueryFragment(size_t pathStart, size_t queryStart, size_t fragmentStart) {
+void HttpRequestParser::parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart) {
+    size_t authorityStart;
+    size_t authorityEnd;
+
+    scheme_ = uri_.substr(0, schemeEnd);
+    if (schemeEnd + 3 < uri_.length() && uri_.substr(schemeEnd, 3) == "://") {
+        authorityStart = schemeEnd + 3;
+        authorityEnd = uri_.find_first_of("/?#", authorityStart);
+        if (authorityEnd == std::string::npos)
+            authorityEnd = uri_.length();
+
+        authority_ = uri_.substr(authorityStart, authorityEnd - authorityStart);
+        pathStart = authorityEnd;
+    }
+}
+
+void HttpRequestParser::extractPathQueryFragment(size_t pathStart) {
+    size_t queryStart;
+    size_t fragmentStart;
+
+    queryStart = uri_.find('?', pathStart);
+    fragmentStart = uri_.find('#', pathStart);
     if (queryStart != std::string::npos) {
         if (fragmentStart != std::string::npos) {
             path_ = uri_.substr(pathStart, queryStart - pathStart);
@@ -92,37 +113,14 @@ void HttpRequestParser::extractPathQueryFragment(size_t pathStart, size_t queryS
 int HttpRequestParser::extractURIComponents() {
     size_t schemeEnd;
     size_t pathStart;
-    size_t queryStart;
-    size_t fragmentStart;
-    size_t authorityStart;
-    size_t authorityEnd;
 
-    schemeEnd = uri_.find(':');
-    if (schemeEnd != std::string::npos) {
-        scheme_ = uri_.substr(0, schemeEnd);
-        if (schemeEnd + 3 < uri_.length() && uri_.substr(schemeEnd, 3) == "://") {
-            authorityStart = schemeEnd + 3;
-            authorityEnd = uri_.find_first_of("/?#", authorityStart);
-            if (authorityEnd == std::string::npos)
-                authorityEnd = uri_.length();
 
-            authority_ = uri_.substr(authorityStart, authorityEnd - authorityStart);
-            pathStart = authorityEnd;
-            queryStart = uri_.find('?', pathStart);
-            fragmentStart = uri_.find('#', pathStart);
-
-            extractPathQueryFragment(pathStart, queryStart, fragmentStart);
-
-            return (path_.empty() && uri_ != "/") ? 400 : 200;
-        }
-    }
-
-    // If no scheme is found, treat the entire URI as the path
     pathStart = 0;
-    queryStart = uri_.find('?', pathStart);
-    fragmentStart = uri_.find('#', pathStart);
+    schemeEnd = uri_.find(':');
+    if (schemeEnd != std::string::npos)
+        parseSchemeAndAuthority(schemeEnd, pathStart);
 
-    extractPathQueryFragment(pathStart, queryStart, fragmentStart);
+    extractPathQueryFragment(pathStart);
     
     return (path_.empty() && uri_ != "/") ? 400 : 200;
 }

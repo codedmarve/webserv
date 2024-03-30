@@ -11,7 +11,7 @@ public:
     static std::string trim_left(const std::string& str, char c);
     static std::string trim_right(const std::string& str, char c);
     static std::string unique_char(const std::string& str);
-    static int stoi(const std::string& str, std::size_t *pos = nullptr, int base = 10);
+    static int stoi(const std::string& str, std::size_t *pos = NULL, int base = 10);
 
     template<typename T>
     static std::string to_string(T number) {

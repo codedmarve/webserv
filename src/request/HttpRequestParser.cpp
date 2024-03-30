@@ -94,13 +94,13 @@ std::string &HttpRequestParser::getHeader(std::string key) {
   return headers_[key];
 }
 
-void HttpRequestParser::setTarget(std::string target) {
-  target_ = target;
-}
+// void HttpRequestParser::setTarget(std::string target) {
+//   target_ = target;
+// }
 
-std::string &HttpRequestParser::getTarget() {
-  return target_;
-}
+// std::string &HttpRequestParser::getTarget() {
+//   return target_;
+// }
 
 
 

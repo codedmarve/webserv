@@ -125,7 +125,8 @@ public:
     int parseTrailers();
     std::string &getQuery();
     std::string &getHeader(std::string key);
-    void extractPathQueryFragment(size_t pathStart, size_t queryStart, size_t fragmentStart);
+    void extractPathQueryFragment(size_t pathStart);
+    void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
     /// @todo
     // getPort
 };
