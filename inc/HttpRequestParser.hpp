@@ -127,6 +127,7 @@ public:
     std::string &getHeader(std::string key);
     void extractPathQueryFragment(size_t pathStart);
     void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
+    std::string decodeURIComponent(const std::string& str);
     /// @todo
     // getPort
 };

@@ -88,27 +88,60 @@ void HttpRequestParser::parseSchemeAndAuthority(size_t schemeEnd, size_t& pathSt
 }
 
 void HttpRequestParser::extractPathQueryFragment(size_t pathStart) {
-    size_t queryStart;
-    size_t fragmentStart;
+    std::string decodedUri = decodeURIComponent(uri_);
 
-    queryStart = uri_.find('?', pathStart);
-    fragmentStart = uri_.find('#', pathStart);
+    size_t queryStart = decodedUri.find('?', pathStart);
+    size_t fragmentStart = decodedUri.find('#', pathStart);
+
     if (queryStart != std::string::npos) {
-        if (fragmentStart != std::string::npos) {
-            path_ = uri_.substr(pathStart, queryStart - pathStart);
-            query_ = uri_.substr(queryStart + 1, fragmentStart - (queryStart + 1));
-            frag_ = uri_.substr(fragmentStart + 1);
+        if (fragmentStart != std::string::npos && fragmentStart > queryStart) {
+            path_ = decodedUri.substr(pathStart, queryStart - pathStart);
+            query_ = decodedUri.substr(queryStart + 1, fragmentStart - (queryStart + 1));
+            frag_ = decodedUri.substr(fragmentStart + 1);
         } else {
-            path_ = uri_.substr(pathStart, queryStart - pathStart);
-            query_ = uri_.substr(queryStart + 1);
+            path_ = decodedUri.substr(pathStart, queryStart - pathStart);
+            query_ = decodedUri.substr(queryStart + 1);
         }
     } else if (fragmentStart != std::string::npos) {
-        path_ = uri_.substr(pathStart, fragmentStart - pathStart);
-        frag_ = uri_.substr(fragmentStart + 1);
+        path_ = decodedUri.substr(pathStart, fragmentStart - pathStart);
+        frag_ = decodedUri.substr(fragmentStart + 1);
     } else {
-        path_ = uri_.substr(pathStart);
+        path_ = decodedUri.substr(pathStart);
     }
+
+    path_ = decodeURIComponent(path_);
+    query_ = decodeURIComponent(query_);
+    frag_ = decodeURIComponent(frag_);
 }
+
+
+
+std::string HttpRequestParser::decodeURIComponent(const std::string& str) {
+    std::string decoded;
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (str[i] == '%') { // Percent-encoded sequence
+            if (i + 2 < str.length()) {
+                // Check if there are two hex characters following '%'
+                char hex1 = str[i + 1];
+                char hex2 = str[i + 2];
+                if (isxdigit(hex1) && isxdigit(hex2)) {
+                    int value;
+                    std::istringstream hexStream(str.substr(i + 1, 2));
+                    hexStream >> std::hex >> value; // Convert hex characters to integer value
+                    decoded += static_cast<char>(value); // Append decoded character
+                    i += 2; // Move to next character
+                } else
+                    decoded += str[i];
+            } else
+                decoded += str[i];
+        } else if (str[i] == '+')
+            decoded += ' ';
+        else
+            decoded += str[i];
+    }
+    return decoded;
+}
+
 
 int HttpRequestParser::extractURIComponents() {
     size_t schemeEnd;
@@ -117,8 +150,9 @@ int HttpRequestParser::extractURIComponents() {
 
     pathStart = 0;
     schemeEnd = uri_.find(':');
-    if (schemeEnd != std::string::npos)
+    if (schemeEnd != std::string::npos) {
         parseSchemeAndAuthority(schemeEnd, pathStart);
+    }
 
     extractPathQueryFragment(pathStart);
     
@@ -283,7 +317,6 @@ bool HttpRequestParser::isValidFragment(const std::string& fragment) {
 int HttpRequestParser::validateURI() {
     if (uri_.empty())
         return false;
-
     int hasAuthority = extractURIComponents();
     // print_uri_extracts();
 
