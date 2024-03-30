@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AllHeaders.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/29 14:57:03 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/30 17:13:30 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@
 #include "HttpStatusCode.hpp"
 #include "RequestConfig.hpp"
 #include "utils.hpp"
+#include "ServerConfig.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
