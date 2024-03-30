@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/22 13:06:54 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/30 15:04:48 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int serverMain(int argc, char **argv) {
         ft_errors(argv[0],1); 
     DataBase base;
     base.execParser(argv);    
-    // base.printKeyValue();
+    base.printKeyValue();
     
     Servers servers(base.getKeyValue());
     

@@ -1,8 +1,6 @@
 #ifndef REQUESTCONFIG_HPP
 # define REQUESTCONFIG_HPP
 
-
-
 # include "./AllHeaders.hpp"
 
 class HttpRequestParser;

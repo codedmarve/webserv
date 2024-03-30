@@ -24,11 +24,11 @@
 //     } else {
 //       file_.unlink();
 //       status_code = 200; // OK
-//       body_ += "<!DOCTYPE html>\n\
-//                 <html>\n\
-//                 <body>\n\
-//                   <h1>File deleted</h1>\n\
-//                 </body>\n\
+//       body_ += "<!DOCTYPE html>\n/*\*/
+//                 <html>\n/*\*/
+//                 <body>\n/*\*/
+//                   <h1>File deleted</h1>\n/*\*/
+//                 </body>\n/*\*/
 //                 </html>";
 //       headers_["Content-Type"] = "text/html";
 //       headers_["Content-Length"] = ft::to_string(body_.length());
