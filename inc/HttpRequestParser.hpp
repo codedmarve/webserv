@@ -18,7 +18,29 @@ private:
     std::string frag_;
     bool isChunked_;
     size_t length_;
+    size_t chunk_size_;
+    std::string req_buffer_;
+    int body_offset_; // track current pos in req body and append next chunk there
+    struct timeval start_tv_;
+    struct timeval last_tv_;
 
+    enum Section {
+        REQUEST_LINE,
+        HEADERS,
+        SPECIAL_HEADERS,
+        BODY,
+        CHUNK,
+        COMPLETE,
+        ERROR
+    };
+    enum ChunkStatus {
+        // CHUNK,
+        CHUNK_BODY,
+        CHUNK_SIZE
+    };
+
+    Section buffer_section_;
+    ChunkStatus chunk_status_;
 
     int extractURIComponents();
     bool isValidScheme(const std::string& scheme);
@@ -38,80 +60,13 @@ private:
     std::string trim(const std::string& str);
 
     unsigned int hexToDecimal(const std::string& hex);
-
-
-public:
-    HttpRequestParser();
-    ~HttpRequestParser();
-
-    int parseRequest(std::string &buffer);
-    // int parseHeaders(const std::string &headerLines);
-    // void parseChunkedBody(const std::string &chunkedBody);
-    // std::string parseBody(const std::string& contentType);
-    void parseChunkedBody(const std::string& chunkedBody);
     void parseContentLength();
-    // int parseRequestLine(std::string requestLine);
     bool isMethodCharValid(char ch) const;
     int parseMethod();
     int validateURI();
-    // int parseRequestLine(std::string headerLines, size_t eofFirstLine);
     int extractRequestLineData(std::string requestLine);
-
-    std::string getMethod() const;
-    std::string getURI() const;
-    std::string getProtocol() const;
-    std::map<std::string, std::string> getHeaders() const;
-    std::string getBody() const;
-
-
-
-
-    // bool validateJson(const std::string& jsonString);
-    // bool isValidClosingBracket(char opening, char closing);
-    // std::string extractTag(const std::string& line);
-    // bool validateXml(const std::string& xmlString);
-    // bool isValidKeyValuePair(const std::string& pair);
-    // bool isValidUrlEncoded(const std::string& str);
-    // bool validateFormData(const std::string& formData);
-    // bool validatePlainText(const std::string& text);
-    // bool isPrintableAscii(char c);
-    // std::vector<std::string> splitMultipartData(const std::string& data, const std::string& boundary);
-    // bool validateMultipartData(const std::string& data, const std::string& boundary);
-    // bool  validateBinaryData (std::string data);
-
-
-
-/**
- * NEW STUFFS
-*/
-    size_t chunk_size_;
-    std::string req_buffer_;
-
-    enum Section {
-        REQUEST_LINE,
-        HEADERS,
-        SPECIAL_HEADERS,
-        BODY,
-        CHUNK,
-        COMPLETE,
-        ERROR
-    };
-    enum ChunkStatus {
-        // CHUNK,
-        CHUNK_BODY,
-        CHUNK_SIZE
-    };
-
-    int body_offset_; // track current pos in req body and append next chunk there
-    Section buffer_section_;
-    struct timeval start_tv_;
-    struct timeval last_tv_;
-    ChunkStatus chunk_status_;
-
-
     std::string trimmer(const std::string& str);
-    void handleSpecialHeaders(const std::string& header, const std::string& value);
-    bool isValidHeaderValueChar(char c);
+    // void handleSpecialHeaders(const std::string& header, const std::string& value);
     bool isValidHeaderChar(unsigned char c);
     bool isValidHeaderFormat(const std::string& header);
     int parseHeaders();
@@ -121,15 +76,26 @@ public:
     int parseChunkedBody();
     int parseChunkSize(const std::string& hex);
     int checkSpecialHeaders();
-    void printRequest(HttpRequestParser parser);
-    int parseTrailers();
-    std::string &getQuery();
-    std::string &getHeader(std::string key);
     void extractPathQueryFragment(size_t pathStart);
     void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
     std::string decodeURIComponent(const std::string& str);
-    /// @todo
-    // getPort
+
+
+public:
+    HttpRequestParser();
+    ~HttpRequestParser();
+
+    int parseRequest(std::string &buffer);
+
+    std::string getMethod() const;
+    std::string getURI() const;
+    std::string getProtocol() const;
+    std::string getBody() const;
+    std::string &getQuery();
+    std::string &getHeader(std::string key);
+    std::map<std::string, std::string> getHeaders() const;
+
+    void printRequest(HttpRequestParser parser);
 };
 
 #endif
