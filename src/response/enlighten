@@ -1,0 +1,162 @@
+To retrieve the required data from the _keyValues map in your DataBase class, you can create member functions that extract this information based on the keys. Here's how you can do it:
+
+Retrieving Data Functions:
+std::vector<Listen> listens_:
+
+This assumes that "listen" is stored as a vector in the _keyValues map.
+cpp
+Copy code
+std::vector<Listen> DataBase::getListenProperties() {
+    std::vector<Listen> listens;
+    std::vector<std::string> listenValues = _keyValues["server.listen"];
+    for (size_t i = 0; i < listenValues.size(); ++i) {
+        // Parse and create Listen objects from listenValues[i]
+        Listen listenObject; // Implement how to parse the listen values into a Listen object
+        listens.push_back(listenObject);
+    }
+    return listens;
+}
+std::vectorstd::string server_name_:
+
+This assumes that "server_name" is stored as a vector in the _keyValues map.
+cpp
+Copy code
+std::vector<std::string> DataBase::getServerNameProperties() {
+    return _keyValues["server.server_name"];
+}
+std::vector<ServerConfig> locations_:
+
+This assumes that "location" is stored as a vector in the _keyValues map.
+cpp
+Copy code
+std::vector<ServerConfig> DataBase::getLocationProperties() {
+    std::vector<ServerConfig> locations;
+    std::vector<std::string> locationValues = _keyValues["server.location"];
+    for (size_t i = 0; i < locationValues.size(); ++i) {
+        // Parse and create ServerConfig objects from locationValues[i]
+        ServerConfig locationObject; // Implement how to parse the location values into a ServerConfig object
+        locations.push_back(locationObject);
+    }
+    return locations;
+}
+std::string uri_:
+
+This assumes that "uri" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+std::string DataBase::getURI() {
+    return _keyValues["server.uri"].front();
+}
+LocationModifier modifier_:
+
+This assumes that "modifier" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+LocationModifier DataBase::getModifier() {
+    // Implement how to convert the string to LocationModifier
+    std::string modifierString = _keyValues["server.modifier"].front();
+    return stringToLocationModifier(modifierString);
+}
+std::string credentials_:
+
+This assumes that "credentials" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+std::string DataBase::getCredentials() {
+    return _keyValues["server.credentials"].front();
+}
+bool autoindex_:
+
+This assumes that "autoindex" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+bool DataBase::getAutoIndex() {
+    std::string autoindexValue = _keyValues["server.autoindex"].front();
+    return (autoindexValue == "on" || autoindexValue == "1");
+}
+size_t client_max_body_size_:
+
+This assumes that "client_max_body_size" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+size_t DataBase::getClientMaxBodySize() {
+    std::string maxSize = _keyValues["server.client_max_body_size"].front();
+    // Convert string to size_t
+    size_t maxSizeValue;
+    std::istringstream(maxSize) >> maxSizeValue;
+    return maxSizeValue;
+}
+std::string root_:
+
+This assumes that "root" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+std::string DataBase::getRoot() {
+    return _keyValues["server.root"].front();
+}
+std::string upload_:
+
+This assumes that "upload" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+std::string DataBase::getUpload() {
+    return _keyValues["server.upload"].front();
+}
+std::vectorstd::string methods_:
+
+This assumes that "methods" is stored as a vector in the _keyValues map.
+cpp
+Copy code
+std::vector<std::string> DataBase::getMethods() {
+    return _keyValues["server.methods"];
+}
+std::map<int, std::string> error_codes_:
+
+This assumes that "error_codes" is stored as a map in the _keyValues map.
+cpp
+Copy code
+std::map<int, std::string> DataBase::getErrorCodes() {
+    std::map<int, std::string> errorCodes;
+    std::vector<std::string> errorCodeKeys = _keyValues["server.error_codes"];
+    for (size_t i = 0; i < errorCodeKeys.size(); ++i) {
+        std::string errorCodeValue = _keyValues["server.error_codes." + errorCodeKeys[i]].front();
+        // Convert errorCodeKeys[i] to int
+        int errorCode;
+        std::istringstream(errorCodeKeys[i]) >> errorCode;
+        errorCodes[errorCode] = errorCodeValue;
+    }
+    return errorCodes;
+}
+std::vectorstd::string index_:
+
+This assumes that "index" is stored as a vector in the _keyValues map.
+cpp
+Copy code
+std::vector<std::string> DataBase::getIndex() {
+    return _keyValues["server.index"];
+}
+std::map<std::string, std::string> cgi_:
+
+This assumes that "cgi" is stored as a map in the _keyValues map.
+cpp
+Copy code
+std::map<std::string, std::string> DataBase::getCGI() {
+    std::map<std::string, std::string> cgiMap;
+    std::vector<std::string> cgiKeys = _keyValues["server.cgi"];
+    for (size_t i = 0; i < cgiKeys.size(); ++i) {
+        std::string cgiValue = _keyValues["server.cgi." + cgiKeys[i]].front();
+        cgiMap[cgiKeys[i]] = cgiValue;
+    }
+    return cgiMap;
+}
+std::string cgi_bin_:
+
+This assumes that "cgi_bin" is stored as a single value in the _keyValues map.
+cpp
+Copy code
+std::string DataBase::getCGIBin() {
+    return _keyValues["server.cgi_bin"].front();
+}
+Note:
+These functions assume the keys in _keyValues are structured as per the data in the original question. Modify them accordingly if the key structure changes.
+Functions like stringToLocationModifier, Listen class definition, ServerConfig class definition, and other necessary classes and functions need to be implemented based on your application's needs.

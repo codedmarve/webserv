@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DataBase.cpp                                       :+:      :+:    :+:   */
+/*   ConfigFileDB.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/22 12:44:10 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/31 10:10:53 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -198,4 +198,47 @@ void   DataBase::execParser(char *argv[]){
 std::map<std::string, std::vector<std::string> > DataBase::getKeyValue()
 {
     return this->_keyValues;
+}
+
+
+void DataBase::groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues) {
+
+    // Iterate through the key-value pairs
+    for (std::map<std::string, std::vector<std::string> >::const_iterator it = keyValues.begin(); it != keyValues.end(); ++it) {
+        const std::string& key = it->first;
+        const std::vector<std::string>& values = it->second;
+
+        // Extract the index from the key
+        size_t indexStart = key.find("[");
+        size_t indexEnd = key.find("]");
+        if (indexStart != std::string::npos && indexEnd != std::string::npos && indexStart < indexEnd) {
+            std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
+            int index = atoi(indexStr.c_str());
+
+            // Add the key-value pair to the corresponding index group
+            groupedValues[index].push_back(std::make_pair(key, values));
+        }
+    }
+}
+
+
+void DataBase::printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues) {
+    // Find the index in the groupedValues map
+    std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::const_iterator it = groupedValues.find(index);
+    if (it != groupedValues.end()) {
+        std::cout << "INDEX " << index << " contains:" << std::endl;
+        const std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
+        for (size_t i = 0; i < indexGroup.size(); ++i) {
+            const std::string& key = indexGroup[i].first;
+            const std::vector<std::string>& values = indexGroup[i].second;
+            std::cout << "Key: " << key << std::endl;
+            std::cout << "Value(s): " << std::endl;
+            for (size_t j = 0; j < values.size(); ++j) {
+                std::cout << "  " << values[j] << std::endl;
+            }
+            std::cout << std::endl;
+        }
+    } else {
+        std::cout << "Index " << index << " not found." << std::endl;
+    }
 }

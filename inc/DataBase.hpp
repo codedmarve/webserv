@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   DataBase.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:16:08 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/14 18:49:14 by alappas          ###   ########.fr       */
+/*   Updated: 2024/03/31 10:12:38 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,9 @@ class DataBase{
 		std::string	getFullPathKey();
 		std::string getKeyWithoutLastSection();
 		std::map<std::string, std::vector<std::string> > getKeyValue();
+		void groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues);
+		std::map<int, std::vector<std::pair<std::string,std::vector<std::string> > > > groupedValues;
+		void printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues);
 	private:
 		std::vector<std::string> _variablePath;
 		std::map<std::string, int> sectionCounts;

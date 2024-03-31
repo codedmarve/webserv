@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sever.main.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/30 15:04:48 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/31 10:13:43 by oduwoledare      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@ int serverMain(int argc, char **argv) {
         ft_errors(argv[0],1); 
     DataBase base;
     base.execParser(argv);    
-    base.printKeyValue();
+    // base.printKeyValue();
+    base.groupValuesByIndex(base.getKeyValue());
+    base.printValuesAtIndex(1, base.groupedValues);
     
     Servers servers(base.getKeyValue());
     
