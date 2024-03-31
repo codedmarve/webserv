@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sever.main.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/31 10:13:43 by oduwoledare      ###   ########.fr       */
+/*   Updated: 2024/03/31 12:07:44 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ int serverMain(int argc, char **argv) {
     base.execParser(argv);    
     // base.printKeyValue();
     base.groupValuesByIndex(base.getKeyValue());
-    base.printValuesAtIndex(1, base.groupedValues);
+    base.printValuesAtIndex(0, base.groupedValues);
+
     
     Servers servers(base.getKeyValue());
     

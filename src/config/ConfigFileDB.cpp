@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigFileDB.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: oduwoledare <oduwoledare@student.42.fr>    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/31 10:10:53 by oduwoledare      ###   ########.fr       */
+/*   Updated: 2024/03/31 12:23:37 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,30 +200,46 @@ std::map<std::string, std::vector<std::string> > DataBase::getKeyValue()
     return this->_keyValues;
 }
 
-
 void DataBase::groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues) {
-
-    // Iterate through the key-value pairs
     for (std::map<std::string, std::vector<std::string> >::const_iterator it = keyValues.begin(); it != keyValues.end(); ++it) {
         const std::string& key = it->first;
         const std::vector<std::string>& values = it->second;
 
-        // Extract the index from the key
         size_t indexStart = key.find("[");
         size_t indexEnd = key.find("]");
         if (indexStart != std::string::npos && indexEnd != std::string::npos && indexStart < indexEnd) {
             std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
             int index = atoi(indexStr.c_str());
 
-            // Add the key-value pair to the corresponding index group
             groupedValues[index].push_back(std::make_pair(key, values));
         }
     }
+    renameKeysAtIndex();
 }
 
+void DataBase::renameKeysAtIndex() {
+    for (std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::iterator it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+        std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
+        std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
+
+        for (size_t i = 0; i < indexGroup.size(); ++i) {
+            const std::string& originalKey = indexGroup[i].first;
+            const std::vector<std::string>& values = indexGroup[i].second;
+
+            size_t bracketPos = originalKey.find("[");
+            if (bracketPos != std::string::npos) {
+                size_t dotPos = originalKey.find(".", bracketPos);
+                if (dotPos != std::string::npos) {
+                    std::string newKey = originalKey.substr(dotPos + 1);
+                    renamedIndexGroup.push_back(std::make_pair(newKey, values));
+                }
+            }
+        }
+        it->second = renamedIndexGroup;
+    }
+}
 
 void DataBase::printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues) {
-    // Find the index in the groupedValues map
     std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::const_iterator it = groupedValues.find(index);
     if (it != groupedValues.end()) {
         std::cout << "INDEX " << index << " contains:" << std::endl;
@@ -231,8 +247,7 @@ void DataBase::printValuesAtIndex(int index, const std::map<int, std::vector<std
         for (size_t i = 0; i < indexGroup.size(); ++i) {
             const std::string& key = indexGroup[i].first;
             const std::vector<std::string>& values = indexGroup[i].second;
-            std::cout << "Key: " << key << std::endl;
-            std::cout << "Value(s): " << std::endl;
+            std::cout << key << ": " << std::endl;
             for (size_t j = 0; j < values.size(); ++j) {
                 std::cout << "  " << values[j] << std::endl;
             }
