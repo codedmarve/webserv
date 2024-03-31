@@ -73,7 +73,12 @@
     "ratio": "cpp",
     "variant": "cpp",
     "set": "cpp",
-    "regex": "cpp"
+    "regex": "cpp",
+    "chrono": "cpp",
+    "codecvt": "cpp",
+    "fstream": "cpp",
+    "iomanip": "cpp",
+    "cinttypes": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "clang",
   "C_Cpp_Runner.cppCompilerPath": "clang++",

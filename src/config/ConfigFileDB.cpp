@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/31 12:23:37 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/31 18:37:48 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,8 +200,67 @@ std::map<std::string, std::vector<std::string> > DataBase::getKeyValue()
     return this->_keyValues;
 }
 
+// void DataBase::groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues) {
+//     for (std::map<std::string, std::vector<std::string> >::const_iterator it = keyValues.begin(); it != keyValues.end(); ++it) {
+//         const std::string& key = it->first;
+//         const std::vector<std::string>& values = it->second;
+
+//         size_t indexStart = key.find("[");
+//         size_t indexEnd = key.find("]");
+//         if (indexStart != std::string::npos && indexEnd != std::string::npos && indexStart < indexEnd) {
+//             std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
+//             int index = atoi(indexStr.c_str());
+
+//             groupedValues[index].push_back(std::make_pair(key, values));
+//         }
+//     }
+//     renameKeysAtIndex();
+// }
+
+// void DataBase::renameKeysAtIndex() {
+//     for (std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::iterator it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+//         std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
+//         std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
+
+//         for (size_t i = 0; i < indexGroup.size(); ++i) {
+//             const std::string& originalKey = indexGroup[i].first;
+//             const std::vector<std::string>& values = indexGroup[i].second;
+
+//             size_t bracketPos = originalKey.find("[");
+//             if (bracketPos != std::string::npos) {
+//                 size_t dotPos = originalKey.find(".", bracketPos);
+//                 if (dotPos != std::string::npos) {
+//                     std::string newKey = originalKey.substr(dotPos + 1);
+//                     renamedIndexGroup.push_back(std::make_pair(newKey, values));
+//                 }
+//             }
+//         }
+//         it->second = renamedIndexGroup;
+//     }
+// }
+
+// void DataBase::printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues) {
+//     std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::const_iterator it = groupedValues.find(index);
+//     if (it != groupedValues.end()) {
+//         std::cout << "INDEX " << index << " contains:" << std::endl;
+//         const std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
+//         for (size_t i = 0; i < indexGroup.size(); ++i) {
+//             const std::string& key = indexGroup[i].first;
+//             const std::vector<std::string>& values = indexGroup[i].second;
+//             std::cout << key << ": " << std::endl;
+//             for (size_t j = 0; j < values.size(); ++j) {
+//                 std::cout << "  " << values[j] << std::endl;
+//             }
+//             std::cout << std::endl;
+//         }
+//     } else {
+//         std::cout << "Index " << index << " not found." << std::endl;
+//     }
+// }
+
 void DataBase::groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues) {
-    for (std::map<std::string, std::vector<std::string> >::const_iterator it = keyValues.begin(); it != keyValues.end(); ++it) {
+    std::map<std::string, std::vector<std::string> >::const_iterator it;
+    for (it = keyValues.begin(); it != keyValues.end(); ++it) {
         const std::string& key = it->first;
         const std::vector<std::string>& values = it->second;
 
@@ -211,27 +270,73 @@ void DataBase::groupValuesByIndex(const std::map<std::string, std::vector<std::s
             std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
             int index = atoi(indexStr.c_str());
 
-            groupedValues[index].push_back(std::make_pair(key, values));
+            std::map<std::string, std::string> keyMap;
+            keyMap["renamedKey"] = key;
+            keyMap["location"] = "";
+
+            size_t locationStart = key.find("location_");
+            if (locationStart != std::string::npos) {
+                size_t locationEnd = key.find("[");
+                if (locationEnd != std::string::npos) {
+                    keyMap["renamedKey"] = key.substr(locationEnd + 1);
+                    keyMap["location"] = key.substr(locationStart + 9, locationEnd - locationStart - 9);
+                }
+            }
+
+            groupedValues[index].push_back(std::make_pair(keyMap, values));
         }
     }
     renameKeysAtIndex();
 }
 
 void DataBase::renameKeysAtIndex() {
-    for (std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::iterator it = groupedValues.begin(); it != groupedValues.end(); ++it) {
-        std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
-        std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
+        std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > >::iterator it;
+        for (it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+            std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > >& indexGroup = it->second;
+            std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > renamedIndexGroup;
+
+            for (size_t i = 0; i < indexGroup.size(); ++i) {
+                const std::string& originalKey = indexGroup[i].first["renamedKey"];
+                const std::vector<std::string>& values = indexGroup[i].second;
+
+                std::string newKey = originalKey;
+                std::string location = indexGroup[i].first["location"];
+
+                std::map<std::string, std::string> newKeyMap;
+                newKeyMap["renamedKey"] = newKey;
+                newKeyMap["location"] = location;
+
+                renamedIndexGroup.push_back(std::make_pair(newKeyMap, values));
+            }
+
+            it->second = renamedIndexGroup;
+        }
+    }
+
+
+
+void DataBase::renameKeysAtIndex() {
+    for (std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > >::iterator it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+        std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > >& indexGroup = it->second;
+        std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > renamedIndexGroup;
 
         for (size_t i = 0; i < indexGroup.size(); ++i) {
-            const std::string& originalKey = indexGroup[i].first;
+            std::map<std::string, std::string> keyMap = indexGroup[i].first;
             const std::vector<std::string>& values = indexGroup[i].second;
+
+            std::string originalKey = keyMap["renamedKey"];
+            std::string location = keyMap["location"];
 
             size_t bracketPos = originalKey.find("[");
             if (bracketPos != std::string::npos) {
                 size_t dotPos = originalKey.find(".", bracketPos);
                 if (dotPos != std::string::npos) {
                     std::string newKey = originalKey.substr(dotPos + 1);
-                    renamedIndexGroup.push_back(std::make_pair(newKey, values));
+                    std::map<std::string, std::string> newKeyMap;
+                    newKeyMap["renamedKey"] = newKey;
+                    newKeyMap["location"] = location;
+
+                    renamedIndexGroup.push_back(std::make_pair(newKeyMap, values));
                 }
             }
         }
@@ -239,21 +344,54 @@ void DataBase::renameKeysAtIndex() {
     }
 }
 
-void DataBase::printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues) {
-    std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >::const_iterator it = groupedValues.find(index);
-    if (it != groupedValues.end()) {
-        std::cout << "INDEX " << index << " contains:" << std::endl;
-        const std::vector<std::pair<std::string, std::vector<std::string> > >& indexGroup = it->second;
+
+
+void DataBase::renameKeysAtIndex() {
+    for (std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > >::iterator it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+        std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > >& indexGroup = it->second;
+        std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > renamedIndexGroup;
+
         for (size_t i = 0; i < indexGroup.size(); ++i) {
-            const std::string& key = indexGroup[i].first;
+            std::map<std::string, std::string> keyMap = indexGroup[i].first;
             const std::vector<std::string>& values = indexGroup[i].second;
-            std::cout << key << ": " << std::endl;
-            for (size_t j = 0; j < values.size(); ++j) {
-                std::cout << "  " << values[j] << std::endl;
+
+            std::string originalKey = keyMap["renamedKey"];
+            std::string location = keyMap["location"];
+
+            size_t bracketPos = originalKey.find("[");
+            if (bracketPos != std::string::npos) {
+                size_t dotPos = originalKey.find(".", bracketPos);
+                if (dotPos != std::string::npos) {
+                    std::string newKey = originalKey.substr(dotPos + 1);
+                    std::map<std::string, std::string> newKeyMap;
+                    newKeyMap["renamedKey"] = newKey;
+                    newKeyMap["location"] = location;
+
+                    renamedIndexGroup.push_back(std::make_pair(newKeyMap, values));
+                }
             }
-            std::cout << std::endl;
         }
-    } else {
-        std::cout << "Index " << index << " not found." << std::endl;
+        it->second = renamedIndexGroup;
     }
 }
+
+
+
+
+    void DataBase::printGroupedValues() {
+        std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > >::const_iterator it;
+        for (it = groupedValues.begin(); it != groupedValues.end(); ++it) {
+            std::cout << "Index: " << it->first << std::endl;
+            for (size_t i = 0; i < it->second.size(); ++i) {
+                const std::map<std::string, std::string>& keyMap = it->second[i].first;
+                const std::vector<std::string>& values = it->second[i].second;
+
+                std::cout << "Renamed Key: <\"" << keyMap.find("renamedKey")->second << "\">" << std::endl;
+                std::cout << "Location: <\"" << keyMap.find("location")->second << "\">" << std::endl;
+                std::cout << "Value:" << std::endl;
+                for (size_t j = 0; j < values.size(); ++j) {
+                    std::cout << "  " << values[j] << std::endl;
+                }
+            }
+        }
+    }

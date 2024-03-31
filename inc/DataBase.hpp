@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:16:08 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/31 11:42:47 by drey             ###   ########.fr       */
+/*   Updated: 2024/03/31 18:12:55 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,18 @@ class DataBase{
 		std::string getKeyWithoutLastSection();
 		std::map<std::string, std::vector<std::string> > getKeyValue();
 		void groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues);
-		std::map<int, std::vector<std::pair<std::string,std::vector<std::string> > > > groupedValues;
+		// std::map<int, std::vector<std::pair<std::string,std::vector<std::string> > > > groupedValues;
 		void printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues);
 		void renameKeysAtIndex();
 		std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
+		void printGroupedValues();
 
 		
 	private:
 		std::vector<std::string> _variablePath;
 		std::map<std::string, int> sectionCounts;
 		std::map<std::string, std::vector<std::string> > _keyValues;
+		std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > > groupedValues;
 };
 
 #endif
