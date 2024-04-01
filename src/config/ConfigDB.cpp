@@ -195,13 +195,13 @@ void   ConfigDB::execParser(char *argv[]){
     }
 }
 
-std::map<std::string, std::vector<std::string> > ConfigDB::getKeyValue()
+ConfigDB::KeyValues ConfigDB::getKeyValue()
 {
     return this->_keyValues;
 }
 
-void ConfigDB::groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues) {
-    std::map<std::string, std::vector<std::string> >::const_iterator it;
+void ConfigDB::groupValuesByIdx(const KeyValues& keyValues) {
+    KeyValues::const_iterator it;
     for (it = keyValues.begin(); it != keyValues.end(); ++it) {
         const std::string& key = it->first;
         const std::vector<std::string>& values = it->second;
@@ -234,21 +234,52 @@ void ConfigDB::groupValuesByIndex(const std::map<std::string, std::vector<std::s
     }
 }
 
-void ConfigDB::printGroupedValues() {
-    std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > >::const_iterator it;
+void ConfigDB::printAllServersData() {
+    GroupedValuesMap::const_iterator it;
     for (it = groupedValues.begin(); it != groupedValues.end(); ++it) {
         std::cout << "Index: " << it->first << std::endl;
         for (size_t i = 0; i < it->second.size(); ++i) {
             const std::map<std::string, std::string>& keyMap = it->second[i].first;
             const std::vector<std::string>& values = it->second[i].second;
 
-            std::cout << "Renamed Key: <\"" << keyMap.find("renamedKey")->second << "\">" << std::endl;
-            std::cout << "Location: <\"" << keyMap.find("location")->second << "\">" << std::endl;
-            std::cout << "Value:" << std::endl;
+            std::cout << "{ " << keyMap.find("renamedKey")->second << ", "  << keyMap.find("location")->second << " }" << ": ";
             for (size_t j = 0; j < values.size(); ++j) {
-                std::cout << "  " << values[j] << std::endl;
+                std::cout << "  " << values[j] << " ";
             }
+            std::cout << std::endl;
         }
+        std::cout << "\n" << std::endl;
     }
 }
+
+void ConfigDB::printServerData(const std::vector<ConfigDB::KeyMapValue>& values) {
+    for (size_t i = 0; i < values.size(); ++i) {
+        const std::map<std::string, std::string>& keyMap = values[i].first;
+        const std::vector<std::string>& valueVector = values[i].second;
+
+        std::cout << "{ ";
+        for (std::map<std::string, std::string>::const_iterator it = keyMap.begin(); it != keyMap.end(); ++it) {
+            std::cout << it->first << ", " << it->second << ":";
+        }
+
+        for (size_t j = 0; j < valueVector.size(); ++j) {
+            std::cout << "  " << valueVector[j];
+        }
+        std::cout  << std::endl;
+    }
+}
+
+
+
+
+std::vector<ConfigDB::KeyMapValue> ConfigDB::getServerDataByIdx(int index) {
+    std::vector<ConfigDB::KeyMapValue> values;
+    GroupedValuesMap::iterator it = groupedValues.find(index);
+    if (it != groupedValues.end()) {
+        return it->second;
+    }
+    return values;
+}
+
+
 

@@ -16,7 +16,11 @@
 #include "AllHeaders.hpp"
 
 class ConfigDB{
-	public: 
+	public:
+	    typedef std::map<std::string, std::vector<std::string> > KeyValues;
+        typedef std::pair<std::map<std::string, std::string>, std::vector<std::string> > KeyMapValue;
+        typedef std::map<int, std::vector<KeyMapValue > > GroupedValuesMap;
+
 		ConfigDB();
 		~ConfigDB();
 		void		pushInBase(std::string env_name);
@@ -28,17 +32,18 @@ class ConfigDB{
 		std::string	readFile(char **argv);
 		std::string	getFullPathKey();
 		std::string getKeyWithoutLastSection();
-		std::map<std::string, std::vector<std::string> > getKeyValue();
-		void groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues);
-		std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
-		void printGroupedValues();
+		KeyValues getKeyValue();
+		void groupValuesByIdx(const KeyValues& keyValues);
+		void printAllServersData();
+		std::vector<ConfigDB::KeyMapValue> getServerDataByIdx(int index);
+		void printServerData(const std::vector<ConfigDB::KeyMapValue>& values);
 
 		
 	private:
 		std::vector<std::string> _variablePath;
 		std::map<std::string, int> sectionCounts;
-		std::map<std::string, std::vector<std::string> > _keyValues;
-		std::map<int, std::vector<std::pair<std::map<std::string, std::string>, std::vector<std::string> > > > groupedValues;
+		KeyValues _keyValues;
+		GroupedValuesMap groupedValues;
 };
 
 #endif

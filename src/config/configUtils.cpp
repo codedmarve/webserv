@@ -123,3 +123,5 @@ void    handleLogFormat(std::string line, std::string &value, std::vector<std::s
         it++;
     }
 }
+
+

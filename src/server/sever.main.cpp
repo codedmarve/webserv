@@ -19,9 +19,9 @@ int serverMain(int argc, char **argv) {
     base.execParser(argv);    
     // base.printKeyValue();
     std::cout << "\n\n";
-    base.groupValuesByIndex(base.getKeyValue());
-    // base.printValuesAtIndex(0, base.groupedValues);
-    base.printGroupedValues();
+    base.groupValuesByIdx(base.getKeyValue());
+    // base.printAllServersData();
+    base.printServerData(base.getServerDataByIdx(0));
 
     
     Servers servers(base.getKeyValue());
