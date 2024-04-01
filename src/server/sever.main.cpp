@@ -21,7 +21,7 @@ int serverMain(int argc, char **argv) {
     std::cout << "\n\n";
     base.groupValuesByIdx(base.getKeyValue());
     // base.printAllServersData();
-    base.printServerData(base.getServerDataByIdx(0));
+    // base.printServerData(base.getServerDataByIdx(0));
 
     
     Servers servers(base.getKeyValue());

@@ -224,9 +224,8 @@ void ConfigDB::groupValuesByIdx(const KeyValues& keyValues) {
             size_t locationStart = key.find("location_");
             if (locationStart != std::string::npos) {
                 size_t locationEnd = key.find("[");
-                if (locationEnd != std::string::npos) {
+                if (locationEnd != std::string::npos)
                     keyMap["location"] = key.substr(locationStart + 9, locationEnd - locationStart - 9);
-                }
             }
 
             groupedValues[index].push_back(std::make_pair(keyMap, values));
@@ -234,20 +233,12 @@ void ConfigDB::groupValuesByIdx(const KeyValues& keyValues) {
     }
 }
 
+
 void ConfigDB::printAllServersData() {
     GroupedValuesMap::const_iterator it;
     for (it = groupedValues.begin(); it != groupedValues.end(); ++it) {
         std::cout << "Index: " << it->first << std::endl;
-        for (size_t i = 0; i < it->second.size(); ++i) {
-            const std::map<std::string, std::string>& keyMap = it->second[i].first;
-            const std::vector<std::string>& values = it->second[i].second;
-
-            std::cout << "{ " << keyMap.find("renamedKey")->second << ", "  << keyMap.find("location")->second << " }" << ": ";
-            for (size_t j = 0; j < values.size(); ++j) {
-                std::cout << "  " << values[j] << " ";
-            }
-            std::cout << std::endl;
-        }
+        printServerData(it->second);
         std::cout << "\n" << std::endl;
     }
 }
@@ -257,14 +248,14 @@ void ConfigDB::printServerData(const std::vector<ConfigDB::KeyMapValue>& values)
         const std::map<std::string, std::string>& keyMap = values[i].first;
         const std::vector<std::string>& valueVector = values[i].second;
 
-        std::cout << "{ ";
-        for (std::map<std::string, std::string>::const_iterator it = keyMap.begin(); it != keyMap.end(); ++it) {
-            std::cout << it->first << ", " << it->second << ":";
-        }
+            std::cout << "{ " 
+                << keyMap.find("renamedKey")->second
+                << ", "  << keyMap.find("location")->second
+                << " }" << ": ";
 
-        for (size_t j = 0; j < valueVector.size(); ++j) {
+        for (size_t j = 0; j < valueVector.size(); ++j)
             std::cout << "  " << valueVector[j];
-        }
+
         std::cout  << std::endl;
     }
 }
@@ -275,10 +266,9 @@ void ConfigDB::printServerData(const std::vector<ConfigDB::KeyMapValue>& values)
 std::vector<ConfigDB::KeyMapValue> ConfigDB::getServerDataByIdx(int index) {
     std::vector<ConfigDB::KeyMapValue> values;
     GroupedValuesMap::iterator it = groupedValues.find(index);
-    if (it != groupedValues.end()) {
-        return it->second;
-    }
-    return values;
+    return (it != groupedValues.end())
+        ? it->second
+        : values;
 }
 
 

@@ -181,7 +181,7 @@ void Servers::handleIncomingConnection(int server_fd){
 		// if (request.find("EOF") != std::string::npos)
 		// 	finish = true;
 	}
-	// parser.printRequest(parser);
+	parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());
 	if (bytes == -1) {
