@@ -18,10 +18,10 @@ int serverMain(int argc, char **argv) {
     ConfigDB base;
     base.execParser(argv);    
     // base.printKeyValue();
-    std::cout << "\n\n";
+    // std::cout << "\n\n";
     base.groupValuesByIdx(base.getKeyValue());
     // base.printAllServersData();
-    // base.printServerData(base.getServerDataByIdx(0));
+    base.printServerData(base.getServerDataByIdx(0));
 
     
     Servers servers(base.getKeyValue());

@@ -205,31 +205,37 @@ void ConfigDB::groupValuesByIdx(const KeyValues& keyValues) {
     for (it = keyValues.begin(); it != keyValues.end(); ++it) {
         const std::string& key = it->first;
         const std::vector<std::string>& values = it->second;
+        if (key.find("http[0]") != std::string::npos) {
+            /// @todo handle data that belongs to all server here
+            std::cout << "DEBUG: " << key << std::endl;
+        } else {
+            size_t indexStart = key.find("[");
+            size_t indexEnd = key.find("]");
+            if (indexStart != std::string::npos && indexEnd != std::string::npos && indexStart < indexEnd) {
+                std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
+                int index = atoi(indexStr.c_str());
 
-        size_t indexStart = key.find("[");
-        size_t indexEnd = key.find("]");
-        if (indexStart != std::string::npos && indexEnd != std::string::npos && indexStart < indexEnd) {
-            std::string indexStr = key.substr(indexStart + 1, indexEnd - indexStart - 1);
-            int index = atoi(indexStr.c_str());
+                std::map<std::string, std::string> keyMap;
+                keyMap["directives"] = key;
+                keyMap["location"] = "";
 
-            std::map<std::string, std::string> keyMap;
-            keyMap["renamedKey"] = key;
-            keyMap["location"] = "";
+                size_t pos = key.find("].");
+                keyMap["directives"] = (pos != std::string::npos)
+                    ? key.substr(pos + 2)
+                    : key.substr(0, key.length() - 3);
 
-            size_t pos = key.find("].");
-            if (pos != std::string::npos) {
-                keyMap["renamedKey"] = key.substr(pos + 2);
+                size_t locationStart = key.find("location_");
+                if (locationStart != std::string::npos) {
+                    size_t locationEnd = key.find("[");
+                    if (locationEnd != std::string::npos)
+                        keyMap["location"] = key.substr(locationStart + 9, locationEnd - locationStart - 9);
+                }
+
+                groupedValues[index].push_back(std::make_pair(keyMap, values));
             }
 
-            size_t locationStart = key.find("location_");
-            if (locationStart != std::string::npos) {
-                size_t locationEnd = key.find("[");
-                if (locationEnd != std::string::npos)
-                    keyMap["location"] = key.substr(locationStart + 9, locationEnd - locationStart - 9);
-            }
-
-            groupedValues[index].push_back(std::make_pair(keyMap, values));
         }
+
     }
 }
 
@@ -249,7 +255,7 @@ void ConfigDB::printServerData(const std::vector<ConfigDB::KeyMapValue>& values)
         const std::vector<std::string>& valueVector = values[i].second;
 
             std::cout << "{ " 
-                << keyMap.find("renamedKey")->second
+                << keyMap.find("directives")->second
                 << ", "  << keyMap.find("location")->second
                 << " }" << ": ";
 
@@ -268,7 +274,7 @@ std::vector<ConfigDB::KeyMapValue> ConfigDB::getServerDataByIdx(int index) {
     GroupedValuesMap::iterator it = groupedValues.find(index);
     return (it != groupedValues.end())
         ? it->second
-        : values;
+        : (std::cout << "Index " << index << " does not exist \n", values);
 }
 
 

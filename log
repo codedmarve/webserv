@@ -1,0 +1,142 @@
+Key: http.server.location_/[0].index
+Value(s): 
+  index.html
+  index.html2
+
+Key: http.server.location_/[0].root
+Value(s): 
+  html
+
+Key: http.server.location_/[1].allow_methods
+Value(s): 
+  DELETE
+  POST
+  GET
+
+Key: http.server.location_/[1].autoindex
+Value(s): 
+  off
+
+Key: http.server.location_/cgi-bin[0].allow_methods
+Value(s): 
+  GET
+  POST
+  DELETE
+
+Key: http.server.location_/cgi-bin[0].fastcgi_param
+Value(s): 
+  SCRIPT_FILENAME
+  $document_root$fastcgi_script_name
+
+Key: http.server.location_/cgi-bin[0].fastcgi_pass
+Value(s): 
+  unix:/var/run/fastcgi.sock
+
+Key: http.server.location_/cgi-bin[0].include
+Value(s): 
+  fastcgi_params
+
+Key: http.server.location_/cgi-bin[0].index
+Value(s): 
+  time.py
+
+Key: http.server.location_/cgi-bin[0].root
+Value(s): 
+  /
+
+Key: http.server.location_/red[0].return
+Value(s): 
+  302
+  /tours
+
+Key: http.server.location_/tours[0].allow_methods
+Value(s): 
+  GET
+  POST
+  PUT
+  HEAD
+
+Key: http.server.location_/tours[0].autoindex
+Value(s): 
+  on
+
+Key: http.server.location_/tours[0].index
+Value(s): 
+  tours1.html
+
+Key: http.server.location_/tours[1].allow_methods
+Value(s): 
+  GET
+  POST
+  PUT
+  HEAD
+
+Key: http.server.location_/tours[1].autoindex
+Value(s): 
+  on
+
+Key: http.server.location_/tours[1].index
+Value(s): 
+  tours1.html
+
+Key: http.server[0].listen
+Value(s): 
+  8001
+
+Key: http.server[0].server_name
+Value(s): 
+  dog
+
+Key: http.server[1].error_page
+Value(s): 
+  404
+  /error_pages/404.html
+
+Key: http.server[1].index
+Value(s): 
+  index.html
+
+Key: http.server[1].listen
+Value(s): 
+  8002
+
+Key: http.server[1].root
+Value(s): 
+  docs/fusion_web/
+
+Key: http.server[1].server_name
+Value(s): 
+  localhost
+
+Key: http.server[2].listen
+Value(s): 
+  8003
+
+Key: http.server[2].server_name
+Value(s): 
+  localhost
+
+Key: http[0].default_type
+Value(s): 
+  application/octet-stream
+
+Key: http[0].include
+Value(s): 
+  mime.types
+
+Key: http[0].keepalive_timeout
+Value(s): 
+  65
+
+Key: http[0].sendfile
+Value(s): 
+  on
+
+
+
+{ listen,  }:   8003
+{ server_name,  }:   localhost
+Creating servers
+Server created on port 127.0.0.1:8001, server:4
+Server created on port 127.0.0.1:8002, server:5
+Server created on port 127.0.0.1:8003, server:6

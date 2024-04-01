@@ -2,7 +2,6 @@
 
 
 int HttpRequestParser::parseBody() {
-    std::cout << req_buffer_.length() << "  " << length_ << std::endl;
     if (req_buffer_.length() >= length_)
     {
         body_.insert(body_offset_, req_buffer_, 0, length_);

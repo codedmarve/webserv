@@ -43,6 +43,7 @@ class ConfigDB{
 		std::vector<std::string> _variablePath;
 		std::map<std::string, int> sectionCounts;
 		KeyValues _keyValues;
+		KeyValues _HttpDirectives;
 		GroupedValuesMap groupedValues;
 };
 
