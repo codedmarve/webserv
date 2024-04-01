@@ -40,7 +40,7 @@
 # include <regex.h>
 #include <stack>
 
-#include "DataBase.hpp"
+#include "ConfigDB.hpp"
 #include "Servers.hpp"
 #include "CgiHandle.hpp"
 #include "DomainResolve.hpp"

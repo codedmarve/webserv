@@ -47,18 +47,6 @@ void trimWordFromEnd(int &start, int &end, std::string line) {
         end--;
 }
 
-// We are not using this function
-std::string getValue(const std::map<std::string, std::vector<std::string> > &keyValues, const std::string &key) {
-    typedef std::map<std::string, std::vector<std::string> >::const_iterator MapIterator;
-    MapIterator it = keyValues.find(key);
-    if (it != keyValues.end()) {
-        const std::vector<std::string>& values = it->second;
-        if (!values.empty()) {
-            return values.front(); // Return the first value
-        }
-    }
-    return ""; // Return empty string if key not found or no values
-}
 
 // Checks closed curly braces or not
 int checkCurly(std::string line) {

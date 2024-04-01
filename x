@@ -80,3 +80,112 @@ location:
     path:
         key: value
 else use the renameKeysAtIndex function
+
+
+
+
+Index: 0
+Renamed Key: <"allow_methods">
+Location: <"/">
+Value:
+  DELETE
+  POST
+  GET
+Renamed Key: <"autoindex">
+Location: <"/">
+Value:
+  off
+Renamed Key: <"autoindex">
+Location: <"/cgi">
+Value:
+  off
+Renamed Key: <"cgi">
+Location: <"/cgi">
+Value:
+  .sh
+  sh
+Renamed Key: <"client_max_body_size">
+Location: <"/cgi">
+Value:
+  500
+Renamed Key: <"index">
+Location: <"/cgi">
+Value:
+  index.sh
+Renamed Key: <"limit_except">
+Location: <"/cgi">
+Value:
+  GET
+  HEAD
+  POST
+Renamed Key: <"root">
+Location: <"/cgi">
+Value:
+  webserv_tester/pythonTest/sh
+Renamed Key: <"host">
+Location: <"">
+Value:
+  127.0.0.1
+Renamed Key: <"index">
+Location: <"">
+Value:
+  abc/hehe.html
+Renamed Key: <"listen">
+Location: <"">
+Value:
+  127.0.0.6:8005
+  8004
+  8005
+Renamed Key: <"root">
+Location: <"">
+Value:
+  docs/fusion_web
+  0
+Index: 1
+Renamed Key: <"allow_methods">
+Location: <"/">
+Value:
+  DELETE
+  POST
+  GET
+Renamed Key: <"autoindex">
+Location: <"/">
+Value:
+  off
+Renamed Key: <"index">
+Location: <"">
+Value:
+  abc/hehe.html
+Renamed Key: <"root">
+Location: <"">
+Value:
+  docs/fusion_web/
+Renamed Key: <"server_name">
+Location: <"">
+Value:
+  www.domain.com
+  www.domain2.com
+Index: 2
+Renamed Key: <"allow_methods">
+Location: <"/">
+Value:
+  DELETE
+  POST
+  GET
+Renamed Key: <"autoindex">
+Location: <"/">
+Value:
+  off
+Renamed Key: <"index">
+Location: <"">
+Value:
+  abc/hehe.html
+Renamed Key: <"root">
+Location: <"">
+Value:
+  docs/fusion_web2/
+Renamed Key: <"server_name">
+Location: <"">
+Value:
+  www.domain.com
+  www.domain4.com

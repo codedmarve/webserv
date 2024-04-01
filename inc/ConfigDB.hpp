@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   DataBase.hpp                                       :+:      :+:    :+:   */
+/*   ConfigDB.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
@@ -10,15 +10,15 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef DATABASE_H
-# define DATABASE_H
+#ifndef ConfigDB_H
+# define ConfigDB_H
 
 #include "AllHeaders.hpp"
 
-class DataBase{
+class ConfigDB{
 	public: 
-		DataBase();
-		~DataBase();
+		ConfigDB();
+		~ConfigDB();
 		void		pushInBase(std::string env_name);
 		void		eraseLastSection();
 		void		fillMap(std::string value, std::string key, std::string currentSection ,std::string KeyWithoutLastSection);
@@ -30,9 +30,6 @@ class DataBase{
 		std::string getKeyWithoutLastSection();
 		std::map<std::string, std::vector<std::string> > getKeyValue();
 		void groupValuesByIndex(const std::map<std::string, std::vector<std::string> >& keyValues);
-		// std::map<int, std::vector<std::pair<std::string,std::vector<std::string> > > > groupedValues;
-		void printValuesAtIndex(int index, const std::map<int, std::vector<std::pair<std::string, std::vector<std::string> > > >& groupedValues);
-		void renameKeysAtIndex();
 		std::vector<std::pair<std::string, std::vector<std::string> > > renamedIndexGroup;
 		void printGroupedValues();
 
