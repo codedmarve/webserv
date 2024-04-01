@@ -93,7 +93,7 @@ int HttpRequestParser::checkSpecialHeaders() {
         }
         buffer_section_ = BODY;
     } else {
-        return 1000; // should be 400 but I need a unique value
+        return 100; // should be 400 but I need a unique value
     }
 
 
@@ -103,7 +103,7 @@ int HttpRequestParser::checkSpecialHeaders() {
         std::string value = headers_["method"];
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;
-            return 1000; // should be 405 but I need a unique value
+            return 100; // should be 405 but I need a unique value
         }
     }
 

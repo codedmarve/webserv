@@ -1,8 +1,9 @@
 #include "../../inc/HttpRequestParser.hpp"
 
-/// @todo
-// handle error codes
-// implement missing getters e.g get header by key
+/// @note
+// 200 indicates that parsing is ongoing and there is no error
+// 100 indicates parsing is complete and successful
+// any other number indicates an http req error or incomplete parsing state
 
 HttpRequestParser::HttpRequestParser() {
     body_offset_ = 0;
@@ -25,7 +26,7 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     gettimeofday(&last_tv_, NULL);
     req_buffer_ += buffer;
     buffer.clear();
-
+    return 400;
     /// @note This if/else logic depends on how we wanna handle buffer
     if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
@@ -42,9 +43,11 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
         httpStatus = parseChunkedBody();
     }
 
-    if (buffer_section_ == COMPLETE || httpStatus == 1000) {
+    if (buffer_section_ == COMPLETE || httpStatus == 100) {
         buffer_section_ = COMPLETE;
-    } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 1000)) {
+        std::cout << "COMPLETE" << std::endl;
+    } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 100)) {
+        std::cout << "ERROR" << std::endl;
         buffer_section_ = ERROR;
     }
 

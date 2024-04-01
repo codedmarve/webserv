@@ -2,6 +2,7 @@
 
 
 int HttpRequestParser::parseBody() {
+    std::cout << req_buffer_.length() << "  " << length_ << std::endl;
     if (req_buffer_.length() >= length_)
     {
         body_.insert(body_offset_, req_buffer_, 0, length_);
@@ -9,7 +10,7 @@ int HttpRequestParser::parseBody() {
         req_buffer_.clear();
 
         if (body_.length() == length_)
-          return 1000;
+          return 100;
         else
           return 400;
     }
@@ -32,7 +33,7 @@ int HttpRequestParser::parseChunkedBody() {
             if (chunk_size_ == 0) {
                 if (!req_buffer_.empty())
                     return parseChunkTrailer();
-                return 1000; // Finished parsing chunked body and trailers
+                return 100; // Finished parsing chunked body and trailers
             }
 
             // Append chunk data to request body
@@ -103,5 +104,5 @@ int HttpRequestParser::parseChunkTrailer() {
         // req_buffer_.erase(0, end + 2);
     }
 
-    return 1000; // OK: Chunk trailer parsed successfully
+    return 100; // OK: Chunk trailer parsed successfully
 }

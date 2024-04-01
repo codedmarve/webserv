@@ -169,19 +169,30 @@ void Servers::handleIncomingConnection(int server_fd){
 	int count = 0;
 
 
-	//WARNING: THE FOLLOWING WHILE LOOP IS INFINITE. IT WILL ONLY STOP WHEN THE CLIENT CLOSES THE CONNECTION.
-	//WHILE USING THE THUNDER BROWSER, PRESS "CANCEL REQUEST" AND THE CONNECTION WILL BE CLOSED.
-	//THEN, USE THE printREQUEST to SEE
+	int reqStatus = -1;
 	while (finish != true){	
 		finish = getRequest(new_socket, request);
 		std::cout << "Count: " << count++ << std::endl;
 		// std::cout << "Request: " << request << std::endl;
 		// send (new_socket, request.c_str(), request.size(), 0);
-		// parser.parseRequest(request);
+		/**
+		 * /// @note
+		 * 200 indicates that parsing is ongoing and there is no error
+		 * 100 indicates parsing is complete and successful
+		 * any other number indicates an http req error or incomplete parsing state
+		*/
+		reqStatus = parser.parseRequest(request);
+		if (reqStatus != 200) {
+			if (reqStatus > 200 || reqStatus == -1)
+				std::cout << "\nHTTP REQ. ERROR:" << reqStatus << "\n";
+			else
+				std::cout << "\nHTTP REQ. COMPLETE:" << reqStatus << "\n";
+			break;
+		} 
 		// if (request.find("EOF") != std::string::npos)
 		// 	finish = true;
 	}
-	parser.printRequest(parser);
+	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());
 	if (bytes == -1) {
