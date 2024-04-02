@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Servers.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/29 08:18:27 by drey             ###   ########.fr       */
+/*   Updated: 2024/04/02 21:58:53 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,12 @@ int Servers::bindSocket(std::string s_port){
 	if (bind(_server_fds.back(), (struct sockaddr *)&address, sizeof(address)) == -1) {
 		std::cerr << "Bind failed" << std::endl;
 		return (0);
+	}
+	for (std::map<int, std::vector<std::string> >::iterator it = server_index.begin(); it != server_index.end(); it++){
+		for (std::vector<std::string>::iterator it2 = it->second.begin(); it2 != it->second.end(); it2++){
+			if (*it2 == s_port)
+				server_fd_to_index[_server_fds.back()] = it->first;
+		}
 	}
 	return (1);
 }
@@ -167,7 +173,8 @@ void Servers::handleIncomingConnection(int server_fd){
 	}
 	HttpRequestParser parser;
 	int count = 0;
-
+	int server_index = server_fd_to_index[server_fd];
+	std::cout << "Server index: " << server_index << std::endl;
 
 	int reqStatus = -1;
 	while (!finish){	
@@ -254,12 +261,18 @@ std::vector<std::string> Servers::getPorts(){
 			ports_temp = it_server->second;
 			for (std::vector<std::string>::iterator it2 = ports_temp.begin(); it2 != ports_temp.end(); it2++){
 				if (std::find(ports.begin(), ports.end(), *it2) == ports.end())
+				{
 					ports.push_back(*it2);
+					server_index[i].push_back(*it2);
+				}
 			}
 		}
 		else if (it_server_name != config.end() && it_server == config.end()){
 			if (std::find(ports.begin(), ports.end(), "80") == ports.end())
+			{
 				ports.push_back("80");
+				server_index[i].push_back("80");
+			}
 		}
 		else
 			return (ports);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Servers.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/30 15:23:26 by drey             ###   ########.fr       */
+/*   Updated: 2024/04/02 21:56:28 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@ class Servers {
 		std::map<int, std::vector<std::string> > _domain_to_server;
 		std::map<int, std::string> _ip_to_server;
 		std::map<std::string, std::vector<std::string> > _keyValues;
+		std::map<int, std::vector<std::string> > server_index;
+		std::map<int, int> server_fd_to_index;
 	public:
 		//Temporal member variable until the config file is completed
 		// std::map<std::string, std::vector<std::string> > _server_ports;
