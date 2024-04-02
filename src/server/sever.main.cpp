@@ -17,11 +17,18 @@ int serverMain(int argc, char **argv) {
         ft_errors(argv[0],1); 
     ConfigDB base;
     base.execParser(argv);    
-    // base.printKeyValue();
-    // std::cout << "\n\n";
-    base.groupValuesByIdx(base.getKeyValue());
-    // base.printAllServersData();
-    base.printServerData(base.getServerDataByIdx(0));
+    base.splitDB(base.getKeyValue());
+    /**
+     * @brief print your choice of data.
+     * void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersData, int serverDataIdx, bool allConfig)
+     * @param allRootData true prints all root data
+     * @param rootDataIdx prints root data at n index. where n >= 0
+     * @param allServersData true prints all server data
+     * @param rootDataIdx prints server data at n index. where n >= 0
+     * 
+     * @return The area of the rectangle (length * width).
+     */
+    base.printChoice(true, 0, true, 0, false);
 
     
     Servers servers(base.getKeyValue());

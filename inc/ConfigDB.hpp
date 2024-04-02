@@ -17,9 +17,11 @@
 
 class ConfigDB{
 	public:
-	    typedef std::map<std::string, std::vector<std::string> > KeyValues;
-        typedef std::pair<std::map<std::string, std::string>, std::vector<std::string> > KeyMapValue;
-        typedef std::map<int, std::vector<KeyMapValue > > GroupedValuesMap;
+		typedef std::map<std::string, std::string> MapStr;
+		typedef std::vector<std::string> VecStr;
+	    typedef std::map<std::string, VecStr > KeyValues;
+        typedef std::pair<MapStr, VecStr > KeyMapValue;
+        typedef std::map<int, std::vector<KeyMapValue > > GroupedDBMap;
 
 		ConfigDB();
 		~ConfigDB();
@@ -33,18 +35,22 @@ class ConfigDB{
 		std::string	getFullPathKey();
 		std::string getKeyWithoutLastSection();
 		KeyValues getKeyValue();
-		void groupValuesByIdx(const KeyValues& keyValues);
-		void printAllServersData();
-		std::vector<ConfigDB::KeyMapValue> getServerDataByIdx(int index);
+		void splitDB(const KeyValues& keyValues);
+		std::vector<ConfigDB::KeyMapValue> getServerDataByIdx(GroupedDBMap db, int index);
+		void printAllDBData(GroupedDBMap db);
 		void printServerData(const std::vector<ConfigDB::KeyMapValue>& values);
+		void printChoice(bool allRootData, int rootDataIdx, bool allServersData, int serverDataIdx, bool allConfig);
+		void handleRootDB(MapStr keyMap, const std::string& key,const VecStr& values, size_t lhs, size_t rhs);
+		void handleServerDB(MapStr keyMap, const std::string& key,const VecStr& values, size_t lhs, size_t rhs);
 
 		
 	private:
-		std::vector<std::string> _variablePath;
+		VecStr _variablePath;
 		std::map<std::string, int> sectionCounts;
 		KeyValues _keyValues;
-		KeyValues _HttpDirectives;
-		GroupedValuesMap groupedValues;
+		GroupedDBMap groupedServers;
+		GroupedDBMap groupedRootData;
+		size_t counter;
 };
 
 #endif
