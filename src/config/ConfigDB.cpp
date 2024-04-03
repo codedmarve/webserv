@@ -267,12 +267,12 @@ void printAllDBData(GroupedDBMap db) {
     GroupedDBMap::const_iterator it;
     for (it = db.begin(); it != db.end(); ++it) {
         std::cout << "Index: " << it->first << std::endl;
-        printServerData(it->second);
+        printData(it->second);
         std::cout << "\n" << std::endl;
     }
 }
 
-void printServerData(const std::vector<ConfigDB::KeyMapValue>& values) {
+void printData(const std::vector<ConfigDB::KeyMapValue>& values) {
     for (size_t i = 0; i < values.size(); ++i) {
         const MapStr& keyMap = values[i].first;
         const VecStr& valueVector = values[i].second;
@@ -289,12 +289,13 @@ void printServerData(const std::vector<ConfigDB::KeyMapValue>& values) {
     }
 }
 
-std::vector<ConfigDB::KeyMapValue> ConfigDB::getServerDataByIdx(GroupedDBMap db, int index) {
-    std::vector<ConfigDB::KeyMapValue> values;
+std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index) {
+    std::vector<KeyMapValue> values;
     GroupedDBMap::iterator it = db.find(index);
+
     return (it != db.end())
         ? it->second
-        : (std::cout << "Index " << index << " does not exist \n", values);
+        : (std::cout << "Index " << index << " does not exist" << std::endl, values);
 }
 
 void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersData, int serverDataIdx, bool allConfig) {
@@ -305,7 +306,7 @@ void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersDat
     }
     if (rootDataIdx >= 0) {
         std::cout << "**** ROOT: " << rootDataIdx << " ****" << std::endl;
-        printServerData(getServerDataByIdx(groupedRootData, rootDataIdx));
+        printData(getDataByIdx(groupedRootData, rootDataIdx));
         std::cout << std::endl;
     }
     if (allServersData) {
@@ -315,7 +316,7 @@ void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersDat
     }
     if (serverDataIdx >= 0) {
         std::cout << "**** SERVER: " << serverDataIdx << " ****" << std::endl;
-        printServerData(getServerDataByIdx(groupedServers, serverDataIdx));
+        printData(getDataByIdx(groupedServers, serverDataIdx));
         std::cout << std::endl;
     }
     if (allConfig) {

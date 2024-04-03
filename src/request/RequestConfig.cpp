@@ -5,6 +5,11 @@ RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &
 
 RequestConfig::~RequestConfig() {}
 
+void RequestConfig::setUp() {
+    std::vector<KeyMapValue> callingServer = getDataByIdx(db_.serversDB, 0);
+    printData(callingServer);
+}
+
 
 // void RequestConfig::setTarget(std::string target) {
 //   target_ = target;

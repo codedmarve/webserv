@@ -20,14 +20,15 @@ struct DB;
 
 class Client {
  public:
-  Client();
+  Client(Listen &host_port);
   // Client(int fd, std::string &addr, Listen &host_port, int worker_id, bool disconnect = false);
   ~Client();
 
-  void setupConfig(DB db, HttpRequestParser &req_);
+  void setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx);
 
  private:
     HttpRequestParser *request_;
+    Listen &host_port_;
     // RequestConfig *config_;
 
 };

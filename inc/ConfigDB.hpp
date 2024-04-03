@@ -36,7 +36,7 @@ class ConfigDB{
 		std::string getKeyWithoutLastSection();
 		KeyValues getKeyValue();
 		void splitDB(const KeyValues& keyValues);
-		std::vector<ConfigDB::KeyMapValue> getServerDataByIdx(GroupedDBMap db, int index);
+		// std::vector<KeyMapValue> getServerDataByIdx(GroupedDBMap db, int index);
 		// void printAllDBData(GroupedDBMap db);
 		// void printServerData(const std::vector<ConfigDB::KeyMapValue>& values);
 		void printChoice(bool allRootData, int rootDataIdx, bool allServersData, int serverDataIdx, bool allConfig);

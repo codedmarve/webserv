@@ -66,6 +66,13 @@ struct DB {
     const GroupedDBMap rootDB;
 };
 
+struct Listen {
+  std::string ip_;
+  uint32_t port_;
+
+  Listen() : ip_(""), port_(0) {};
+  Listen(std::string ip, uint32_t port) : ip_(ip), port_(port) {};
+};
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
@@ -85,6 +92,7 @@ std::string getIndexVariableKey(std::string key,std::map<std::string, std::vecto
 std::string getValue(const std::map<std::string, std::vector<std::string> > &keyValues, const std::string &key);
 
 void printAllDBData(GroupedDBMap db);
-void printServerData(const std::vector<KeyMapValue>& values);
+void printData(const std::vector<KeyMapValue>& values);
+std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index);
 
 #endif

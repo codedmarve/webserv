@@ -5,13 +5,15 @@
 //   config_ = NULL;
 //   response_ = NULL;
 // }
-Client::Client() {}
+Client::Client(Listen& host_port) : host_port_(host_port) {
+  (void)host_port_;
+}
 
 
 Client::~Client() {
 }
 
-void Client::setupConfig(DB db, HttpRequestParser &req_) {
+void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx) {
   (void) db;
   (void)req_;
 
@@ -19,5 +21,7 @@ void Client::setupConfig(DB db, HttpRequestParser &req_) {
   // std::cout << "****** STATUS: " << request_->getBody() <<std::endl;
   // printAllDBData(db.serversDB);
 
-(void)request_;
+  printData(getDataByIdx(db.serversDB, requestedServerIdx));
+
+  (void)request_;
 }

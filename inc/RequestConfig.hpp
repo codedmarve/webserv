@@ -12,6 +12,8 @@ class RequestConfig {
  public:
   RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
+
+  void setUp();
   void setTarget(const std::string &target);
 
 

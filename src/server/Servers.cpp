@@ -145,6 +145,20 @@ void Servers::createServers(){
 		}
 	}
 }
+Listen requestedIpAndPort(std::string requestedUrl) {
+	std::cout << "Server IP: " << requestedUrl << std::endl;
+
+
+	size_t pos = requestedUrl.find(":");
+	if ( pos == std::string::npos)
+		std::cout << "ERROR" <<std::endl;
+	std::string x_ip = requestedUrl.substr(0, pos);
+	std::string x_port = requestedUrl.substr(pos + 1);
+	uint32_t port_x;
+	std::istringstream iss(x_port); 
+	iss >> port_x;
+	return Listen (x_ip, port_x);
+}
 
 // Handle incoming connection from clients
 void Servers::handleIncomingConnection(int server_fd){
@@ -174,8 +188,6 @@ void Servers::handleIncomingConnection(int server_fd){
 	}
 	HttpRequestParser parser;
 	int count = 0;
-	int server_index = server_fd_to_index[server_fd];
-	std::cout << "Server index: " << server_index << std::endl;
 
 	int reqStatus = -1;
 	while (!finish){	
@@ -196,10 +208,20 @@ void Servers::handleIncomingConnection(int server_fd){
 			finish = true;
 		} 
 	}
-	Client client;
-	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+	std::vector<std::string> domains = _domain_to_server[server_fd];
 
-	client.setupConfig(db, parser);
+	Listen host_port = requestedIpAndPort(_ip_to_server[server_fd]);
+
+	std::cout << "*************** " << host_port.ip_ << std::endl;
+
+	for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
+		std::cout << "Server domains: " << *it << std::endl;
+
+	Client client(host_port);
+	DB db = {configDB_.getServers(), configDB_.getRootConfig(), };
+
+	int server_index = server_fd_to_index[server_fd];
+	client.setupConfig(db, parser, server_index);
 	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());
