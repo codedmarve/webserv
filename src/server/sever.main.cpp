@@ -17,7 +17,6 @@ int serverMain(int argc, char **argv) {
         ft_errors(argv[0],1); 
     ConfigDB base;
     base.execParser(argv);    
-    base.splitDB(base.getKeyValue());
     /**
      * @brief print your choice of data.
      * void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersData, int serverDataIdx, bool allConfig)
@@ -26,12 +25,12 @@ int serverMain(int argc, char **argv) {
      * @param allServersData true prints all server data
      * @param rootDataIdx prints server data at n index. where n >= 0
      * 
-     * @return The area of the rectangle (length * width).
+     * @return NULL;
      */
-    base.printChoice(true, 0, true, 0, false);
+    base.printChoice(false, -1, false, -1, false);
 
     
-    Servers servers(base.getKeyValue());
+    Servers servers(base);
     
     // std::map<std::string, std::vector<std::string> > keyValues = base.getKeyValue();
     // for(std::map<std::string, std::vector<std::string> >::iterator it = keyValues.begin(); it != keyValues.end(); it++)

@@ -100,6 +100,12 @@ public:
     std::string &getTarget();
 
     void printRequest(HttpRequestParser parser);
+
+    bool timeout();
+    time_t get_start_timer_in_sec();
+    time_t get_last_timer_in_sec();
+    
+    int getStatus();
 };
 
 #endif

@@ -4,52 +4,23 @@
 # include "./AllHeaders.hpp"
 
 class HttpRequestParser;
+class Client;
+struct Listen;
+struct DB;
 
 class RequestConfig {
  public:
-  RequestConfig(HttpRequestParser &request);
+  RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
+  void setTarget(const std::string &target);
 
-    enum LogLevel {
-        NONE,
-        INFO,
-        DEBUG
-    };
-
-
-  void redirectLocation(std::string target);
-  bool methodAccepted(std::string &method);
-  std::string &getMethod();
-  std::string &getRoot();
-  std::string &getUri();
-  std::string &getTarget();
-  std::string &getRequestTarget();
-  std::string &getQuery();
-  std::string &getCGIBin();
-  void setTarget(std::string target);
-  std::string &getBody();
-  std::string &getAuth();
-  std::map<std::string, std::string> &getCGI();
-  // std::map<std::string, std::string, s_compare> &getHeaders();
-  std::string &getHeader(std::string key);
-  size_t &getClientMaxBodySize();
-  std::string &getProtocol();
-  std::string &getUpload();
-  bool getAutoindex();
-  std::vector<std::string> &getIndexes();
-  std::map<int, std::string> &getErrorPages();
-  std::vector<std::string> &getMethods();
-  std::string &getHost();
-  uint32_t &getPort();
-  std::string log(LogLevel level);
 
  private:
   HttpRequestParser &request_;
-//   Listen &host_port_;
-//   std::vector<ServerConfig> &servers_;
-//   Client &client_;
-//   ServerConfig *server_;
-//   ServerConfig *location_;
+  Client &client_;
+  Listen &host_port_;
+  DB &db_;
+  
   std::string target_;
 };
 

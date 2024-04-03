@@ -14,6 +14,14 @@
 # define SERVERS_HPP
 #include "AllHeaders.hpp"
 
+class ConfigDB;
+class InputArgs;
+struct DB;
+// struct DB {
+//     const GroupedDBMap serversDB;
+//     const GroupedDBMap rootDB;
+// };
+
 class Servers {
 	private:
 		std::vector<int> _server_fds;
@@ -28,8 +36,10 @@ class Servers {
 		// std::map<std::string, std::vector<std::string> > _server_ports;
 		
 		//Constructors
-		Servers(std::map<std::string, std::vector<std::string> > _keyValues);
+		Servers(ConfigDB &configDB);
 		~Servers();
+
+		ConfigDB &configDB_;
 
 		//Member functions
 		int		checkSocket(std::string port);

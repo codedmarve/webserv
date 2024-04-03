@@ -195,6 +195,7 @@ void   ConfigDB::execParser(char *argv[]){
             }
         }
     }
+    splitDB(_keyValues);
 }
 
 ConfigDB::KeyValues ConfigDB::getKeyValue()
@@ -262,7 +263,7 @@ void ConfigDB::splitDB(const KeyValues& keyValues) {
 }
 
 
-void ConfigDB::printAllDBData(GroupedDBMap db) {
+void printAllDBData(GroupedDBMap db) {
     GroupedDBMap::const_iterator it;
     for (it = db.begin(); it != db.end(); ++it) {
         std::cout << "Index: " << it->first << std::endl;
@@ -271,7 +272,7 @@ void ConfigDB::printAllDBData(GroupedDBMap db) {
     }
 }
 
-void ConfigDB::printServerData(const std::vector<ConfigDB::KeyMapValue>& values) {
+void printServerData(const std::vector<ConfigDB::KeyMapValue>& values) {
     for (size_t i = 0; i < values.size(); ++i) {
         const MapStr& keyMap = values[i].first;
         const VecStr& valueVector = values[i].second;
@@ -322,4 +323,12 @@ void ConfigDB::printChoice(bool allRootData, int rootDataIdx, bool allServersDat
         printKeyValue();
         std::cout << std::endl;
     }
+}
+
+ConfigDB::GroupedDBMap ConfigDB::getServers() const {
+    return groupedServers;
+}
+
+ConfigDB::GroupedDBMap ConfigDB::getRootConfig() const {
+    return groupedRootData;
 }

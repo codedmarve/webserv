@@ -14,7 +14,8 @@
 #include "../../inc/HttpRequestParser.hpp"
 
 //Servers constuctor
-Servers::Servers(std::map<std::string, std::vector<std::string> > keyValues) : _server_fds(), _keyValues(keyValues){
+Servers::Servers(ConfigDB &configDB) : _server_fds(), configDB_(configDB){
+	_keyValues = configDB_.getKeyValue();
 	createServers();
 	initEvents();
 }
@@ -195,7 +196,11 @@ void Servers::handleIncomingConnection(int server_fd){
 			finish = true;
 		} 
 	}
-	parser.printRequest(parser);
+	Client client;
+	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+
+	client.setupConfig(db, parser);
+	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());
 	if (bytes == -1) {

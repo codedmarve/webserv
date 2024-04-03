@@ -39,6 +39,7 @@
 #include <vector>
 # include <regex.h>
 #include <stack>
+#include <string>
 
 #include "ConfigDB.hpp"
 #include "Servers.hpp"
@@ -51,6 +52,20 @@
 #include "RequestConfig.hpp"
 #include "utils.hpp"
 #include "ServerConfig.hpp"
+#include "Client.hpp"
+#include "InputArgs.hpp"
+
+typedef std::map<std::string, std::string> MapStr;
+typedef std::vector<std::string> VecStr;
+typedef std::map<std::string, VecStr > KeyValues;
+typedef std::pair<MapStr, VecStr > KeyMapValue;
+typedef std::map<int, std::vector<KeyMapValue > > GroupedDBMap;
+
+struct DB {
+    const GroupedDBMap serversDB;
+    const GroupedDBMap rootDB;
+};
+
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
@@ -68,5 +83,8 @@ std::vector<std::string> split(const std::string &s, char delimiter);
 std::string cutTillSemicolon(std::string str);
 std::string getIndexVariableKey(std::string key,std::map<std::string, std::vector<std::string> > keyValues);
 std::string getValue(const std::map<std::string, std::vector<std::string> > &keyValues, const std::string &key);
+
+void printAllDBData(GroupedDBMap db);
+void printServerData(const std::vector<KeyMapValue>& values);
 
 #endif

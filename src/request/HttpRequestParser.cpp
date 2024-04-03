@@ -112,4 +112,23 @@ std::string &HttpRequestParser::getTarget() {
 }
 
 
+bool HttpRequestParser::timeout() {
+  if (buffer_section_ != COMPLETE) {
+    buffer_section_ = ERROR;
+    return true;
+  }
+  return false;
+}
+
+int HttpRequestParser::getStatus() {
+  return buffer_section_;
+}
+
+time_t HttpRequestParser::get_start_timer_in_sec() {
+  return start_tv_.tv_sec;
+}
+
+time_t HttpRequestParser::get_last_timer_in_sec() {
+  return last_tv_.tv_sec;
+}
 
