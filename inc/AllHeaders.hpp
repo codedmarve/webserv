@@ -74,6 +74,8 @@ struct Listen {
   Listen(std::string ip, uint32_t port) : ip_(ip), port_(port) {};
 };
 
+
+
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
 void handleLogFormat(std::string line, std::string &value, std::vector<std::string> tokens, std::vector<std::string>::const_iterator &it);
