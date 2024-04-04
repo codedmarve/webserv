@@ -41,7 +41,7 @@ void RequestConfig::setUp() {
     // 3. server level(locatn == "" == server-default settings)
     // 4. location level
 
-    VecStr result = filterDataByDirectives(targetServer, "index", request_.getURI());
+    VecStr result = filterDataByDirectives(targetServer, "autoindex", request_.getQuery());
     
     for (size_t i = 0; i < result.size(); ++i) {
         std::cout << "Value: " << result[i] << std::endl;
@@ -53,7 +53,6 @@ void RequestConfig::setUp() {
 //     size_t asterisk = str.find("*");
 //     size_t caret = str.find("^");
 //     size_t eq = str.find("=");
-
 //     return (str == "="
 //         || str == "~"
 //         || str == "~*"

@@ -1,0 +1,121 @@
+
+
+
+
+
+
+
+
+Key: http.server.location_/cgi-bin[0].allow_methods
+Value(s): 
+  GET
+  POST
+  DELETE
+
+Key: http.server.location_/cgi-bin[0].fastcgi_param
+Value(s): 
+  SCRIPT_FILENAME
+  $document_root$fastcgi_script_name
+
+Key: http.server.location_/cgi-bin[0].fastcgi_pass
+Value(s): 
+  unix:/var/run/fastcgi.sock
+
+Key: http.server.location_/cgi-bin[0].include
+Value(s): 
+  fastcgi_params
+
+Key: http.server.location_/cgi-bin[0].index
+Value(s): 
+  time.py
+
+Key: http.server.location_/cgi-bin[0].root
+Value(s): 
+  /
+
+Key: http.server.location_/red[0].return
+Value(s): 
+  302
+  /tours
+
+Key: http.server.location_/tours[0].allow_methods
+Value(s): 
+  GET
+  POST
+  PUT
+  HEAD
+
+Key: http.server.location_/tours[0].autoindex
+Value(s): 
+  on
+
+Key: http.server.location_/tours[0].index
+Value(s): 
+  tours1.html
+
+Key: http.server.location_/tours[1].allow_methods
+Value(s): 
+  GET
+  POST
+  PUT
+  HEAD
+
+Key: http.server.location_/tours[1].autoindex
+Value(s): 
+  on
+
+Key: http.server.location_/tours[1].index
+Value(s): 
+  tours1.html
+
+Key: http.server.location_~_\.php$[0].fastcgi_pass
+Value(s): 
+  127.0.0.1:1025
+
+Key: http.server.location_~_^/(images|javascript|js|css|flash|media|static)/[0].expires
+Value(s): 
+  30d
+
+Key: http.server.location_~_^/(images|javascript|js|css|flash|media|static)/[0].root
+Value(s): 
+  /var/www/virtual/big.server.com/htdocs
+
+Key: http.server[0].listen
+Value(s): 
+  8001
+
+Key: http.server[0].server_name
+Value(s): 
+  dog
+
+Key: http.server[1].error_page
+Value(s): 
+  404
+  /error_pages/404.html
+
+Key: http.server[1].index
+Value(s): 
+  index.html
+
+Key: http.server[1].listen
+Value(s): 
+  8002
+
+Key: http.server[1].root
+Value(s): 
+  docs/fusion_web/
+
+Key: http.server[1].server_name
+Value(s): 
+  localhost
+
+Key: http.server[2].listen
+Value(s): 
+  8003
+
+Key: http.server[2].server_name
+Value(s): 
+  localhost
+  www.youaredomain.com
+  www.iamdomain.com
+

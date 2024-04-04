@@ -15,9 +15,6 @@ Client::~Client() {
 }
 
 void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx) {
-  (void) db;
-  (void)req_;
-  (void)request_;
   (void) requestedServerIdx;
 
   request_ = &req_;
@@ -26,7 +23,7 @@ void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerI
   // printData(getDataByIdx(db.serversDB, requestedServerIdx));
 
 
-  // **** AGGREGATE CONFIG HERE
+  /// @note AGGREGATED ALL CONFIGURATIONS HERE
   config_ = new RequestConfig(*request_, host_port_, db, *this);
   config_->setUp();
 }
