@@ -125,3 +125,38 @@ void    handleLogFormat(std::string line, std::string &value, std::vector<std::s
 }
 
 
+void printAllDBData(GroupedDBMap db) {
+    GroupedDBMap::const_iterator it;
+    for (it = db.begin(); it != db.end(); ++it) {
+        std::cout << "Index: " << it->first << std::endl;
+        printData(it->second);
+        std::cout << "\n" << std::endl;
+    }
+}
+
+void printData(const std::vector<ConfigDB::KeyMapValue>& values) {
+    for (size_t i = 0; i < values.size(); ++i) {
+        const MapStr& keyMap = values[i].first;
+        const VecStr& valueVector = values[i].second;
+
+            std::cout << "{ " 
+                << keyMap.find("directives")->second
+                << ", "  << keyMap.find("location")->second
+                << " }" << ": ";
+
+        for (size_t j = 0; j < valueVector.size(); ++j)
+            std::cout << "  " << valueVector[j];
+
+        std::cout  << std::endl;
+    }
+}
+
+std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index) {
+    std::vector<KeyMapValue> values;
+    GroupedDBMap::iterator it = db.find(index);
+
+    return (it != db.end())
+        ? it->second
+        : (std::cout << "Index " << index << " does not exist" << std::endl, values);
+}
+

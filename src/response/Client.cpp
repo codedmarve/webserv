@@ -29,8 +29,6 @@ void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerI
   // **** AGGREGATE CONFIG HERE
   config_ = new RequestConfig(*request_, host_port_, db, *this);
   config_->setUp();
-
-	std::cout << "*************** " << host_port_.port_ << std::endl;
 }
 
 // RequestConfig* Client::createRequestConfig(DB db) {

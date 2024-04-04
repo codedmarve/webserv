@@ -94,5 +94,6 @@ std::string getValue(const std::map<std::string, std::vector<std::string> > &key
 void printAllDBData(GroupedDBMap db);
 void printData(const std::vector<KeyMapValue>& values);
 std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index);
+bool checkModifier(std::string &str);
 
 #endif
