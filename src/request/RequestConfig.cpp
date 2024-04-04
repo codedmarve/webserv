@@ -6,8 +6,10 @@ RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &
 RequestConfig::~RequestConfig() {}
 
 void RequestConfig::setUp() {
-    std::vector<KeyMapValue> callingServer = getDataByIdx(db_.serversDB, 0);
-    printData(callingServer);
+    std::vector<KeyMapValue> targetServer = getDataByIdx(db_.serversDB, 0);
+    // printData(targetServer);
+    // std::cout << "**********" << request_.getStatus() << std::endl;
+    // if (request_.getStatus() > 2)
 }
 
 

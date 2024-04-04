@@ -23,10 +23,12 @@ void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerI
   request_ = &req_;
   // std::cout << "****** STATUS: " << request_->getBody() <<std::endl;
   // printAllDBData(db.serversDB);
-
   // printData(getDataByIdx(db.serversDB, requestedServerIdx));
+
+
+  // **** AGGREGATE CONFIG HERE
   config_ = new RequestConfig(*request_, host_port_, db, *this);
-  // 
+  config_->setUp();
 
 	std::cout << "*************** " << host_port_.port_ << std::endl;
 }
