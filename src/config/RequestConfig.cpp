@@ -29,11 +29,19 @@ VecStr filterDataByDirectives(const std::vector<KeyMapValue>& values, std::strin
 
 void RequestConfig::setUp() {
     std::vector<KeyMapValue> targetServer = getDataByIdx(db_.serversDB, 0);
-    // std::cout << "**********" << request_.getStatus() << std::endl;
+    std::cout << "**********" << request_.getURI() << std::endl;
 
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
-    VecStr result = filterDataByDirectives(targetServer, "index", "/tours");
+
+    /// @note
+    // important to first pre-populate data inn cascades:
+    // 1. preffered settings
+    // 2. http level
+    // 3. server level(locatn == "" == server-default settings)
+    // 4. location level
+
+    VecStr result = filterDataByDirectives(targetServer, "index", request_.getURI());
     
     for (size_t i = 0; i < result.size(); ++i) {
         std::cout << "Value: " << result[i] << std::endl;
