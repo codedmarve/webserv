@@ -212,16 +212,15 @@ void Servers::handleIncomingConnection(int server_fd){
 
 	Listen host_port = requestedIpAndPort(_ip_to_server[server_fd]);
 
-	std::cout << "*************** " << host_port.ip_ << std::endl;
 
 	for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
 		std::cout << "Server domains: " << *it << std::endl;
 
 	Client client(host_port);
-	DB db = {configDB_.getServers(), configDB_.getRootConfig(), };
+	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 
-	int server_index = server_fd_to_index[server_fd];
-	client.setupConfig(db, parser, server_index);
+	client.setupConfig(db, parser, server_fd_to_index[server_fd]);
+	
 	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
     ssize_t bytes = write(new_socket, response.c_str(), response.size());

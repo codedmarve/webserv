@@ -29,7 +29,9 @@ class Client {
  private:
     HttpRequestParser *request_;
     Listen &host_port_;
-    // RequestConfig *config_;
+    RequestConfig *config_;
+
+    // RequestConfig* createRequestConfig(DB db);
 
 };
 

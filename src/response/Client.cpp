@@ -5,23 +5,33 @@
 //   config_ = NULL;
 //   response_ = NULL;
 // }
-Client::Client(Listen& host_port) : host_port_(host_port) {
+Client::Client(Listen& host_port) : host_port_(host_port), config_(NULL) {
   (void)host_port_;
 }
 
 
 Client::~Client() {
+  delete config_;
 }
 
 void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx) {
   (void) db;
   (void)req_;
+  (void)request_;
+  (void) requestedServerIdx;
 
   request_ = &req_;
   // std::cout << "****** STATUS: " << request_->getBody() <<std::endl;
   // printAllDBData(db.serversDB);
 
-  printData(getDataByIdx(db.serversDB, requestedServerIdx));
+  // printData(getDataByIdx(db.serversDB, requestedServerIdx));
+  config_ = new RequestConfig(*request_, host_port_, db, *this);
+  // 
 
-  (void)request_;
+	std::cout << "*************** " << host_port_.port_ << std::endl;
 }
+
+// RequestConfig* Client::createRequestConfig(DB db) {
+//     // Create and return a new RequestConfig object
+//     return ;
+// }
