@@ -27,10 +27,12 @@ class RequestConfig {
  public:
   RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
+  std::vector<std::string> filterDataByDirectives(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
+
+  std::vector<std::string> cascadeFilter(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
-  std::vector<std::string> filterDataByDirectives(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
   std::string checkModifier(const std::string& modifiers);
 
 
@@ -41,6 +43,13 @@ class RequestConfig {
   std::string &getQuery();
   std::string &getHost();
   uint32_t &getPort();
+  Client &getClient();
+  std::string &getRoot();
+  std::string &getUri();
+  void setRoot(const std::string root);
+  void setUri(const std::string uri);
+  size_t &getClientMaxBodySize();
+  void setClientMaxBodySize(std::string size);
 
 
  private:
@@ -51,6 +60,9 @@ class RequestConfig {
   LocationModifier modifierType_;
   
   std::string target_;
+  std::string root_;
+  std::string uri_;
+  size_t client_max_body_size_;
 };
 
 #endif
