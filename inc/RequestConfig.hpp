@@ -27,9 +27,9 @@ class RequestConfig {
  public:
   RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
-  std::vector<std::string> filterDataByDirectives(std::string directive, std::string location);
-  std::vector<std::string> cascadeFilter(std::string directive, std::string location);
-  std::vector<std::string> checkRootDB(std::string directive);
+  const std::vector<std::string>& filterDataByDirectives(const std::vector<KeyMapValue>&values, std::string directive, std::string location);
+  const std::vector<std::string>& cascadeFilter(std::string directive, std::string location);
+  const std::vector<std::string>& checkRootDB(std::string directive);
   std::string checkModifier(const std::string& modifiers);
 
   void setUp(size_t targetServerIdx);

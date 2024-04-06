@@ -12,16 +12,15 @@ RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &
 
 RequestConfig::~RequestConfig() {}
 
-VecStr RequestConfig::filterDataByDirectives(std::string directive, std::string location = "")
+const VecStr& RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue>& targetServ, std::string directive, std::string location = "")
 {
-    VecStr result;
     modifierType_ = NONE;
     std::string locationExtract;
 
-    for (size_t i = 0; i < targetServer_.size(); ++i)
+    for (size_t i = 0; i < targetServ.size(); ++i)
     {
-        const MapStr &keyMap = targetServer_[i].first;
-        const VecStr &valueVector = targetServer_[i].second;
+        const MapStr &keyMap = targetServ[i].first;
+        const VecStr &valueVector = targetServ[i].second;
 
         MapStr::const_iterator directiveIt = keyMap.find("directives");
         if (directiveIt != keyMap.end() && directiveIt->second == directive)
@@ -31,20 +30,19 @@ VecStr RequestConfig::filterDataByDirectives(std::string directive, std::string 
             {
                 locationExtract = checkModifier(locationIt->second);
                 if (locationExtract == location)
-                {
                     return valueVector;
-                }
             }
         }
         modifierType_ = NONE;
     }
 
-    return result;
+    static VecStr emptyVector;
+    return emptyVector;
 }
 
-std::vector<std::string> RequestConfig::checkRootDB(std::string directive)
+
+const VecStr& RequestConfig::checkRootDB(std::string directive)
 {
-    VecStr dirValue;
     GroupedDBMap::const_iterator it;
     for (it = db_.rootDB.begin(); it != db_.rootDB.end(); ++it)
     {
@@ -54,32 +52,36 @@ std::vector<std::string> RequestConfig::checkRootDB(std::string directive)
             const MapStr &keyMap = values[i].first;
             const VecStr &valueVector = values[i].second;
             std::string location = keyMap.find("location")->second;
-            dirValue = filterDataByDirectives(directive, location);
+            const VecStr& dirValue = filterDataByDirectives(values, directive, location);
             if (!dirValue.empty())
                 return valueVector;
         }
     }
-    return dirValue;
+
+    static VecStr emptyVector;
+    return emptyVector;
 }
 
-VecStr RequestConfig::cascadeFilter(std::string directive, std::string location = "")
+const VecStr& RequestConfig::cascadeFilter(std::string directive, std::string location = "")
 {
     /// @note important to first pre-populate data in cascades:
     // 1. preffered settings
     // 2. http level
     // 3. server level(locatn == "" == server-default settings)
     // 4. location level
-    VecStr dirValue = filterDataByDirectives(directive, location);
+
+    const VecStr& dirValue = filterDataByDirectives(targetServer_,directive, location);
     if (!dirValue.empty())
         return dirValue;
 
-    if (dirValue.empty() && !location.empty())
-        dirValue = filterDataByDirectives(directive, "");
+    if (dirValue.empty() && !location.empty()) {
+        const VecStr& filteredValue = filterDataByDirectives(targetServer_, directive, "");
+        if (!filteredValue.empty())
+            return filteredValue;
+        
+    }
 
-    if (dirValue.empty())
-        return checkRootDB(directive);
-
-    return dirValue;
+    return checkRootDB(directive);
 }
 
 std::string RequestConfig::checkModifier(const std::string &locationStr)
@@ -140,11 +142,11 @@ void RequestConfig::setUp(size_t targetServerIdx)
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
-    // VecStr result = cascadeFilter("default_type", target_);
-    // for (size_t i = 0; i < result.size(); ++i)
-    // {
-    //     std::cout << "Value: " << result[i] << std::endl;
-    // }
+    VecStr result = cascadeFilter("default_type", target_);
+    for (size_t i = 0; i < result.size(); ++i)
+    {
+        std::cout << "Value: " << result[i] << std::endl;
+    }
 }
 
 void RequestConfig::setTarget(const std::string &target)
