@@ -27,33 +27,37 @@ class RequestConfig {
  public:
   RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
-  std::vector<std::string> filterDataByDirectives(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
-
-  std::vector<std::string> cascadeFilter(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
+  std::vector<std::string> filterDataByDirectives(std::string directive, std::string location);
+  std::vector<std::string> cascadeFilter(std::string directive, std::string location);
+  std::vector<std::string> checkRootDB(std::string directive);
+  std::string checkModifier(const std::string& modifiers);
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
-  std::string checkModifier(const std::string& modifiers);
+  void setRoot(const VecStr root);
+  void setUri(const std::string uri);
+  void setClientMaxBodySize(const VecStr size);
+  void setAutoIndex(const VecStr autoindex);
 
 
-  std::vector<KeyMapValue> targetServer_;
 
   std::string &getTarget();
   std::string &getRequestTarget();
   std::string &getQuery();
+  std::string &getFragment();
   std::string &getHost();
   uint32_t &getPort();
   Client &getClient();
   std::string &getRoot();
   std::string &getUri();
-  void setRoot(const std::string root);
-  void setUri(const std::string uri);
   size_t &getClientMaxBodySize();
-  void setClientMaxBodySize(std::string size);
+  bool getAutoIndex();
+  std::vector<std::string> &getIndexes();
 
 
  private:
   HttpRequestParser& request_;
+  std::vector<KeyMapValue> targetServer_;
   Client &client_;
   Listen &host_port_;
   DB &db_;
@@ -63,6 +67,8 @@ class RequestConfig {
   std::string root_;
   std::string uri_;
   size_t client_max_body_size_;
+  bool autoindex_;
+  // std::vector<std::string>& indexes_;
 };
 
 #endif

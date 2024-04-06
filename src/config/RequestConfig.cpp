@@ -1,37 +1,40 @@
 #include "../../inc/AllHeaders.hpp"
 
-/// @todo 
+/// @todo
 // check path modifiers
 // location
 
-RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db) {
-    (void) client_;
-    (void) host_port_;
+RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
+{
+    (void)client_;
+    (void)host_port_;
 }
 
 RequestConfig::~RequestConfig() {}
 
-
-VecStr RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue>& values, std::string directive, std::string location = "") {
+VecStr RequestConfig::filterDataByDirectives(std::string directive, std::string location = "")
+{
     VecStr result;
     modifierType_ = NONE;
     std::string locationExtract;
 
-    for (size_t i = 0; i < values.size(); ++i) {
-        const MapStr& keyMap = values[i].first;
-        const VecStr& valueVector = values[i].second;
-        
-        MapStr::const_iterator directiveIt = keyMap.find("directives");
-        if (directiveIt != keyMap.end() && directiveIt->second == directive) {
-            MapStr::const_iterator locationIt = keyMap.find("location");
-            if (locationIt != keyMap.end()) {
-                locationExtract = checkModifier(locationIt->second);
-                if (locationExtract == location) {
-                    std::cout << "DEBUGGER: " << locationExtract << "   " << location << std::endl;
+    for (size_t i = 0; i < targetServer_.size(); ++i)
+    {
+        const MapStr &keyMap = targetServer_[i].first;
+        const VecStr &valueVector = targetServer_[i].second;
 
+        MapStr::const_iterator directiveIt = keyMap.find("directives");
+        if (directiveIt != keyMap.end() && directiveIt->second == directive)
+        {
+            MapStr::const_iterator locationIt = keyMap.find("location");
+            if (locationIt != keyMap.end())
+            {
+                locationExtract = checkModifier(locationIt->second);
+                if (locationExtract == location)
+                {
                     return valueVector;
                 }
-            } 
+            }
         }
         modifierType_ = NONE;
     }
@@ -39,51 +42,61 @@ VecStr RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue>& val
     return result;
 }
 
-VecStr RequestConfig::cascadeFilter(const std::vector<KeyMapValue>& values, std::string directive, std::string location = "") {
+std::vector<std::string> RequestConfig::checkRootDB(std::string directive)
+{
     VecStr dirValue;
-    dirValue = filterDataByDirectives(values, directive, location);
-        std::cout << location << "HERE\n";
-    if (!dirValue.empty()) {
-        return dirValue;
-    }
-    if (dirValue.empty() && !location.empty())
+    GroupedDBMap::const_iterator it;
+    for (it = db_.rootDB.begin(); it != db_.rootDB.end(); ++it)
     {
-        dirValue = filterDataByDirectives(values, directive, "");
-    }
-    if (dirValue.empty())
-    {
-        GroupedDBMap::const_iterator it;
-        for (it = db_.rootDB.begin(); it != db_.rootDB.end(); ++it) {
-            const std::vector<ConfigDB::KeyMapValue>& values = it->second;
-            for (size_t i = 0; i < values.size(); ++i) {
-                const MapStr& keyMap = values[i].first;
-                const VecStr& valueVector = values[i].second;
-                std::string location = keyMap.find("location")->second;
-                    std::cout << "{ " 
-                        << keyMap.find("directives")->second
-                        << ", "  << keyMap.find("location")->second
-                        << " }" << "\n";
-
-                dirValue = filterDataByDirectives(values, directive, location);
-                if (!dirValue.empty())
-                    return valueVector;
-            }
+        const std::vector<ConfigDB::KeyMapValue> &values = it->second;
+        for (size_t i = 0; i < values.size(); ++i)
+        {
+            const MapStr &keyMap = values[i].first;
+            const VecStr &valueVector = values[i].second;
+            std::string location = keyMap.find("location")->second;
+            dirValue = filterDataByDirectives(directive, location);
+            if (!dirValue.empty())
+                return valueVector;
         }
     }
     return dirValue;
 }
 
-std::string RequestConfig::checkModifier(const std::string& locationStr) {
+VecStr RequestConfig::cascadeFilter(std::string directive, std::string location = "")
+{
+    /// @note important to first pre-populate data in cascades:
+    // 1. preffered settings
+    // 2. http level
+    // 3. server level(locatn == "" == server-default settings)
+    // 4. location level
+    VecStr dirValue = filterDataByDirectives(directive, location);
+    if (!dirValue.empty())
+        return dirValue;
+
+    if (dirValue.empty() && !location.empty())
+        dirValue = filterDataByDirectives(directive, "");
+
+    if (dirValue.empty())
+        return checkRootDB(directive);
+
+    return dirValue;
+}
+
+std::string RequestConfig::checkModifier(const std::string &locationStr)
+{
     std::string modifiers;
     std::string newStr;
     size_t j;
-    for (j = 0; j < locationStr.size(); ++j) {
+    for (j = 0; j < locationStr.size(); ++j)
+    {
         char ch = locationStr[j];
 
-        if (ch == '^' || ch == '*' || ch == '~' || ch == '=' || ch == '_') {
+        if (ch == '^' || ch == '*' || ch == '~' || ch == '=' || ch == '_')
+        {
             if (ch != '_')
                 modifiers += ch;
-        } else
+        }
+        else
             break;
     }
 
@@ -93,7 +106,7 @@ std::string RequestConfig::checkModifier(const std::string& locationStr) {
     bool hasEquals = (modifiers.find("=") != std::string::npos);
 
     newStr = locationStr.substr(j);
-    
+
     if (hasCaret && hasTilde)
         modifierType_ = LONGEST;
     else if (hasTilde && hasAsterisk)
@@ -105,86 +118,158 @@ std::string RequestConfig::checkModifier(const std::string& locationStr) {
     return newStr;
 }
 
-void RequestConfig::setUp(size_t targetServerIdx) {
+/**
+ * SETTERS
+*/
+void RequestConfig::setUp(size_t targetServerIdx)
+{
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
 
-    // printAllDBData(db_.serversDB);
-    // printData(targetServer);
-
-    /// @note
-    // important to first pre-populate data inn cascades:
-    // 1. preffered settings
-    // 2. http level
-    // 3. server level(locatn == "" == server-default settings)
-    // 4. location level
     setTarget(request_.getURI());
     setUri(request_.getURI());
-    setRoot(cascadeFilter(targetServer_, "root", target_)[0]);
-    setRoot(cascadeFilter(targetServer_, "client_max_body_size", target_)[0]);
-    VecStr result = cascadeFilter(targetServer_, "default_type", target_);
+    setRoot(cascadeFilter("root", target_));
+    setClientMaxBodySize(cascadeFilter( "client_max_body_size", target_));
+    setAutoIndex(cascadeFilter("autoindex", target_));
 
+    /// @note debugging purpose
+    getTarget();
+    getUri();
+    getRoot();
+    getClientMaxBodySize();
+    getAutoIndex();
+    // printAllDBData(db_.serversDB);
+    // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
-    for (size_t i = 0; i < result.size(); ++i) {
-        std::cout << "Value: " << result[i] << std::endl;
-    }
-
+    // VecStr result = cascadeFilter("default_type", target_);
+    // for (size_t i = 0; i < result.size(); ++i)
+    // {
+    //     std::cout << "Value: " << result[i] << std::endl;
+    // }
 }
 
-void RequestConfig::setTarget(const std::string &target) {
+void RequestConfig::setTarget(const std::string &target)
+{
     target_ = target;
 }
 
-std::string &RequestConfig::getTarget() {
-  return target_;
+void RequestConfig::setRoot(const VecStr root)
+{
+    if (root.empty()) {
+        root_ = "html";
+        return;
+    }
+    root_ = root[0];
 }
 
-
-std::string &RequestConfig::getRequestTarget() {
-
-    return request_.getURI();
+void RequestConfig::setUri(const std::string uri)
+{
+    uri_ = uri;
 }
 
-std::string &RequestConfig::getQuery() {
-  return request_.getQuery();
-}
-
-std::string &RequestConfig::getHost() {
-  return host_port_.ip_;
-}
-
-uint32_t &RequestConfig::getPort() {
-  return host_port_.port_;
-}
-
-Client &RequestConfig::getClient() {
-  return client_;
-}
-
-void RequestConfig::setRoot(const std::string root) {
-    root_ = root;
-}
-
-std::string &RequestConfig::getRoot() {
-    std::cout << "root: " << root_ << "\n";
-  return root_;
-}
-
-void RequestConfig::setUri(const std::string uri) {
-  uri_ = uri;
-}
-
-std::string &RequestConfig::getUri() {
-    std::cout << "uri: " << uri_ << "\n";
-    return uri_;
-}
-
-void RequestConfig::setClientMaxBodySize(std::string size) {
+void RequestConfig::setClientMaxBodySize(const VecStr size)
+{
     size_t val;
-    std::istringstream iss(size);
+    if (size.empty()) {
+        client_max_body_size_ = 20971520; //default 20mb
+        return;
+    }
+    std::istringstream iss(size[0]);
     iss >> val;
     client_max_body_size_ = val;
 }
 
-size_t &RequestConfig::getClientMaxBodySize() {
-  return client_max_body_size_;
+void RequestConfig::setAutoIndex(const VecStr autoindex) {
+    if (autoindex.empty()) {
+        autoindex_ = false;
+        return;
+    }
+    autoindex_ = (autoindex[0] == "on")? true : false;
 }
+
+// void RequestConfig::setIndexes(const VecStr indexes) {
+//     if (indexes.empty()) {
+//         indexes_ = &indexes;
+//         return;
+//     }
+//     indexes_ = &indexes;
+// }
+
+
+/**
+ * GETTERS
+*/
+
+std::string &RequestConfig::getTarget()
+{
+    std::cout << "target: " << target_ << "\n";
+    return target_;
+}
+
+std::string &RequestConfig::getRequestTarget()
+{
+    return request_.getURI();
+}
+
+std::string &RequestConfig::getQuery()
+{
+    std::cout << "query: " <<  request_.getQuery() << "\n";
+    return request_.getQuery();
+}
+
+std::string &RequestConfig::getFragment()
+{
+    std::cout << "fragment: " <<  request_.getFragment() << "\n";
+    return request_.getFragment();
+}
+
+std::string &RequestConfig::getHost()
+{
+    std::cout << "ip: " <<  host_port_.ip_ << "\n";
+    return host_port_.ip_;
+}
+
+uint32_t &RequestConfig::getPort()
+{
+    std::cout << "port: " <<  host_port_.port_ << "\n";
+    return host_port_.port_;
+}
+
+Client &RequestConfig::getClient()
+{
+    return client_;
+}
+
+
+
+std::string &RequestConfig::getRoot()
+{
+    std::cout << "root: " << root_ << "\n";
+    return root_;
+}
+
+
+
+std::string &RequestConfig::getUri()
+{
+    std::cout << "uri: " << uri_ << "\n";
+    return uri_;
+}
+
+
+
+size_t &RequestConfig::getClientMaxBodySize()
+{
+
+    std::cout << "client_max_body_size: " << client_max_body_size_ << "\n";
+    return client_max_body_size_;
+}
+
+bool RequestConfig::getAutoIndex() {
+
+    std::cout << "autoindex: " << autoindex_ << "\n";
+  return autoindex_;
+}
+
+// std::vector<std::string> &RequestConfig::getIndexes() {
+//   return indexes_;
+// }
