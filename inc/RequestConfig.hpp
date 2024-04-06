@@ -25,17 +25,26 @@ typedef std::map<int, std::vector<KeyMapValue > > GroupedDBMap;
 
 class RequestConfig {
  public:
-  RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client);
+  RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
 
-  void setUp();
+  void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
   std::vector<std::string> filterDataByDirectives(const std::vector<KeyMapValue>& values, std::string directive, std::string location);
-  LocationModifier checkModifier(const std::string& modifiers);
+  std::string checkModifier(const std::string& modifiers);
+
+
+  std::vector<KeyMapValue> targetServer_;
+
+  std::string &getTarget();
+  std::string &getRequestTarget();
+  std::string &getQuery();
+  std::string &getHost();
+  uint32_t &getPort();
 
 
  private:
-  HttpRequestParser &request_;
+  HttpRequestParser& request_;
   Client &client_;
   Listen &host_port_;
   DB &db_;

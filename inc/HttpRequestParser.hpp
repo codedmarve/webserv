@@ -97,7 +97,7 @@ public:
     std::string &getBody();
     std::string &getHeader(std::string key);
     std::map<std::string, std::string> getHeaders() const;
-    std::string &getTarget();
+    std::string getTarget() const;
 
     void printRequest(HttpRequestParser parser);
 

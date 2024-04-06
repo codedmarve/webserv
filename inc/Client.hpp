@@ -24,15 +24,15 @@ class Client {
   // Client(int fd, std::string &addr, Listen &host_port, int worker_id, bool disconnect = false);
   ~Client();
 
-  void setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx);
+  void setupConfig(DB &db, HttpRequestParser &req_, size_t requestedServerIdx);
 
  private:
     HttpRequestParser *request_;
     Listen &host_port_;
     RequestConfig *config_;
+    Response *response_;
 
-    // RequestConfig* createRequestConfig(DB db);
-
+    void setupResponse();
 };
 
 #endif

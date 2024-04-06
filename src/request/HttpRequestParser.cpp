@@ -107,7 +107,7 @@ void HttpRequestParser::setTarget(std::string target) {
   target_ = target;
 }
 
-std::string &HttpRequestParser::getTarget() {
+std::string HttpRequestParser::getTarget() const {
   return target_;
 }
 

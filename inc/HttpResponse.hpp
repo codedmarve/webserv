@@ -4,12 +4,13 @@
 #include "./AllHeaders.hpp"
 
 class HttpRequestParser;
+class RequestConfig;
 
 extern pthread_mutex_t g_write;
 
 class Response {
 public:
-    Response(HttpRequestParser &config, int worker_id, int error_code = 0);
+    Response(RequestConfig &config, int error_code = 0);
     ~Response();
 
     typedef int (Response::*type)();
@@ -22,21 +23,21 @@ public:
     };
 
     void clear();
-    int buildErrorPage(int status_code);
-    bool isCGI(std::string extension);
-    void build();
-    int handleMethods();
-    void createResponse();
-    bool checkAuth();
-    bool localization(std::vector<std::string> &matches);
-    std::string accept_charset(std::vector<std::string> &matches);
-    std::string buildMethodList();
-    bool shouldDisconnect();
-    bool redirect();
-    std::string redirect_target();
-    std::string response_log(LogLevel level);
-    std::string getCurrentDateTime();
-    void logError(const std::string& message);
+    // int buildErrorPage(int status_code);
+    // bool isCGI(std::string extension);
+    // void build();
+    // int handleMethods();
+    // void createResponse();
+    // bool checkAuth();
+    // bool localization(std::vector<std::string> &matches);
+    // std::string accept_charset(std::vector<std::string> &matches);
+    // std::string buildMethodList();
+    // bool shouldDisconnect();
+    // bool redirect();
+    // std::string redirect_target();
+    // std::string response_log(LogLevel level);
+    // std::string getCurrentDateTime();
+    // void logError(const std::string& message);
 
     int GET();
     int POST();
@@ -47,12 +48,10 @@ public:
     std::string getResponseBody();
     int send(int fd);
 
-    // bool redirect_;
-    // int redirect_code_;
-    // std::string redirect_target_;
+
 
 private:
-    HttpRequestParser &req_config_;
+    RequestConfig &config_;
     // File file_;
     int error_code_;
     int worker_id_;

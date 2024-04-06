@@ -145,13 +145,17 @@ void Servers::createServers(){
 		}
 	}
 }
-Listen requestedIpAndPort(std::string requestedUrl) {
-	std::cout << "Server IP: " << requestedUrl << std::endl;
 
-
+Listen getTargetIpAndPort(std::string requestedUrl) {
 	size_t pos = requestedUrl.find(":");
-	if ( pos == std::string::npos)
-		std::cout << "ERROR" <<std::endl;
+	Listen listen;
+
+	if (requestedUrl.empty())
+		return (std::cout << "ERROR: empty host and port" <<std::endl, listen);
+
+	if ( pos == std::string::npos)	
+		return (std::cout << "Warning: default host and port used 127.0.0.1:80" <<std::endl, listen);
+
 	std::string x_ip = requestedUrl.substr(0, pos);
 	std::string x_port = requestedUrl.substr(pos + 1);
 	uint32_t port_x;
@@ -208,18 +212,18 @@ void Servers::handleIncomingConnection(int server_fd){
 			finish = true;
 		} 
 	}
-	std::vector<std::string> domains = _domain_to_server[server_fd];
+	// std::vector<std::string> domains = _domain_to_server[server_fd];
+	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
+	// 	std::cout << "Server domains: " << *it << std::endl;
 
-	Listen host_port = requestedIpAndPort(_ip_to_server[server_fd]);
+	Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
 
-
-	for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
-		std::cout << "Server domains: " << *it << std::endl;
 
 	Client client(host_port);
 	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 
 	client.setupConfig(db, parser, server_fd_to_index[server_fd]);
+	
 	
 	// parser.printRequest(parser);
 	std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";

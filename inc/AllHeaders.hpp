@@ -70,7 +70,7 @@ struct Listen {
   std::string ip_;
   uint32_t port_;
 
-  Listen() : ip_(""), port_(0) {};
+  Listen() : ip_("127.0.0.1"), port_(80) {};
   Listen(std::string ip, uint32_t port) : ip_(ip), port_(port) {};
 };
 

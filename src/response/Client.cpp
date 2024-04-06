@@ -6,7 +6,6 @@
 //   response_ = NULL;
 // }
 Client::Client(Listen& host_port) : host_port_(host_port), config_(NULL) {
-  (void)host_port_;
 }
 
 
@@ -14,8 +13,8 @@ Client::~Client() {
   delete config_;
 }
 
-void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerIdx) {
-  (void) requestedServerIdx;
+void Client::setupConfig(DB &db, HttpRequestParser &req_, size_t targetServerIdx) {
+  (void) targetServerIdx;
 
   request_ = &req_;
   // std::cout << "****** STATUS: " << request_->getBody() <<std::endl;
@@ -25,10 +24,9 @@ void Client::setupConfig(DB db, HttpRequestParser &req_, size_t requestedServerI
 
   /// @note AGGREGATED ALL CONFIGURATIONS HERE
   config_ = new RequestConfig(*request_, host_port_, db, *this);
-  config_->setUp();
+  config_->setUp(targetServerIdx);
 }
 
-// RequestConfig* Client::createRequestConfig(DB db) {
-//     // Create and return a new RequestConfig object
-//     return ;
-// }
+void Client::setupResponse() {
+  response_ = new Response(*config_);
+}
