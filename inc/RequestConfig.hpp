@@ -40,6 +40,7 @@ class RequestConfig {
   void setAutoIndex(const VecStr autoindex);
   void setIndexes(const VecStr &indexes);
   void setErrorPages(const VecStr& errors);
+  void setMethods(const VecStr& errors);
 
 
   std::string &getTarget();
@@ -55,7 +56,14 @@ class RequestConfig {
   bool getAutoIndex();
   VecStr &getIndexes();
   std::map<int, std::string>& getErrorPages();
+  std::vector<std::string> &getMethods();
+  std::string &getMethod();
+  std::string &getBody();
+  std::map<std::string, std::string> getHeaders();
+  std::string &getHeader(std::string key);
+  std::string &getProtocol();
 
+  void printConfigSetUp();
 
  private:
   HttpRequestParser& request_;
@@ -72,6 +80,7 @@ class RequestConfig {
   bool autoindex_;
   std::vector<std::string> indexes_;
   std::map<int, std::string> error_codes_;
+  std::vector<std::string> methods_;
 };
 
 #endif

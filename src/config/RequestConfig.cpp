@@ -129,15 +129,43 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAutoIndex(cascadeFilter("autoindex", target_));
     setIndexes(cascadeFilter("index", target_));
     setErrorPages(cascadeFilter("error_page", target_));
+    setMethods(cascadeFilter("allow_methods", target_));
 
+    printConfigSetUp();
+}
+
+void RequestConfig::printConfigSetUp()
+{
     /// @note debugging purpose
     getTarget();
+    std::cout << std::endl;
     getUri();
+    std::cout << std::endl;
     getRoot();
+    std::cout << std::endl;
+    getHost();
+    std::cout << std::endl;
+    getPort();
+    std::cout << std::endl;
+    getMethod();
+    std::cout << std::endl;
     getClientMaxBodySize();
+    std::cout << std::endl;
     getAutoIndex();
+    std::cout << std::endl;
     getIndexes();
+    std::cout << std::endl;
     getErrorPages();
+    std::cout << std::endl;
+    getMethods();
+    std::cout << std::endl;
+    getBody();
+    std::cout << std::endl;
+    getHeaders();
+    std::cout << std::endl;
+    getHeader("Host");
+    std::cout << std::endl;
+    getProtocol();
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
@@ -193,48 +221,65 @@ void RequestConfig::setAutoIndex(const VecStr autoindex)
 
 void RequestConfig::setIndexes(const VecStr &indexes)
 {
-    if (indexes.empty())
-    {
-        indexes_ = indexes;
-        return;
-    }
     indexes_ = indexes;
 }
 
-void RequestConfig::setErrorPages(const VecStr& errors) {
+void RequestConfig::setMethods(const VecStr &methods)
+{
+    if (methods.empty())
+    {
+        methods_ = cascadeFilter("limit_except", target_);
+        return;
+    }
+
+    methods_ = methods;
+}
+
+void RequestConfig::setErrorPages(const VecStr &errors)
+{
     std::map<int, std::string> resultMap;
     std::string errorCodes;
 
-    for (size_t i = 0; i < errors.size(); ++i) {
-        std::istringstream iss(errors[i]);
-        int errorCode;
-        if (iss >> errorCode) {
-            // Its errorCode. concatenate it
-            if (!errorCodes.empty())
-                errorCodes += " ";
-            errorCodes += errors[i];
-        } else { // It's errorPage
-            if (!errorCodes.empty()) {
-                // Split the concatenated errorCodes
-                std::istringstream codeStream(errorCodes);
-                int code;
-                while (codeStream >> code) {
-                    resultMap[code] = errors[i];
+    if (!errors.empty())
+    {
+        for (size_t i = 0; i < errors.size(); ++i)
+        {
+            std::istringstream iss(errors[i]);
+            int errorCode;
+            if (iss >> errorCode)
+            {
+                // Its errorCode. concatenate it
+                if (!errorCodes.empty())
+                    errorCodes += " ";
+                errorCodes += errors[i];
+            }
+            else
+            { // It's errorPage
+                if (!errorCodes.empty())
+                {
+                    // Split the concatenated errorCodes
+                    std::istringstream codeStream(errorCodes);
+                    int code;
+                    while (codeStream >> code)
+                    {
+                        resultMap[code] = errors[i];
+                    }
+                    errorCodes.clear();
                 }
-                errorCodes.clear();
+            }
+        }
+
+        // Assign the last errorPage to remaining errorCodes
+        if (!errorCodes.empty())
+        {
+            std::istringstream codeStream(errorCodes);
+            int code;
+            while (codeStream >> code)
+            {
+                resultMap[code] = errors.back();
             }
         }
     }
-
-    // Assign the last errorPage to remaining errorCodes
-    if (!errorCodes.empty()) {
-        std::istringstream codeStream(errorCodes);
-        int code;
-        while (codeStream >> code) {
-            resultMap[code] = errors.back();
-        }
-    }
-
     error_codes_ = resultMap;
 }
 
@@ -242,9 +287,22 @@ void RequestConfig::setErrorPages(const VecStr& errors) {
  * GETTERS
  */
 
+std::map<std::string, std::string> RequestConfig::getHeaders()
+{
+    std::map<std::string, std::string>::const_iterator it;
+    MapStr headers = request_.getHeaders();
+
+    std::cout << "[Headers] \n";
+    for (it = headers.begin(); it != headers.end(); ++it)
+    {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+    return headers;
+}
+
 std::string &RequestConfig::getTarget()
 {
-    std::cout << "target: " << target_ << "\n";
+    std::cout << "[target] " << target_ << "\n";
     return target_;
 }
 
@@ -255,25 +313,31 @@ std::string &RequestConfig::getRequestTarget()
 
 std::string &RequestConfig::getQuery()
 {
-    std::cout << "query: " << request_.getQuery() << "\n";
+    std::cout << "[query] " << request_.getQuery() << "\n";
     return request_.getQuery();
 }
 
 std::string &RequestConfig::getFragment()
 {
-    std::cout << "fragment: " << request_.getFragment() << "\n";
+    std::cout << "[fragment] " << request_.getFragment() << "\n";
     return request_.getFragment();
+}
+
+std::string &RequestConfig::getMethod()
+{
+    std::cout << "[Method] " << request_.getMethod() << "\n";
+    return request_.getMethod();
 }
 
 std::string &RequestConfig::getHost()
 {
-    std::cout << "ip: " << host_port_.ip_ << "\n";
+    std::cout << "[ip] " << host_port_.ip_ << "\n";
     return host_port_.ip_;
 }
 
 uint32_t &RequestConfig::getPort()
 {
-    std::cout << "port: " << host_port_.port_ << "\n";
+    std::cout << "[port] " << host_port_.port_ << "\n";
     return host_port_.port_;
 }
 
@@ -284,31 +348,31 @@ Client &RequestConfig::getClient()
 
 std::string &RequestConfig::getRoot()
 {
-    std::cout << "root: " << root_ << "\n";
+    std::cout << "[root] " << root_ << "\n";
     return root_;
 }
 
 std::string &RequestConfig::getUri()
 {
-    std::cout << "uri: " << uri_ << "\n";
+    std::cout << "[uri] " << uri_ << "\n";
     return uri_;
 }
 
 size_t &RequestConfig::getClientMaxBodySize()
 {
-    std::cout << "client_max_body_size: " << client_max_body_size_ << "\n";
+    std::cout << "[client_max_body_size] " << client_max_body_size_ << "\n";
     return client_max_body_size_;
 }
 
 bool RequestConfig::getAutoIndex()
 {
-    std::cout << "autoindex: " << autoindex_ << "\n";
+    std::cout << "[autoindex] " << autoindex_ << "\n";
     return autoindex_;
 }
 
 std::vector<std::string> &RequestConfig::getIndexes()
 {
-    std::cout << "index: ";
+    std::cout << "[index] ";
     for (size_t i = 0; i < indexes_.size(); ++i)
     {
         std::cout << indexes_[i] << " ";
@@ -317,12 +381,45 @@ std::vector<std::string> &RequestConfig::getIndexes()
     return indexes_;
 }
 
-std::map<int, std::string> &RequestConfig::getErrorPages() {
+std::map<int, std::string> &RequestConfig::getErrorPages()
+{
     std::map<int, std::string>::const_iterator it;
 
-    for (it = error_codes_.begin(); it != error_codes_.end(); ++it) {
+    std::cout << "[ErrorCodes/Pages] \n";
+    for (it = error_codes_.begin(); it != error_codes_.end(); ++it)
+    {
         std::cout << it->first << ": " << it->second << std::endl;
     }
-    
     return error_codes_;
+}
+
+std::vector<std::string> &RequestConfig::getMethods()
+{
+    std::map<int, std::string>::const_iterator it;
+
+    std::cout << "[Methods] \n";
+    for (size_t i = 0; i < methods_.size(); ++i)
+    {
+        std::cout << methods_[i] << " ";
+    }
+    std::cout << std::endl;
+    return methods_;
+}
+
+std::string &RequestConfig::getBody()
+{
+    std::cout << "[Body]\n" << request_.getBody()<< "\n";
+    return request_.getBody();
+}
+
+std::string &RequestConfig::getHeader(std::string key)
+{
+    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+    std::cout << "[header] " << key << ": " << request_.getHeader(key) << "\n";
+    return request_.getHeader(key);
+}
+
+std::string &RequestConfig::getProtocol() {
+    std::cout << "[protocol] " << request_.getProtocol()<< "\n";
+  return request_.getProtocol();
 }
