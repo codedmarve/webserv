@@ -34,4 +34,10 @@ void Client::setupResponse()
     setupConfig();
 
   response_ = new Response(*config_);
+
+  int loop = 0;
+
+  for (int ret = 1; ret != 0; loop++) {
+    ret = 0;
+  }
 }

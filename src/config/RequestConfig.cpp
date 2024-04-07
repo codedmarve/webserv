@@ -167,7 +167,8 @@ void RequestConfig::printConfigSetUp()
     getProtocol();
     std::cout << std::endl;
     std::cout << "[Accepted Method] " << isMethodAccepted(getMethod());
-    std::cout << std::endl;
+    std::cout <<"[content-length] " << getContentLength() << std::endl;
+    ;
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
@@ -341,6 +342,11 @@ uint32_t &RequestConfig::getPort()
 {
     std::cout << "[port] " << host_port_.port_ << "\n";
     return host_port_.port_;
+}
+
+size_t RequestConfig::getContentLength() {
+    return request_.getContentLength();
+
 }
 
 Client &RequestConfig::getClient()

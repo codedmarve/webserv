@@ -111,6 +111,10 @@ std::string HttpRequestParser::getTarget() const {
   return target_;
 }
 
+size_t HttpRequestParser::getContentLength() {
+  return length_;
+}
+
 
 bool HttpRequestParser::timeout() {
   if (buffer_section_ != COMPLETE) {

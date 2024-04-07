@@ -98,6 +98,7 @@ public:
     std::string &getHeader(std::string key);
     std::map<std::string, std::string> getHeaders() const;
     std::string getTarget() const;
+    size_t getContentLength();
 
     void printRequest(HttpRequestParser parser);
 

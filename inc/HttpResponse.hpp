@@ -48,6 +48,7 @@ public:
     std::string getResponseBody();
     int send(int fd);
 
+    void build();
 
 
 private:
@@ -68,9 +69,11 @@ private:
     std::map<std::string, Response::type> methods_;
     std::map<std::string, std::string> headers_;   
 
+    std::string buildMethodList();
 };
 
 std::string getMimeType(const std::string& ext);
 std::string getHttpStatusCode(int code);
+
 
 #endif

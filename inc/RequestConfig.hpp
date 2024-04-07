@@ -64,6 +64,7 @@ public:
   std::map<std::string, std::string> getHeaders();
   std::string &getHeader(std::string key);
   std::string &getProtocol();
+  size_t getContentLength();
 
   void printConfigSetUp();
 
