@@ -1,9 +1,5 @@
 #include "../../inc/AllHeaders.hpp"
 
-/// @todo
-// check path modifiers
-// location
-
 RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
 {
     (void)client_;
@@ -12,7 +8,7 @@ RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &
 
 RequestConfig::~RequestConfig() {}
 
-const VecStr& RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue>& targetServ, std::string directive, std::string location = "")
+const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue> &targetServ, std::string directive, std::string location = "")
 {
     modifierType_ = NONE;
     std::string locationExtract;
@@ -40,8 +36,7 @@ const VecStr& RequestConfig::filterDataByDirectives(const std::vector<KeyMapValu
     return emptyVector;
 }
 
-
-const VecStr& RequestConfig::checkRootDB(std::string directive)
+const VecStr &RequestConfig::checkRootDB(std::string directive)
 {
     GroupedDBMap::const_iterator it;
     for (it = db_.rootDB.begin(); it != db_.rootDB.end(); ++it)
@@ -52,7 +47,7 @@ const VecStr& RequestConfig::checkRootDB(std::string directive)
             const MapStr &keyMap = values[i].first;
             const VecStr &valueVector = values[i].second;
             std::string location = keyMap.find("location")->second;
-            const VecStr& dirValue = filterDataByDirectives(values, directive, location);
+            const VecStr &dirValue = filterDataByDirectives(values, directive, location);
             if (!dirValue.empty())
                 return valueVector;
         }
@@ -62,7 +57,7 @@ const VecStr& RequestConfig::checkRootDB(std::string directive)
     return emptyVector;
 }
 
-const VecStr& RequestConfig::cascadeFilter(std::string directive, std::string location = "")
+const VecStr &RequestConfig::cascadeFilter(std::string directive, std::string location = "")
 {
     /// @note important to first pre-populate data in cascades:
     // 1. preffered settings
@@ -70,15 +65,15 @@ const VecStr& RequestConfig::cascadeFilter(std::string directive, std::string lo
     // 3. server level(locatn == "" == server-default settings)
     // 4. location level
 
-    const VecStr& dirValue = filterDataByDirectives(targetServer_,directive, location);
+    const VecStr &dirValue = filterDataByDirectives(targetServer_, directive, location);
     if (!dirValue.empty())
         return dirValue;
 
-    if (dirValue.empty() && !location.empty()) {
-        const VecStr& filteredValue = filterDataByDirectives(targetServer_, directive, "");
+    if (dirValue.empty() && !location.empty())
+    {
+        const VecStr &filteredValue = filterDataByDirectives(targetServer_, directive, "");
         if (!filteredValue.empty())
             return filteredValue;
-        
     }
 
     return checkRootDB(directive);
@@ -122,7 +117,7 @@ std::string RequestConfig::checkModifier(const std::string &locationStr)
 
 /**
  * SETTERS
-*/
+ */
 void RequestConfig::setUp(size_t targetServerIdx)
 {
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
@@ -130,8 +125,10 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setTarget(request_.getURI());
     setUri(request_.getURI());
     setRoot(cascadeFilter("root", target_));
-    setClientMaxBodySize(cascadeFilter( "client_max_body_size", target_));
+    setClientMaxBodySize(cascadeFilter("client_max_body_size", target_));
     setAutoIndex(cascadeFilter("autoindex", target_));
+    setIndexes(cascadeFilter("index", target_));
+    setErrorPages(cascadeFilter("error_page", target_));
 
     /// @note debugging purpose
     getTarget();
@@ -139,14 +136,16 @@ void RequestConfig::setUp(size_t targetServerIdx)
     getRoot();
     getClientMaxBodySize();
     getAutoIndex();
+    getIndexes();
+    getErrorPages();
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
-    VecStr result = cascadeFilter("default_type", target_);
-    for (size_t i = 0; i < result.size(); ++i)
-    {
-        std::cout << "Value: " << result[i] << std::endl;
-    }
+    // VecStr result = cascadeFilter("default_type", target_);
+    // for (size_t i = 0; i < result.size(); ++i)
+    // {
+    //     std::cout << "Value: " << result[i] << std::endl;
+    // }
 }
 
 void RequestConfig::setTarget(const std::string &target)
@@ -156,7 +155,8 @@ void RequestConfig::setTarget(const std::string &target)
 
 void RequestConfig::setRoot(const VecStr root)
 {
-    if (root.empty()) {
+    if (root.empty())
+    {
         root_ = "html";
         return;
     }
@@ -171,8 +171,9 @@ void RequestConfig::setUri(const std::string uri)
 void RequestConfig::setClientMaxBodySize(const VecStr size)
 {
     size_t val;
-    if (size.empty()) {
-        client_max_body_size_ = 20971520; //default 20mb
+    if (size.empty())
+    {
+        client_max_body_size_ = 20971520; // default 20mb
         return;
     }
     std::istringstream iss(size[0]);
@@ -180,26 +181,66 @@ void RequestConfig::setClientMaxBodySize(const VecStr size)
     client_max_body_size_ = val;
 }
 
-void RequestConfig::setAutoIndex(const VecStr autoindex) {
-    if (autoindex.empty()) {
+void RequestConfig::setAutoIndex(const VecStr autoindex)
+{
+    if (autoindex.empty())
+    {
         autoindex_ = false;
         return;
     }
-    autoindex_ = (autoindex[0] == "on")? true : false;
+    autoindex_ = (autoindex[0] == "on") ? true : false;
 }
 
-// void RequestConfig::setIndexes(const VecStr indexes) {
-//     if (indexes.empty()) {
-//         indexes_ = &indexes;
-//         return;
-//     }
-//     indexes_ = &indexes;
-// }
+void RequestConfig::setIndexes(const VecStr &indexes)
+{
+    if (indexes.empty())
+    {
+        indexes_ = indexes;
+        return;
+    }
+    indexes_ = indexes;
+}
 
+void RequestConfig::setErrorPages(const VecStr& errors) {
+    std::map<int, std::string> resultMap;
+    std::string errorCodes;
+
+    for (size_t i = 0; i < errors.size(); ++i) {
+        std::istringstream iss(errors[i]);
+        int errorCode;
+        if (iss >> errorCode) {
+            // Its errorCode. concatenate it
+            if (!errorCodes.empty())
+                errorCodes += " ";
+            errorCodes += errors[i];
+        } else { // It's errorPage
+            if (!errorCodes.empty()) {
+                // Split the concatenated errorCodes
+                std::istringstream codeStream(errorCodes);
+                int code;
+                while (codeStream >> code) {
+                    resultMap[code] = errors[i];
+                }
+                errorCodes.clear();
+            }
+        }
+    }
+
+    // Assign the last errorPage to remaining errorCodes
+    if (!errorCodes.empty()) {
+        std::istringstream codeStream(errorCodes);
+        int code;
+        while (codeStream >> code) {
+            resultMap[code] = errors.back();
+        }
+    }
+
+    error_codes_ = resultMap;
+}
 
 /**
  * GETTERS
-*/
+ */
 
 std::string &RequestConfig::getTarget()
 {
@@ -214,25 +255,25 @@ std::string &RequestConfig::getRequestTarget()
 
 std::string &RequestConfig::getQuery()
 {
-    std::cout << "query: " <<  request_.getQuery() << "\n";
+    std::cout << "query: " << request_.getQuery() << "\n";
     return request_.getQuery();
 }
 
 std::string &RequestConfig::getFragment()
 {
-    std::cout << "fragment: " <<  request_.getFragment() << "\n";
+    std::cout << "fragment: " << request_.getFragment() << "\n";
     return request_.getFragment();
 }
 
 std::string &RequestConfig::getHost()
 {
-    std::cout << "ip: " <<  host_port_.ip_ << "\n";
+    std::cout << "ip: " << host_port_.ip_ << "\n";
     return host_port_.ip_;
 }
 
 uint32_t &RequestConfig::getPort()
 {
-    std::cout << "port: " <<  host_port_.port_ << "\n";
+    std::cout << "port: " << host_port_.port_ << "\n";
     return host_port_.port_;
 }
 
@@ -241,15 +282,11 @@ Client &RequestConfig::getClient()
     return client_;
 }
 
-
-
 std::string &RequestConfig::getRoot()
 {
     std::cout << "root: " << root_ << "\n";
     return root_;
 }
-
-
 
 std::string &RequestConfig::getUri()
 {
@@ -257,21 +294,35 @@ std::string &RequestConfig::getUri()
     return uri_;
 }
 
-
-
 size_t &RequestConfig::getClientMaxBodySize()
 {
-
     std::cout << "client_max_body_size: " << client_max_body_size_ << "\n";
     return client_max_body_size_;
 }
 
-bool RequestConfig::getAutoIndex() {
-
+bool RequestConfig::getAutoIndex()
+{
     std::cout << "autoindex: " << autoindex_ << "\n";
-  return autoindex_;
+    return autoindex_;
 }
 
-// std::vector<std::string> &RequestConfig::getIndexes() {
-//   return indexes_;
-// }
+std::vector<std::string> &RequestConfig::getIndexes()
+{
+    std::cout << "index: ";
+    for (size_t i = 0; i < indexes_.size(); ++i)
+    {
+        std::cout << indexes_[i] << " ";
+    }
+    std::cout << std::endl;
+    return indexes_;
+}
+
+std::map<int, std::string> &RequestConfig::getErrorPages() {
+    std::map<int, std::string>::const_iterator it;
+
+    for (it = error_codes_.begin(); it != error_codes_.end(); ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+    
+    return error_codes_;
+}

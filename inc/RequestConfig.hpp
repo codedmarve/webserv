@@ -27,9 +27,9 @@ class RequestConfig {
  public:
   RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
-  const std::vector<std::string>& filterDataByDirectives(const std::vector<KeyMapValue>&values, std::string directive, std::string location);
-  const std::vector<std::string>& cascadeFilter(std::string directive, std::string location);
-  const std::vector<std::string>& checkRootDB(std::string directive);
+  const VecStr& filterDataByDirectives(const std::vector<KeyMapValue>&values, std::string directive, std::string location);
+  const VecStr& cascadeFilter(std::string directive, std::string location);
+  const VecStr& checkRootDB(std::string directive);
   std::string checkModifier(const std::string& modifiers);
 
   void setUp(size_t targetServerIdx);
@@ -38,7 +38,8 @@ class RequestConfig {
   void setUri(const std::string uri);
   void setClientMaxBodySize(const VecStr size);
   void setAutoIndex(const VecStr autoindex);
-
+  void setIndexes(const VecStr &indexes);
+  void setErrorPages(const VecStr& errors);
 
 
   std::string &getTarget();
@@ -52,7 +53,8 @@ class RequestConfig {
   std::string &getUri();
   size_t &getClientMaxBodySize();
   bool getAutoIndex();
-  std::vector<std::string> &getIndexes();
+  VecStr &getIndexes();
+  std::map<int, std::string>& getErrorPages();
 
 
  private:
@@ -68,7 +70,8 @@ class RequestConfig {
   std::string uri_;
   size_t client_max_body_size_;
   bool autoindex_;
-  // std::vector<std::string>& indexes_;
+  std::vector<std::string> indexes_;
+  std::map<int, std::string> error_codes_;
 };
 
 #endif
