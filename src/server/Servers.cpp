@@ -219,10 +219,8 @@ void Servers::handleIncomingConnection(int server_fd){
 	Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
 
 
-	Client client(host_port);
 	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
-
-	client.setupConfig(db, parser, server_fd_to_index[server_fd]);
+	Client client(db, host_port, parser, server_fd_to_index[server_fd]);
 	
 	
 	// parser.printRequest(parser);
