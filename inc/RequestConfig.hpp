@@ -1,14 +1,15 @@
 #ifndef REQUESTCONFIG_HPP
-# define REQUESTCONFIG_HPP
+#define REQUESTCONFIG_HPP
 
-# include "./AllHeaders.hpp"
+#include "./AllHeaders.hpp"
 
 class HttpRequestParser;
 class Client;
 struct Listen;
 struct DB;
 
-enum LocationModifier {
+enum LocationModifier
+{
   NONE,
   EXACT,
   CASE_SENSITIVE,
@@ -16,21 +17,23 @@ enum LocationModifier {
   LONGEST,
 };
 
-
 typedef std::map<std::string, std::string> MapStr;
 typedef std::vector<std::string> VecStr;
-typedef std::map<std::string, VecStr > KeyValues;
-typedef std::pair<MapStr, VecStr > KeyMapValue;
-typedef std::map<int, std::vector<KeyMapValue > > GroupedDBMap;
+typedef std::map<std::string, VecStr> KeyValues;
+typedef std::pair<MapStr, VecStr> KeyMapValue;
+typedef std::map<int, std::vector<KeyMapValue> > GroupedDBMap;
 
-class RequestConfig {
- public:
-  RequestConfig(HttpRequestParser& request, Listen &host_port, DB &db, Client &client);
+class RequestConfig
+{
+public:
+  RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
-  const VecStr& filterDataByDirectives(const std::vector<KeyMapValue>&values, std::string directive, std::string location);
-  const VecStr& cascadeFilter(std::string directive, std::string location);
-  const VecStr& checkRootDB(std::string directive);
-  std::string checkModifier(const std::string& modifiers);
+  const VecStr &filterDataByDirectives(const std::vector<KeyMapValue> &values, std::string directive, std::string location);
+  const VecStr &cascadeFilter(std::string directive, std::string location);
+  const VecStr &checkRootDB(std::string directive);
+  std::string checkModifier(const std::string &modifiers);
+  bool isMethodAccepted(std::string &method);
+  void redirectLocation(std::string target);
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
@@ -39,9 +42,8 @@ class RequestConfig {
   void setClientMaxBodySize(const VecStr size);
   void setAutoIndex(const VecStr autoindex);
   void setIndexes(const VecStr &indexes);
-  void setErrorPages(const VecStr& errors);
-  void setMethods(const VecStr& errors);
-
+  void setErrorPages(const VecStr &errors);
+  void setMethods(const VecStr &errors);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -55,7 +57,7 @@ class RequestConfig {
   size_t &getClientMaxBodySize();
   bool getAutoIndex();
   VecStr &getIndexes();
-  std::map<int, std::string>& getErrorPages();
+  std::map<int, std::string> &getErrorPages();
   std::vector<std::string> &getMethods();
   std::string &getMethod();
   std::string &getBody();
@@ -65,14 +67,14 @@ class RequestConfig {
 
   void printConfigSetUp();
 
- private:
-  HttpRequestParser& request_;
+private:
+  HttpRequestParser &request_;
   std::vector<KeyMapValue> targetServer_;
   Client &client_;
   Listen &host_port_;
   DB &db_;
   LocationModifier modifierType_;
-  
+
   std::string target_;
   std::string root_;
   std::string uri_;
@@ -81,6 +83,7 @@ class RequestConfig {
   std::vector<std::string> indexes_;
   std::map<int, std::string> error_codes_;
   std::vector<std::string> methods_;
+  size_t serverId;
 };
 
 #endif

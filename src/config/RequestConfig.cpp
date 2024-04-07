@@ -2,8 +2,6 @@
 
 RequestConfig::RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
 {
-    (void)client_;
-    (void)host_port_;
 }
 
 RequestConfig::~RequestConfig() {}
@@ -121,6 +119,7 @@ std::string RequestConfig::checkModifier(const std::string &locationStr)
 void RequestConfig::setUp(size_t targetServerIdx)
 {
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
+    serverId = targetServerIdx;
 
     setTarget(request_.getURI());
     setUri(request_.getURI());
@@ -166,6 +165,9 @@ void RequestConfig::printConfigSetUp()
     getHeader("Host");
     std::cout << std::endl;
     getProtocol();
+    std::cout << std::endl;
+    std::cout << "[Accepted Method] " << isMethodAccepted(getMethod());
+    std::cout << std::endl;
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
     // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
@@ -408,7 +410,8 @@ std::vector<std::string> &RequestConfig::getMethods()
 
 std::string &RequestConfig::getBody()
 {
-    std::cout << "[Body]\n" << request_.getBody()<< "\n";
+    std::cout << "[Body]\n"
+              << request_.getBody() << "\n";
     return request_.getBody();
 }
 
@@ -419,7 +422,22 @@ std::string &RequestConfig::getHeader(std::string key)
     return request_.getHeader(key);
 }
 
-std::string &RequestConfig::getProtocol() {
-    std::cout << "[protocol] " << request_.getProtocol()<< "\n";
-  return request_.getProtocol();
+std::string &RequestConfig::getProtocol()
+{
+    std::cout << "[protocol] " << request_.getProtocol() << "\n";
+    return request_.getProtocol();
+}
+
+bool RequestConfig::isMethodAccepted(std::string &method)
+{
+    if (methods_.empty() || method.empty())
+        return true;
+    if (std::find(methods_.begin(), methods_.end(), method) != methods_.end())
+        return true;
+    return false;
+}
+
+void RequestConfig::redirectLocation(std::string target)
+{
+    target_ = target;
 }
