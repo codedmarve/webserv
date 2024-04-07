@@ -1,6 +1,6 @@
 #include "../../inc/AllHeaders.hpp"
 
-Client::Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx) : request_(&req_), host_port_(host_port), config_(NULL), response_(NULL), db_(db),  serverId_(targetServerIdx)
+Client::Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx, int status) : request_(&req_), host_port_(host_port), config_(NULL), response_(NULL), db_(db),  serverId_(targetServerIdx), statusCode_(status)
 {
   setupConfig();
 }
@@ -33,7 +33,7 @@ void Client::setupResponse()
   if (!config_)
     setupConfig();
 
-  response_ = new Response(*config_);
+  response_ = new Response(*config_, statusCode_);
 
   int loop = 0;
 

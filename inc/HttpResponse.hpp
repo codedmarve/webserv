@@ -10,7 +10,7 @@ extern pthread_mutex_t g_write;
 
 class Response {
 public:
-    Response(RequestConfig &config, int error_code = 0);
+    Response(RequestConfig &config, int error_code = 100);
     ~Response();
 
     typedef int (Response::*type)();
@@ -70,6 +70,7 @@ private:
     std::map<std::string, std::string> headers_;   
 
     std::string buildMethodList();
+    bool checkAuth();
 };
 
 std::string getMimeType(const std::string& ext);

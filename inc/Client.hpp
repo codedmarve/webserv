@@ -20,7 +20,7 @@ struct DB;
 
 class Client {
  public:
-  Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx);
+  Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx, int status);
   ~Client();
 
   void setupConfig();
@@ -32,6 +32,7 @@ class Client {
     Response *response_;
     DB &db_;
     size_t serverId_;
+    int statusCode_;
 
     void setupResponse();
 };

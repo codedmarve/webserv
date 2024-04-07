@@ -1,7 +1,6 @@
 #include "../../inc/AllHeaders.hpp"
 
 Response::Response(RequestConfig &config, int error_code) : config_(config), error_code_(error_code) {
-
   status_code_ = 0;
   total_sent_ = 0;
   header_size_ = 0;
@@ -57,7 +56,7 @@ void Response::initMethodMap() {
 
 //   file_.set_path(config_.getRoot() + "/" + config_.getTarget());
 
-//   if (error_code_ > 1)
+//   if (error_code_ > 200)
 //     status_code_ = error_code_;
 //   else if (!config_.isMethodAccepted(method)) {
 //     status_code_ = 405;
@@ -77,6 +76,14 @@ void Response::initMethodMap() {
 //   if (!redirect_)
 //     createResponse();
 // }
+
+bool Response::checkAuth() {
+  std::string authCredentials = config_.getHeader("Authorization");
+  if (authCredentials.empty())
+    return false;
+  std::string token = b64decode(authCredentials.substr(authCredentials.find(' ') + 1));
+  return (token == config_.getAuth());
+}
 
 std::string Response::buildMethodList() {
   std::string list;

@@ -129,6 +129,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setIndexes(cascadeFilter("index", target_));
     setErrorPages(cascadeFilter("error_page", target_));
     setMethods(cascadeFilter("allow_methods", target_));
+    setAuth(cascadeFilter("credentials", target_));
 
     printConfigSetUp();
 }
@@ -366,6 +367,10 @@ std::string &RequestConfig::getUri()
     return uri_;
 }
 
+std::string &RequestConfig::getAuth() {
+  return auth_;
+}
+
 size_t &RequestConfig::getClientMaxBodySize()
 {
     std::cout << "[client_max_body_size] " << client_max_body_size_ << "\n";
@@ -446,4 +451,14 @@ bool RequestConfig::isMethodAccepted(std::string &method)
 void RequestConfig::redirectLocation(std::string target)
 {
     target_ = target;
+}
+
+void RequestConfig::setAuth(const VecStr &auth)
+{
+    if (auth.empty())
+    {
+        auth_ = "off";
+        return;
+    }
+    auth_ = auth[0];
 }

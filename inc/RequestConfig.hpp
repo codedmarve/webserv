@@ -44,6 +44,7 @@ public:
   void setIndexes(const VecStr &indexes);
   void setErrorPages(const VecStr &errors);
   void setMethods(const VecStr &errors);
+  void setAuth(const VecStr &errors);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -65,6 +66,7 @@ public:
   std::string &getHeader(std::string key);
   std::string &getProtocol();
   size_t getContentLength();
+  std::string &getAuth();
 
   void printConfigSetUp();
 
@@ -85,6 +87,7 @@ private:
   std::map<int, std::string> error_codes_;
   std::vector<std::string> methods_;
   size_t serverId;
+  std::string auth_;
 };
 
 #endif
