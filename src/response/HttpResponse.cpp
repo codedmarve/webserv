@@ -51,8 +51,8 @@ void Response::initMethodMap() {
 //   return 200;
 // }
 
-// void Response::build() {
-//   std::string &method = config_.getMethod();
+void Response::build() {
+  // std::string &method = config_.getMethod();
 
 //   file_.set_path(config_.getRoot() + "/" + config_.getTarget());
 
@@ -75,7 +75,7 @@ void Response::initMethodMap() {
 
 //   if (!redirect_)
 //     createResponse();
-// }
+}
 
 bool Response::checkAuth() {
   std::string authCredentials = config_.getHeader("Authorization");
