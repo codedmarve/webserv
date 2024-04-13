@@ -27,7 +27,7 @@ public:
     ~File();
 
     bool is_directory();
-    bool open(bool create = false);
+    bool openFile(bool create = false);
     bool exists();
     bool exists(std::string &path);
 
@@ -35,12 +35,13 @@ public:
 
     void parseExe();
     void parseExeNegotiation();
-    void close();
-    void create(std::string &body);
-    void append(std::string &body);
-    void unlink();
+    void closeFile();
+    void createFile(std::string &body);
+    void appendFile(const std::string &body);
+    bool deleteFile();
     void set_path(std::string path, bool negotiation = false);
     void parse_match();
+    
 
     std::string last_modified();
     std::string find_index(std::vector<std::string> &indexes);
@@ -49,6 +50,12 @@ public:
     std::string getContent();
     std::string &getPath();
     std::vector<std::string> &getMatches();
+
+    std::string generateHtmlFooter();
+    std::string generateHtmlHeader(const std::string& title);
+    std::vector<auto_listing> getDirectoryListings(const std::string& dirPath);
+    std::string formatListing(const auto_listing& listing, const std::string& basePath);
+    std::string setWidth(size_t width, const std::string& str);
 
 private:
     int fd_;

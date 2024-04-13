@@ -30,6 +30,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstring>
+#include <stack>
+#include <string>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -37,8 +39,9 @@
 #include <unistd.h>
 #include <vector>
 #include <regex.h>
-#include <stack>
-#include <string>
+#include <dirent.h>
+#include <sys/stat.h>
+
 
 #include "ConfigDB.hpp"
 #include "Servers.hpp"
