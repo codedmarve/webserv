@@ -74,7 +74,7 @@ void ft_errors(std::string arg, int i)
         std::cerr << "Error opening file: " << arg << std::endl;
     if(i == 3)
         std::cerr << "Quotes are not closed." << std::endl;
-    exit(0);
+    exit(1);
 }
 
 std::vector<std::string> split(const std::string &s, char delimiter) {

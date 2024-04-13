@@ -14,7 +14,7 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 
 HttpResponse::~HttpResponse() {}
 
-void HttpResponse::clear()
+void HttpResponse::cleanUp()
 {
   error_code_ = 0;
   status_code_ = 0;
@@ -115,4 +115,12 @@ std::string HttpResponse::buildMethodList()
 
 std::string &File::getPath() {
   return path_;
+}
+
+bool HttpResponse::getRedirect() {
+  return redirect_;
+}
+
+std::string HttpResponse::redirect_target() {
+  return redirect_target_;
 }

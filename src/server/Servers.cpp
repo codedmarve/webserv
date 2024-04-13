@@ -212,15 +212,17 @@ void Servers::handleIncomingConnection(int server_fd){
 			finish = true;
 		} 
 	}
+	if (reqStatus != 200)
+	{
+		Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
+
+		DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+		Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
+		client.setupResponse();
+	}
 	// std::vector<std::string> domains = _domain_to_server[server_fd];
 	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
 	// 	std::cout << "Server domains: " << *it << std::endl;
-
-	Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
-
-	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
-	Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
-	client.setupResponse();
 	
 	
 	// parser.printRequest(parser);

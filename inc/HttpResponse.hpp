@@ -24,7 +24,7 @@ public:
     DEBUG
     };
 
-    void clear();
+    void cleanUp();
     // int buildErrorPage(int status_code);
     // bool isCGI(std::string extension);
     // void build();
@@ -35,8 +35,8 @@ public:
     // std::string accept_charset(std::vector<std::string> &matches);
     // std::string buildMethodList();
     // bool shouldDisconnect();
-    // bool redirect();
-    // std::string redirect_target();
+    bool getRedirect();
+    std::string redirect_target();
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);
