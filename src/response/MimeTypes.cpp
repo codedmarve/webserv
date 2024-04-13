@@ -1,4 +1,5 @@
-#include "../../inc/AllHeaders.hpp"
+// #include "../../inc/AllHeaders.hpp"
+#include "../../inc/MimeTypes.hpp"
 
 MimeTypes::MimeTypes() {
     // Initialize the mapping of file extensions to MIME types
@@ -95,3 +96,6 @@ std::string MimeTypes::getType(const std::string& extension) {
         : "application/octet-stream";
 }
 
+MimeTypes::~MimeTypes() {
+    mimeMap.clear();
+}

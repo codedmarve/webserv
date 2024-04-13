@@ -220,6 +220,7 @@ void Servers::handleIncomingConnection(int server_fd){
 
 	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 	Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
+	client.setupResponse();
 	
 	
 	// parser.printRequest(parser);

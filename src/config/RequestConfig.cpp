@@ -131,7 +131,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setMethods(cascadeFilter("allow_methods", target_));
     setAuth(cascadeFilter("credentials", target_));
 
-    printConfigSetUp();
+    // printConfigSetUp();
 }
 
 void RequestConfig::printConfigSetUp()
@@ -428,7 +428,7 @@ std::string &RequestConfig::getBody()
 
 std::string &RequestConfig::getHeader(std::string key)
 {
-    std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+    std::transform(key.begin(), key.end(), key.begin(), tolower);
     std::cout << "[header] " << key << ": " << request_.getHeader(key) << "\n";
     return request_.getHeader(key);
 }

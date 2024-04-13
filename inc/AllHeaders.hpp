@@ -11,8 +11,7 @@
 /* ************************************************************************** */
 
 #ifndef ALLHEADERS_HPP
-# define ALLHEADERS_HPP
-
+#define ALLHEADERS_HPP
 
 #include <algorithm>
 #include <arpa/inet.h>
@@ -37,7 +36,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vector>
-# include <regex.h>
+#include <regex.h>
 #include <stack>
 #include <string>
 
@@ -47,6 +46,7 @@
 #include "DomainResolve.hpp"
 #include "HttpRequestParser.hpp"
 #include "HttpResponse.hpp"
+#include "File.hpp"
 #include "MimeTypes.hpp"
 #include "HttpStatusCode.hpp"
 #include "RequestConfig.hpp"
@@ -57,24 +57,24 @@
 
 typedef std::map<std::string, std::string> MapStr;
 typedef std::vector<std::string> VecStr;
-typedef std::map<std::string, VecStr > KeyValues;
-typedef std::pair<MapStr, VecStr > KeyMapValue;
-typedef std::map<int, std::vector<KeyMapValue > > GroupedDBMap;
+typedef std::map<std::string, VecStr> KeyValues;
+typedef std::pair<MapStr, VecStr> KeyMapValue;
+typedef std::map<int, std::vector<KeyMapValue> > GroupedDBMap;
 
-struct DB {
-    const GroupedDBMap serversDB;
-    const GroupedDBMap rootDB;
+struct DB
+{
+  const GroupedDBMap serversDB;
+  const GroupedDBMap rootDB;
 };
 
-struct Listen {
+struct Listen
+{
   std::string ip_;
   uint32_t port_;
 
-  Listen() : ip_("127.0.0.1"), port_(80) {};
-  Listen(std::string ip, uint32_t port) : ip_(ip), port_(port) {};
+  Listen() : ip_("127.0.0.1"), port_(80){};
+  Listen(std::string ip, uint32_t port) : ip_(ip), port_(port){};
 };
-
-
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);
@@ -90,11 +90,11 @@ std::vector<std::string> split(const std::string &s, char delimiter);
 
 // std::string
 std::string cutTillSemicolon(std::string str);
-std::string getIndexVariableKey(std::string key,std::map<std::string, std::vector<std::string> > keyValues);
+std::string getIndexVariableKey(std::string key, std::map<std::string, std::vector<std::string> > keyValues);
 std::string getValue(const std::map<std::string, std::vector<std::string> > &keyValues, const std::string &key);
 
 void printAllDBData(GroupedDBMap db);
-void printData(const std::vector<KeyMapValue>& values);
+void printData(const std::vector<KeyMapValue> &values);
 std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index);
 bool checkModifier(std::string &str);
 const std::string b64decode(const void *data, const size_t &len);

@@ -34,11 +34,14 @@ void Client::setupResponse()
   if (!config_)
     setupConfig();
 
-  response_ = new Response(*config_, statusCode_);
+  response_ = new HttpResponse(*config_, statusCode_);
 
-  // int loop = 0;
+  int loop = 0;
 
-  // for (int ret = 1; ret != 0; loop++) {
-  //   ret = 0;
-  // }
+  for (int ret = 1; ret != 0; loop++) {
+    ret = 0;
+    std::cout << "HEREEEEEE\n";
+    response_->build();
+    exit(1);
+  }
 }

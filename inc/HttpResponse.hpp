@@ -1,19 +1,21 @@
-#ifndef RESPONSE_HPP
-# define RESPONSE_HPP
+#ifndef HTTP_RESPONSE_HPP
+#define HTTP_RESPONSE_HPP
 
 #include "./AllHeaders.hpp"
+#include "./File.hpp"
 
 class HttpRequestParser;
 class RequestConfig;
+class File;
 
 extern pthread_mutex_t g_write;
 
-class Response {
+class HttpResponse {
 public:
-    Response(RequestConfig &config, int error_code = 100);
-    ~Response();
+    HttpResponse(RequestConfig &config, int error_code = 100);
+    ~HttpResponse();
 
-    typedef int (Response::*type)();
+    typedef int (HttpResponse::*type)();
     void initMethodMap();
 
     enum LogLevel {
@@ -53,7 +55,7 @@ public:
 
 private:
     RequestConfig &config_;
-    // File file_;
+    File *file_;
     int error_code_;
     int worker_id_;
     size_t total_sent_;
@@ -66,7 +68,7 @@ private:
     size_t header_size_;
     size_t body_size_;
     std::string charset_;
-    std::map<std::string, Response::type> methods_;
+    std::map<std::string, HttpResponse::type> methods_;
     std::map<std::string, std::string> headers_;   
 
     std::string buildMethodList();
