@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   sever.main.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/03/31 18:17:25 by drey             ###   ########.fr       */
+/*   Updated: 2024/04/08 00:43:40 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int serverMain(int argc, char **argv) {
      * 
      * @return NULL;
      */
-    base.printChoice(false, -1, false, -1, false);
+    base.printChoice(false, -1, true, -1, false);
 
     
     Servers servers(base);
