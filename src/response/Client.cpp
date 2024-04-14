@@ -1,6 +1,6 @@
 #include "../../inc/AllHeaders.hpp"
 
-Client::Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx, int status) : request_(&req_), host_port_(host_port), config_(NULL), response_(NULL), db_(db), serverId_(targetServerIdx), statusCode_(status)
+Client::Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServerIdx, int status) : request_(&req_), host_port_(host_port), config_(NULL), response_(NULL), db_(db), serverId_(targetServerIdx), statusCode_(status)
 {
   setupConfig();
 }
@@ -29,7 +29,7 @@ void Client::setupConfig()
 void Client::setupResponse()
 {
   if (!request_)
-    request_ = new HttpRequestParser();
+    request_ = new HttpRequest();
 
   if (!config_)
     setupConfig();
@@ -41,7 +41,6 @@ void Client::setupResponse()
   for (int ret = 1; ret != 0; loop++)
   {
     ret = 0;
-    std::cout << "HEREEEEEE\n";
     response_->build();
 
     if (response_->getRedirect())
@@ -68,4 +67,14 @@ void Client::setupResponse()
     // delete request_;
     request_ = NULL;
   }
+}
+
+HttpRequest *Client::getRequest(bool val) {
+  if (!request_ && val)
+    request_ = new HttpRequest();
+  return request_;
+}
+
+HttpResponse *Client::getResponse() {
+  return response_;
 }

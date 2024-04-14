@@ -1,8 +1,8 @@
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
 /// @todo enforce certain header constraints specified in the RFC (e.g., no whitespace around the colon, no empty header keys).
 
-int HttpRequestParser::parseHeaders() {
+int HttpRequest::parseHeaders() {
 
     size_t headerEnd;
     size_t colonPos;
@@ -39,7 +39,7 @@ int HttpRequestParser::parseHeaders() {
     return 200;
 }
 
-bool HttpRequestParser::isValidHeaderFormat(const std::string& header) {
+bool HttpRequest::isValidHeaderFormat(const std::string& header) {
     if (header.empty())
         return false;
 
@@ -52,13 +52,13 @@ bool HttpRequestParser::isValidHeaderFormat(const std::string& header) {
 }
 
 
-bool HttpRequestParser::isValidHeaderChar(unsigned char c) {
+bool HttpRequest::isValidHeaderChar(unsigned char c) {
     // Valid characters: Visible ASCII characters and obs-text(obsolete-text) (128-255) => Check ASCII table 
     // return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
     return (c >= 0x21 && c <= 0x7E) || ((c & 0x80) != 0 && c != 0x7F);
 }
 
-int HttpRequestParser::checkSpecialHeaders() {
+int HttpRequest::checkSpecialHeaders() {
     if (headers_.count("host")) {
         std::string value = headers_["host"];
         if (value.empty() || value.find('@') != std::string::npos) {
@@ -110,7 +110,7 @@ int HttpRequestParser::checkSpecialHeaders() {
     return 200;
 }
 
-std::string HttpRequestParser::trimmer(const std::string& str) {
+std::string HttpRequest::trimmer(const std::string& str) {
     size_t start = str.find_first_not_of(" \t");
     size_t end = str.find_last_not_of(" \t");
     return (start == std::string::npos || end == std::string::npos)

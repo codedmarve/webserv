@@ -1,7 +1,7 @@
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
 
-void HttpRequestParser::printRequest(HttpRequestParser parser) {
+void HttpRequest::printRequest(HttpRequest parser) {
     ;
     try {
         // parser.parseRequest(request);
@@ -21,7 +21,7 @@ void HttpRequestParser::printRequest(HttpRequestParser parser) {
     }
 }
 
-bool HttpRequestParser::isMethodCharValid(char ch) const {
+bool HttpRequest::isMethodCharValid(char ch) const {
     // According to RFC 7229, valid characters for method are:
     return (ch == '!' || ch == '#' || ch == '$' || ch == '%' || ch == '&' || ch == '\'' ||
             ch == '*' || ch == '+' || ch == '-' || ch == '.' || ch == '^' || ch == '_' ||
@@ -30,19 +30,19 @@ bool HttpRequestParser::isMethodCharValid(char ch) const {
 
 
 
-bool HttpRequestParser::isAlpha(char c) {
+bool HttpRequest::isAlpha(char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-bool HttpRequestParser::isDigit(char c) {
+bool HttpRequest::isDigit(char c) {
     return (c >= '0' && c <= '9');
 }
 
-bool HttpRequestParser::isAlphaNum(char c) {
+bool HttpRequest::isAlphaNum(char c) {
     return isAlpha(c) || isDigit(c);
 }
 
-void HttpRequestParser::print_uri_extracts() {
+void HttpRequest::print_uri_extracts() {
     std::cout << "uri: " << uri_ << "\n" << std::endl;
     std::cout << "scheme: " << scheme_ << std::endl;
     std::cout << "authority: " << authority_ << std::endl;
@@ -52,19 +52,19 @@ void HttpRequestParser::print_uri_extracts() {
 }
 
 
-bool HttpRequestParser::isUnreserved(char c) {
+bool HttpRequest::isUnreserved(char c) {
     return isAlphaNum(c) || c == '-' || c == '.' || c == '_' || c == '~';
 }
 
-bool HttpRequestParser::isSubDelim(char c) {
+bool HttpRequest::isSubDelim(char c) {
     return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*' || c == '+' || c == ',' || c == ';' || c == '=';
 }
 
-bool HttpRequestParser::isHexDigit(char c) {
+bool HttpRequest::isHexDigit(char c) {
     return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
 }
 
-std::string HttpRequestParser::trim(const std::string& str) {
+std::string HttpRequest::trim(const std::string& str) {
     size_t start = str.find_first_not_of(" \t\r\n");
     size_t end = str.find_last_not_of(" \t\r\n");
     if (start == std::string::npos || end == std::string::npos) {
@@ -73,7 +73,7 @@ std::string HttpRequestParser::trim(const std::string& str) {
     return str.substr(start, end - start + 1);
 }
 
-unsigned int HttpRequestParser::hexToDecimal(const std::string& hex) {
+unsigned int HttpRequest::hexToDecimal(const std::string& hex) {
     std::stringstream ss;
     ss << std::hex << hex;
     unsigned int decimal;

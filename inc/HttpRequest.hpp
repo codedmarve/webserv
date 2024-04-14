@@ -3,7 +3,7 @@
 
 #include "./AllHeaders.hpp"
 
-class HttpRequestParser {
+class HttpRequest {
 private:
     std::string method_;
     std::string uri_;
@@ -83,8 +83,8 @@ private:
 
 
 public:
-    HttpRequestParser();
-    ~HttpRequestParser();
+    HttpRequest();
+    ~HttpRequest();
 
     int parseRequest(std::string &buffer);
 
@@ -100,7 +100,7 @@ public:
     std::string getTarget() const;
     size_t getContentLength();
 
-    void printRequest(HttpRequestParser parser);
+    void printRequest(HttpRequest parser);
 
     bool timeout();
     time_t get_start_timer_in_sec();

@@ -1,6 +1,6 @@
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
-int HttpRequestParser::extractRequestLineData(std::string requestLine) {
+int HttpRequest::extractRequestLineData(std::string requestLine) {
     std::istringstream iss(requestLine);
     size_t methodEnd;
     size_t uriStart;
@@ -23,7 +23,7 @@ int HttpRequestParser::extractRequestLineData(std::string requestLine) {
 }
 
 
-int HttpRequestParser::parseRequestLine() {
+int HttpRequest::parseRequestLine() {
 
     size_t endOfFirstLine = req_buffer_.find("\r\n");
     if (endOfFirstLine == std::string::npos)
@@ -54,7 +54,7 @@ int HttpRequestParser::parseRequestLine() {
 }
 
 
-int HttpRequestParser::parseMethod() {
+int HttpRequest::parseMethod() {
     static const std::string validMethodsArray[] = {
         "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD", "TRACE", "CONNECT"
     };
@@ -71,7 +71,7 @@ int HttpRequestParser::parseMethod() {
     return 200;
 }
 
-void HttpRequestParser::parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart) {
+void HttpRequest::parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart) {
     size_t authorityStart;
     size_t authorityEnd;
 
@@ -87,7 +87,7 @@ void HttpRequestParser::parseSchemeAndAuthority(size_t schemeEnd, size_t& pathSt
     }
 }
 
-void HttpRequestParser::extractPathQueryFragment(size_t pathStart) {
+void HttpRequest::extractPathQueryFragment(size_t pathStart) {
     std::string decodedUri = decodeURIComponent(uri_);
 
     size_t queryStart = decodedUri.find('?', pathStart);
@@ -116,7 +116,7 @@ void HttpRequestParser::extractPathQueryFragment(size_t pathStart) {
 
 
 
-std::string HttpRequestParser::decodeURIComponent(const std::string& str) {
+std::string HttpRequest::decodeURIComponent(const std::string& str) {
     std::string decoded;
     for (size_t i = 0; i < str.length(); ++i) {
         if (str[i] == '%') { // Percent-encoded sequence
@@ -143,7 +143,7 @@ std::string HttpRequestParser::decodeURIComponent(const std::string& str) {
 }
 
 
-int HttpRequestParser::extractURIComponents() {
+int HttpRequest::extractURIComponents() {
     size_t schemeEnd;
     size_t pathStart;
 
@@ -159,7 +159,7 @@ int HttpRequestParser::extractURIComponents() {
     return (path_.empty() && uri_ != "/") ? 400 : 200;
 }
 
-bool HttpRequestParser::isValidScheme(const std::string& scheme) {
+bool HttpRequest::isValidScheme(const std::string& scheme) {
     if (scheme.empty()) 
         return true;
 
@@ -182,7 +182,7 @@ bool HttpRequestParser::isValidScheme(const std::string& scheme) {
     return true;
 }
 
-int HttpRequestParser::isValidAuthority(const std::string& authority) {
+int HttpRequest::isValidAuthority(const std::string& authority) {
     if (authority.empty())
         return 400;
     size_t userinfoEnd = authority.find('@');
@@ -238,7 +238,7 @@ int HttpRequestParser::isValidAuthority(const std::string& authority) {
 }
 
 
-bool HttpRequestParser::isValidPath(const std::string& path) {
+bool HttpRequest::isValidPath(const std::string& path) {
     const std::string validPathChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
     
     if (path.empty() || path[0] != '/') {
@@ -266,7 +266,7 @@ bool HttpRequestParser::isValidPath(const std::string& path) {
 
 
 
-bool HttpRequestParser::isValidQuery(const std::string& query) {
+bool HttpRequest::isValidQuery(const std::string& query) {
     if (query.empty())
         return true;
     const std::string validQueryChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
@@ -290,7 +290,7 @@ bool HttpRequestParser::isValidQuery(const std::string& query) {
     return true;
 }
 
-bool HttpRequestParser::isValidFragment(const std::string& fragment) {
+bool HttpRequest::isValidFragment(const std::string& fragment) {
     if (fragment.empty())
         return true;
     const std::string validFragmentChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=";
@@ -314,7 +314,7 @@ bool HttpRequestParser::isValidFragment(const std::string& fragment) {
     return true;
 }
 
-int HttpRequestParser::validateURI() {
+int HttpRequest::validateURI() {
     if (uri_.empty())
         return false;
     int hasAuthority = extractURIComponents();
@@ -334,7 +334,7 @@ int HttpRequestParser::validateURI() {
 }
 
 
-bool HttpRequestParser::isValidIPv6(const std::string& ipv6) {
+bool HttpRequest::isValidIPv6(const std::string& ipv6) {
     // Count the number of colons
     size_t numColons = 0;
     for (size_t i = 0; i < ipv6.length(); ++i) {
@@ -377,7 +377,7 @@ bool HttpRequestParser::isValidIPv6(const std::string& ipv6) {
     return true;
 }
 
-int HttpRequestParser::isValidProtocol(const std::string& protocol) {
+int HttpRequest::isValidProtocol(const std::string& protocol) {
     // Format should be "HTTP/x.y"
     if (protocol.substr(0, 5) != "HTTP/")
         return false;

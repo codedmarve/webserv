@@ -1,7 +1,7 @@
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
 
-int HttpRequestParser::parseBody() {
+int HttpRequest::parseBody() {
     if (req_buffer_.length() >= length_)
     {
         body_.insert(body_offset_, req_buffer_, 0, length_);
@@ -17,7 +17,7 @@ int HttpRequestParser::parseBody() {
 }
 
 
-int HttpRequestParser::parseChunkedBody() {
+int HttpRequest::parseChunkedBody() {
     size_t end;
 
     while ((end = req_buffer_.find("\r\n")) != std::string::npos) {
@@ -52,7 +52,7 @@ int HttpRequestParser::parseChunkedBody() {
     return 200; // Incomplete chunk, need more data
 }
 
-int HttpRequestParser::parseChunkSize(const std::string& hex) {
+int HttpRequest::parseChunkSize(const std::string& hex) {
     // Convert hex chunk size to integer
     std::istringstream hexStream(hex);
     unsigned long tempChunkSize = 0;
@@ -70,7 +70,7 @@ int HttpRequestParser::parseChunkSize(const std::string& hex) {
     return 0; // Success
 }
 
-int HttpRequestParser::parseChunkTrailer() {
+int HttpRequest::parseChunkTrailer() {
     size_t end;
     std::string line;
 

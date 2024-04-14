@@ -3,7 +3,7 @@
 
 #include "./AllHeaders.hpp"
 
-class HttpRequestParser;
+class HttpRequest;
 class Client;
 struct Listen;
 struct DB;
@@ -26,7 +26,7 @@ typedef std::map<int, std::vector<KeyMapValue> > GroupedDBMap;
 class RequestConfig
 {
 public:
-  RequestConfig(HttpRequestParser &request, Listen &host_port, DB &db, Client &client);
+  RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
   const VecStr &filterDataByDirectives(const std::vector<KeyMapValue> &values, std::string directive, std::string location);
   const VecStr &cascadeFilter(std::string directive, std::string location);
@@ -71,7 +71,7 @@ public:
   void printConfigSetUp();
 
 private:
-  HttpRequestParser &request_;
+  HttpRequest &request_;
   std::vector<KeyMapValue> targetServer_;
   Client &client_;
   Listen &host_port_;

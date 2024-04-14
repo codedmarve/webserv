@@ -20,14 +20,16 @@ struct DB;
 class Client
 {
 public:
-    Client(DB &db, Listen &host_port, HttpRequestParser &req_, size_t targetServerIdx, int status);
+    Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServerIdx, int status);
     ~Client();
 
     void setupConfig();
     void setupResponse();
+    HttpRequest *getRequest(bool val = false);
+    HttpResponse *getResponse();
 
 private:
-    HttpRequestParser *request_;
+    HttpRequest *request_;
     Listen &host_port_;
     RequestConfig *config_;
     HttpResponse *response_;

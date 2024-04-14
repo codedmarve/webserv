@@ -4,7 +4,7 @@
 #include "./AllHeaders.hpp"
 #include "./File.hpp"
 
-class HttpRequestParser;
+class HttpRequest;
 class RequestConfig;
 class File;
 

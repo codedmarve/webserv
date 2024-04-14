@@ -2,7 +2,7 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-#include "./HttpRequestParser.hpp"
+#include "./HttpRequest.hpp"
 #include "./AllHeaders.hpp"
 #include <filesystem>
 

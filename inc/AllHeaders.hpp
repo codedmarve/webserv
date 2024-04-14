@@ -47,7 +47,7 @@
 #include "Servers.hpp"
 #include "CgiHandle.hpp"
 #include "DomainResolve.hpp"
-#include "HttpRequestParser.hpp"
+#include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "File.hpp"
 #include "MimeTypes.hpp"

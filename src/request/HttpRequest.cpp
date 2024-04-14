@@ -1,11 +1,11 @@
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
 /// @note
 // 200 indicates that parsing is ongoing and there is no error
 // 100 indicates parsing is complete and successful
 // any other number indicates an http req error or incomplete parsing state
 
-HttpRequestParser::HttpRequestParser() {
+HttpRequest::HttpRequest() {
     body_offset_ = 0;
     chunk_size_ = 0;
     req_buffer_ = "";
@@ -15,9 +15,9 @@ HttpRequestParser::HttpRequestParser() {
     gettimeofday(&start_tv_, NULL);
 }
 
-HttpRequestParser::~HttpRequestParser() {}
+HttpRequest::~HttpRequest() {}
 
-int HttpRequestParser::parseRequest(std::string &buffer) {
+int HttpRequest::parseRequest(std::string &buffer) {
     size_t httpStatus = 0;
     std::string headerLines;
     std::string headers;
@@ -51,7 +51,7 @@ int HttpRequestParser::parseRequest(std::string &buffer) {
     return httpStatus;
 }
 
-void HttpRequestParser::parseContentLength() {
+void HttpRequest::parseContentLength() {
     std::map<std::string, std::string>::iterator it = headers_.find("Content-Length");
     if (it != headers_.end()) {
         std::istringstream iss(it->second);
@@ -66,57 +66,57 @@ void HttpRequestParser::parseContentLength() {
     }
 }
 
-std::string &HttpRequestParser::getMethod() {
+std::string &HttpRequest::getMethod() {
     return method_;
 }
 
-std::string &HttpRequestParser::getURI() {
+std::string &HttpRequest::getURI() {
     return uri_;
 }
 
-std::string &HttpRequestParser::getProtocol() {
+std::string &HttpRequest::getProtocol() {
     return protocol_;
 }
 
-std::map<std::string, std::string> HttpRequestParser::getHeaders() const {
+std::map<std::string, std::string> HttpRequest::getHeaders() const {
     return headers_;
 }
 
-std::string &HttpRequestParser::getBody() {
+std::string &HttpRequest::getBody() {
     return body_;
 }
 
-std::string &HttpRequestParser::getPath() {
+std::string &HttpRequest::getPath() {
   return path_;
 }
 
-std::string &HttpRequestParser::getQuery() {
+std::string &HttpRequest::getQuery() {
   return query_;
 }
 
-std::string &HttpRequestParser::getFragment() {
+std::string &HttpRequest::getFragment() {
   return frag_;
 }
 
 
-std::string &HttpRequestParser::getHeader(std::string key) {
+std::string &HttpRequest::getHeader(std::string key) {
   return headers_[key];
 }
 
-void HttpRequestParser::setTarget(std::string target) {
+void HttpRequest::setTarget(std::string target) {
   target_ = target;
 }
 
-std::string HttpRequestParser::getTarget() const {
+std::string HttpRequest::getTarget() const {
   return target_;
 }
 
-size_t HttpRequestParser::getContentLength() {
+size_t HttpRequest::getContentLength() {
   return length_;
 }
 
 
-bool HttpRequestParser::timeout() {
+bool HttpRequest::timeout() {
   if (buffer_section_ != COMPLETE) {
     buffer_section_ = ERROR;
     return true;
@@ -124,15 +124,15 @@ bool HttpRequestParser::timeout() {
   return false;
 }
 
-int HttpRequestParser::getStatus() {
+int HttpRequest::getStatus() {
   return buffer_section_;
 }
 
-time_t HttpRequestParser::get_start_timer_in_sec() {
+time_t HttpRequest::get_start_timer_in_sec() {
   return start_tv_.tv_sec;
 }
 
-time_t HttpRequestParser::get_last_timer_in_sec() {
+time_t HttpRequest::get_last_timer_in_sec() {
   return last_tv_.tv_sec;
 }
 

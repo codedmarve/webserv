@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../inc/Servers.hpp"
-#include "../../inc/HttpRequestParser.hpp"
+#include "../../inc/HttpRequest.hpp"
 
 //Servers constuctor
 Servers::Servers(ConfigDB &configDB) : _server_fds(), configDB_(configDB){
@@ -190,7 +190,7 @@ void Servers::handleIncomingConnection(int server_fd){
 		close(new_socket);
 		return;
 	}
-	HttpRequestParser parser;
+	HttpRequest parser;
 	int count = 0;
 
 	int reqStatus = -1;
