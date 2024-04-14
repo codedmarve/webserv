@@ -34,3 +34,10 @@ const std::string b64decode(const void *data, const size_t &len) {
 std::string b64decode(const std::string &str64) {
     return b64decode(str64.c_str(), str64.size());
 }
+
+
+std::string ftos(size_t num) {
+    std::ostringstream oss;
+    oss << num;
+    return oss.str();
+}

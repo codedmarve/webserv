@@ -203,61 +203,9 @@ bool File::deleteFile() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-std::string ftos(size_t num) {
-    std::stringstream ss;
-    ss << num;
-    return ss.str();
-}
-
-
-std::string File::autoIndex(std::string& target) {
+std::string File::listDirectory(std::string& target) {
     std::string body;
-    std::vector<auto_listing> listing = getDirectoryListings(path_);
+    std::vector<directory_listing> listing = getDirectoryListings(path_);
 
     body += generateHtmlHeader("Index of " + target);
     body += "<h1>Index of " + target + "</h1><hr><pre>";
@@ -279,24 +227,21 @@ std::string File::setWidth(size_t width, const std::string& str) {
     return str + std::string(width - str.length(), ' ');
 }
 
-std::string File::formatListing(const auto_listing& listing, const std::string& basePath) {
+std::string File::formatListing(const directory_listing& listing, const std::string& basePath) {
     std::string formatted;
 
     formatted += "<a href=\"" + basePath + "/" + listing.name_ + "\">" + listing.name_ + "</a>";
     formatted += setWidth(68 - listing.name_.length(), listing.date_);
 
-    if (listing.is_dir_) {
-        formatted += setWidth(20, "-");
-    } else {
-        formatted += setWidth(20, ftos(listing.size_));
-    }
+    formatted += (listing.is_dir_) ? setWidth(20, "-") : setWidth(20, ftos(listing.size_));
 
     formatted += "\r\n";
+
     return formatted;
 }
 
-std::vector<auto_listing> File::getDirectoryListings(const std::string& dirPath) {
-    std::vector<auto_listing> listings;
+std::vector<directory_listing> File::getDirectoryListings(const std::string& dirPath) {
+    std::vector<directory_listing> listings;
 
     DIR* dir = opendir(dirPath.c_str());
     if (!dir) {
@@ -305,30 +250,12 @@ std::vector<auto_listing> File::getDirectoryListings(const std::string& dirPath)
     }
 
     struct dirent* entry;
-    struct stat fileStat;
-
     while ((entry = readdir(dir)) != NULL) {
         std::string fileName = entry->d_name;
-        if (fileName == "." || fileName == "..") {
+        if (fileName == "." || fileName == "..")
             continue; // Skip current and parent directories
-        }
 
-        std::string filePath = dirPath + "/" + fileName;
-        if (lstat(filePath.c_str(), &fileStat) != 0) {
-            std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
-            continue;
-        }
-
-        auto_listing listing;
-        listing.name_ = fileName;
-        listing.is_dir_ = S_ISDIR(fileStat.st_mode);
-        listing.size_ = fileStat.st_size;
-
-        struct tm* timeinfo = localtime(&fileStat.st_mtime);
-        char dateBuf[20];
-        strftime(dateBuf, sizeof(dateBuf), "%d-%b-%Y %H:%M", timeinfo);
-        listing.date_ = std::string(dateBuf);
-
+        directory_listing listing = createListing(fileName, dirPath);
         listings.push_back(listing);
     }
 
@@ -336,14 +263,43 @@ std::vector<auto_listing> File::getDirectoryListings(const std::string& dirPath)
     return listings;
 }
 
+directory_listing File::createListing(const std::string& fileName, const std::string& dirPath) {
+    directory_listing listing;
+    listing.name_ = fileName;
+
+    std::string filePath = dirPath + "/" + fileName;
+    struct stat fileStat;
+    if (lstat(filePath.c_str(), &fileStat) != 0) {
+        std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
+        return listing; // Return empty listing if stat fails
+    }
+
+    listing.is_dir_ = S_ISDIR(fileStat.st_mode);
+    listing.size_ = fileStat.st_size;
+
+    struct tm* timeinfo = localtime(&fileStat.st_mtime);
+    char dateBuf[20];
+    strftime(dateBuf, sizeof(dateBuf), "%d-%b-%Y %H:%M", timeinfo);
+    listing.date_ = std::string(dateBuf);
+
+    return listing;
+}
+
+
 
 std::string File::generateHtmlHeader(const std::string& title) {
     std::string header;
+    header += "<!DOCTYPE html>\r\n";
     header += "<html>\r\n";
-    header += "<head><title>" + title + "</title></head>\r\n";
+    header += "<head>\r\n";
+    header += "<meta charset=\"UTF-8\">\r\n";
+    header += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n";
+    header += "<title>" + title + "</title>\r\n";
+    header += "</head>\r\n";
     header += "<body>\r\n";
     return header;
 }
+
 
 std::string File::generateHtmlFooter() {
     std::string footer;

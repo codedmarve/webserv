@@ -6,17 +6,17 @@
 
 class MimeTypes;
 
-struct auto_listing
+struct directory_listing
 {
     bool is_dir_;
     size_t size_;
     std::string name_;
     std::string date_;
 
-    auto_listing() : is_dir_(false){};
+    directory_listing() : is_dir_(false){};
 };
 
-bool sort_auto_listing(auto_listing i, auto_listing j);
+bool sort_auto_listing(directory_listing i, directory_listing j);
 
 
 class File
@@ -45,7 +45,7 @@ public:
 
     std::string last_modified();
     std::string find_index(std::vector<std::string> &indexes);
-    std::string autoIndex(std::string &target);
+    std::string listDirectory(std::string &target); // autoindex
     std::string &getMimeExtension();
     std::string getContent();
     std::string &getPath();
@@ -53,9 +53,10 @@ public:
 
     std::string generateHtmlFooter();
     std::string generateHtmlHeader(const std::string& title);
-    std::vector<auto_listing> getDirectoryListings(const std::string& dirPath);
-    std::string formatListing(const auto_listing& listing, const std::string& basePath);
+    std::vector<directory_listing> getDirectoryListings(const std::string& dirPath);
+    std::string formatListing(const directory_listing& listing, const std::string& basePath);
     std::string setWidth(size_t width, const std::string& str);
+    directory_listing createListing(const std::string& fileName, const std::string& dirPath);
 
 private:
     int fd_;
