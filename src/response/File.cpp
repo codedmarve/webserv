@@ -14,49 +14,13 @@ File::~File()
         closeFile();
         std::cout << "File Closed: " << path_ << std::endl;
     }
-    if (mimes_)
-    {
-        delete mimes_;
-        mimes_ = NULL;
-    }
+    // if (mimes_)
+    // {
+    //     delete mimes_;
+    //     mimes_ = NULL;
+    // }
 }
 
-std::string removeDupSlashes(std::string str)
-{
-    if (str.empty())
-        return str;
-
-    std::string::iterator it = str.begin();
-    bool lastWasSlash = (*it == '/');
-
-    it++;
-
-    while (it != str.end())
-    {
-        if (*it == '/')
-        {
-            if (lastWasSlash)
-            {
-                it = str.erase(it);
-            }
-            else
-            {
-                lastWasSlash = true;
-                it++;
-            }
-        }
-        else
-        {
-            lastWasSlash = false;
-            it++;
-        }
-    }
-
-    if (!str.empty() && str[str.length() - 1] == '/')
-        str.erase(str.length() - 1);
-
-    return str;
-}
 
 void File::set_path(std::string path, bool negotiation)
 {
@@ -108,14 +72,14 @@ void File::parseExtNegotiation()
     file_name_full_ = file;
 
     size_t lastDotPos = file.find_last_of(".");
-    mimes_ = new MimeTypes();
+    // mimes_ = new MimeTypes();
 
     if (lastDotPos != std::string::npos && lastDotPos != 0)
     {
         std::string fileExtension = file.substr(lastDotPos);
         std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), tolower);
 
-        std::string mimeType = mimes_->getType(fileExtension);
+        std::string mimeType = getMimeType(fileExtension);
 
         if (mimeType == "application/octet-stream")
         {
@@ -124,7 +88,7 @@ void File::parseExtNegotiation()
                 fileExtension = file.substr(lastDotPos + 1);
                 std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), tolower);
 
-                mimeType = mimes_->getType("." + fileExtension);
+                mimeType = getMimeType("." + fileExtension);
 
                 if (mimeType != "application/octet-stream")
                     break;
@@ -153,6 +117,19 @@ void File::createFile(std::string &body)
 
     close(fd_);
 }
+
+std::string File::getMimeType(const std::string ext)
+{
+    static MimeTypes mime;
+    return mime.getType(ext);
+}
+
+std::string File::getStatusCode(int code)
+{
+    static HttpStatusCodes status_codes;
+    return status_codes.getStatusCode(code);
+}
+
 
 bool File::openFile(bool create)
 {
@@ -259,11 +236,7 @@ std::string File::last_modified()
 
     time_t modifiedTime = fileStat.st_mtime;
 
-    char timeBuf[80];
-    struct tm *timeinfo = gmtime(&modifiedTime);
-    strftime(timeBuf, sizeof(timeBuf), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
-
-    return std::string(timeBuf);
+    return formatHttpDate(modifiedTime);
 }
 
 std::string File::listDir(std::string &target)

@@ -41,3 +41,64 @@ std::string ftos(size_t num) {
     oss << num;
     return oss.str();
 }
+
+// std::string removeDupSlashes(std::string str)
+// {
+//     if (str.empty())
+//         return str;
+
+//     for (std::string::iterator it = str.begin(); it != str.end();) {
+//         if (*it == '/') {
+//             it++;
+//             while (it != str.end() && *it == '/') {
+//                 it = str.erase(it);
+//             }
+//         } else {
+//             it++;
+//         }
+//     }
+//     return str;
+// }
+
+std::string removeDupSlashes(std::string str) {
+    if (str.empty())
+        return str;
+
+    std::string result;
+    result.reserve(str.length());
+
+    bool prevWasSlash = false;
+    for (size_t i = 0; i < str.length(); ++i) {
+        if (str[i] == '/') {
+            if (!prevWasSlash) {
+                result.push_back(str[i]);
+            }
+            prevWasSlash = true;
+        } else {
+            result.push_back(str[i]);
+            prevWasSlash = false;
+        }
+    }
+
+    // Remove the last slash if it exists
+    if (!result.empty() && result[result.length() - 1] == '/') {
+        result.erase(result.length() - 1);
+    }
+
+    return result;
+}
+
+std::string formatHttpDate(time_t timeValue) {
+    char buf[32];
+    struct tm* timeinfo = gmtime(&timeValue);
+    strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", timeinfo);
+    return std::string(buf);
+}
+
+std::string get_http_date() {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+
+    time_t currentTime = tv.tv_sec;
+    return formatHttpDate(currentTime);
+}

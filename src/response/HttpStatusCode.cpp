@@ -76,3 +76,7 @@ std::string HttpStatusCodes::getStatusCode(int code) {
     std::map<int, std::string>::iterator it = codeMap.find(code);
     return (it != codeMap.end()) ? it->second : "Unknown";
 }
+
+HttpStatusCodes::~HttpStatusCodes() {
+    codeMap.clear();
+}

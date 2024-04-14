@@ -10,6 +10,11 @@ class File;
 
 extern pthread_mutex_t g_write;
 
+struct CharsetAndQ {
+    std::string charset;
+    double qValue;
+};
+
 class HttpResponse {
 public:
     HttpResponse(RequestConfig &config, int error_code = 100);
@@ -24,15 +29,25 @@ public:
     DEBUG
     };
 
+
+
     void cleanUp();
-    // int buildErrorPage(int status_code);
+    int buildErrorPage(int status_code);
+    void redirectToErrorPage(const std::string& target, int status_code);
+    std::string buildDefaultErrorPage(int status_code);
     // bool isCGI(std::string extension);
     // void build();
-    // int handleMethods();
-    // void createResponse();
+    int handleMethods();
+    int handleDirectoryRequest();
+    int handleFileRequest();
+    int handlePutPostRequest();
+    void handleAcceptLanguage(std::vector<std::string> &matches);
+    void handleAcceptCharset(std::vector<std::string> &matches);
+    int handleOtherMethods();
+    void createResponse();
     // bool checkAuth();
-    // bool localization(std::vector<std::string> &matches);
-    // std::string accept_charset(std::vector<std::string> &matches);
+    bool localization(std::vector<std::string> &matches);
+    std::string accept_charset(std::vector<std::string> &matches);
     // std::string buildMethodList();
     // bool shouldDisconnect();
     bool getRedirect();
@@ -40,6 +55,13 @@ public:
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);
+
+    std::pair<std::string, double> extractLangAndQ(const std::string& langAndQ);
+    std::string findBestLanguage(const std::vector<std::string>& matches, const std::vector<std::pair<std::string, double> >& langQPairs);
+
+    CharsetAndQ extractCharsetAndQ(const std::string& charsetAndQ);
+    std::string handleDefaultCharset(const std::string& bestCharset);
+    std::string findBestCharset(const std::vector<CharsetAndQ>& charsetAndQValues, const std::vector<std::string>& matches);
 
     int GET();
     int POST();

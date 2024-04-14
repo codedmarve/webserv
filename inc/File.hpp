@@ -49,6 +49,8 @@ public:
     std::string &getMimeExt();
     std::string getContent();
     std::string &getFilePath();
+    std::string getMimeType(const std::string ext);
+    std::string getStatusCode(int code);
     std::vector<std::string> &getMatches();
 
     std::string genHtmlFooter();
@@ -66,7 +68,8 @@ private:
     std::string file_name_full_;
     std::vector<std::string> matches_;
     std::string path_;
-    MimeTypes *mimes_;
+    // MimeTypes *mimes_;
+    // HttpStatusCodes *status_codes_;
 };
 
 #endif

@@ -43,8 +43,9 @@ public:
   void setAutoIndex(const VecStr autoindex);
   void setIndexes(const VecStr &indexes);
   void setErrorPages(const VecStr &errors);
-  void setMethods(const VecStr &errors);
-  void setAuth(const VecStr &errors);
+  void setMethods(const VecStr &methods);
+  void setAuth(const VecStr &auths);
+  void setUpload(const VecStr &upload);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -67,6 +68,7 @@ public:
   std::string &getProtocol();
   size_t getContentLength();
   std::string &getAuth();
+  std::string &getUpload();
 
   void printConfigSetUp();
 
@@ -88,6 +90,7 @@ private:
   std::vector<std::string> methods_;
   size_t serverId;
   std::string auth_;
+  std::string upload_;
 };
 
 #endif

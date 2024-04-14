@@ -195,6 +195,16 @@ void RequestConfig::setRoot(const VecStr root)
     root_ = root[0];
 }
 
+void RequestConfig::setAuth(const VecStr &auth)
+{
+    if (auth.empty())
+    {
+        auth_ = "off";
+        return;
+    }
+    auth_ = auth[0];
+}
+
 void RequestConfig::setUri(const std::string uri)
 {
     uri_ = uri;
@@ -211,6 +221,12 @@ void RequestConfig::setClientMaxBodySize(const VecStr size)
     std::istringstream iss(size[0]);
     iss >> val;
     client_max_body_size_ = val;
+}
+
+void RequestConfig::setUpload(const VecStr &upload)
+{
+    upload_ = upload[0];
+
 }
 
 void RequestConfig::setAutoIndex(const VecStr autoindex)
@@ -439,6 +455,11 @@ std::string &RequestConfig::getProtocol()
     return request_.getProtocol();
 }
 
+std::string &RequestConfig::getUpload()
+{
+    return upload_;
+}
+
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
     if (methods_.empty() || method.empty())
@@ -453,12 +474,4 @@ void RequestConfig::redirectLocation(std::string target)
     target_ = target;
 }
 
-void RequestConfig::setAuth(const VecStr &auth)
-{
-    if (auth.empty())
-    {
-        auth_ = "off";
-        return;
-    }
-    auth_ = auth[0];
-}
+

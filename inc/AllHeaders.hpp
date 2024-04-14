@@ -103,5 +103,8 @@ bool checkModifier(std::string &str);
 const std::string b64decode(const void *data, const size_t &len);
 std::string b64decode(const std::string &str64);
 std::string ftos(size_t num);
+std::string removeDupSlashes(std::string str);
+std::string formatHttpDate(time_t timeValue);
+std::string get_http_date();
 
 #endif
