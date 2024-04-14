@@ -29,34 +29,35 @@ public:
     bool is_directory();
     bool openFile(bool create = false);
     bool exists();
-    bool exists(std::string &path);
+    bool exists(const std::string &path);
 
     int &getFd();
 
-    void parseExe();
-    void parseExeNegotiation();
+    void parseExt();
+    void parseExtNegotiation();
     void closeFile();
     void createFile(std::string &body);
     void appendFile(const std::string &body);
     bool deleteFile();
     void set_path(std::string path, bool negotiation = false);
-    void parse_match();
+    void findMatchingFiles();
     
 
     std::string last_modified();
     std::string find_index(std::vector<std::string> &indexes);
-    std::string listDirectory(std::string &target); // autoindex
-    std::string &getMimeExtension();
+    std::string listDir(std::string &target); // autoindex
+    std::string &getMimeExt();
     std::string getContent();
-    std::string &getPath();
+    std::string &getFilePath();
     std::vector<std::string> &getMatches();
 
-    std::string generateHtmlFooter();
-    std::string generateHtmlHeader(const std::string& title);
-    std::vector<directory_listing> getDirectoryListings(const std::string& dirPath);
+    std::string genHtmlFooter();
+    std::string genHtmlHeader(const std::string& title);
+    std::vector<directory_listing> getDirListings(const std::string& dirPath);
     std::string formatListing(const directory_listing& listing, const std::string& basePath);
     std::string setWidth(size_t width, const std::string& str);
     directory_listing createListing(const std::string& fileName, const std::string& dirPath);
+    bool checkFileExists(const std::string& filePath);
 
 private:
     int fd_;

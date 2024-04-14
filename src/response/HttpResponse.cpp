@@ -64,7 +64,7 @@ void HttpResponse::build()
   file_ = new File();
 
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());
-  std::cout << "Debug >>>>>>>> " << file_->getPath() << std::endl;
+  std::cout << "Debug >>>>>>>> " << file_->getFilePath() << std::endl;
 
   //   if (error_code_ > 200)
   //     status_code_ = error_code_;
@@ -111,10 +111,6 @@ std::string HttpResponse::buildMethodList()
       list += ", ";
   }
   return list;
-}
-
-std::string &File::getPath() {
-  return path_;
 }
 
 bool HttpResponse::getRedirect() {

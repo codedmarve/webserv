@@ -9,11 +9,13 @@ File::File(std::string path) : fd_(0)
 
 File::~File()
 {
-    if (fd_ >= 0) {
+    if (fd_ >= 0)
+    {
         closeFile();
         std::cout << "File Closed: " << path_ << std::endl;
     }
-    if (mimes_) {
+    if (mimes_)
+    {
         delete mimes_;
         mimes_ = NULL;
     }
@@ -60,10 +62,10 @@ void File::set_path(std::string path, bool negotiation)
 {
     path_ = removeDupSlashes(path);
 
-    (negotiation) ? parseExeNegotiation() : parseExe();
+    (negotiation) ? parseExtNegotiation() : parseExt();
 }
 
-void File::parseExe()
+void File::parseExt()
 {
     std::string file = path_.substr(path_.find_last_of("/") + 1);
 
@@ -96,7 +98,7 @@ void File::parseExe()
                      : file;
 }
 
-void File::parseExeNegotiation()
+void File::parseExtNegotiation()
 {
     std::string file = path_.substr(path_.find_last_of("/") + 1);
 
@@ -139,9 +141,11 @@ void File::parseExeNegotiation()
                      : file;
 }
 
-void File::createFile(std::string &body) {
+void File::createFile(std::string &body)
+{
     ssize_t bytes_written = write(fd_, body.c_str(), body.length());
-    if (bytes_written <= 0) {
+    if (bytes_written <= 0)
+    {
         std::string errorStr = "write: ";
         errorStr += strerror(errno);
         std::cout << "Error: " << errorStr << std::endl;
@@ -150,51 +154,58 @@ void File::createFile(std::string &body) {
     close(fd_);
 }
 
+bool File::openFile(bool create)
+{
+    close(fd_);
 
+    int flags = create ? (O_CREAT | O_RDWR | O_TRUNC) : O_RDONLY;
+    fd_ = open(path_.c_str(), flags, 0755);
 
-bool File::openFile(bool create) {
-  close(fd_);
+    if (fd_ < 0)
+    {
+        std::string errorStr = "open: ";
+        errorStr += strerror(errno);
+        std::cout << "Error: " << errorStr << std::endl;
+        return false;
+    }
 
-  int flags = create ? (O_CREAT | O_RDWR | O_TRUNC) : O_RDONLY;
-  fd_ = open(path_.c_str(), flags, 0755);
-
-  if (fd_ < 0) {
-    std::string errorStr = "open: ";
-    errorStr += strerror(errno);
-    std::cout << "Error: " << errorStr << std::endl;
-    return false;
-  }
-
-  return true;
+    return true;
 }
 
-void File::closeFile() {
-    if (fd_ >= 0) {
+void File::closeFile()
+{
+    if (fd_ >= 0)
+    {
         close(fd_);
         fd_ = -1;
         std::cout << "File Closed: " << path_ << std::endl;
     }
 }
 
-void File::appendFile(const std::string& body) {
+void File::appendFile(const std::string &body)
+{
     int flags = O_CREAT | O_WRONLY | O_APPEND;
     fd_ = open(path_.c_str(), flags, 0644);
 
-    if (fd_ < 0) {
+    if (fd_ < 0)
+    {
         std::cerr << "Error opening file for append: " << strerror(errno) << std::endl;
         return;
     }
 
     ssize_t bytes_written = write(fd_, body.c_str(), body.length());
-    if (bytes_written <= 0) {
+    if (bytes_written <= 0)
+    {
         std::cerr << "Error appending to file: " << strerror(errno) << std::endl;
     }
 
     closeFile();
 }
 
-bool File::deleteFile() {
-    if (unlink(path_.c_str()) != 0) {
+bool File::deleteFile()
+{
+    if (unlink(path_.c_str()) != 0)
+    {
         std::cerr << "Error deleting file: " << strerror(errno) << std::endl;
         return false;
     }
@@ -202,32 +213,89 @@ bool File::deleteFile() {
     return true;
 }
 
+bool File::checkFileExists(const std::string &filePath)
+{
+    struct stat statbuf;
+    if (stat(filePath.c_str(), &statbuf) != 0)
+    {
+        std::cerr << "Error checking existence for " << filePath << ": " << strerror(errno) << std::endl;
+        return false;
+    }
+    return true; // File exists
+}
 
-std::string File::listDirectory(std::string& target) {
+bool File::exists()
+{
+    return checkFileExists(path_);
+}
+
+bool File::exists(const std::string &path)
+{
+    return checkFileExists(path);
+}
+
+bool File::is_directory()
+{
+    struct stat statbuf;
+    if (!checkFileExists(path_))
+        return false;
+
+    if (stat(path_.c_str(), &statbuf) != 0)
+    {
+        std::cerr << "Error getting file info for " << path_ << ": " << strerror(errno) << std::endl;
+        return false;
+    }
+    return S_ISDIR(statbuf.st_mode);
+}
+
+std::string File::last_modified()
+{
+    struct stat fileStat;
+    if (stat(path_.c_str(), &fileStat) != 0)
+    {
+        std::cerr << "File does not exist or stat failed" << std::endl;
+        return "Unknown";
+    }
+
+    time_t modifiedTime = fileStat.st_mtime;
+
+    char timeBuf[80];
+    struct tm *timeinfo = gmtime(&modifiedTime);
+    strftime(timeBuf, sizeof(timeBuf), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+
+    return std::string(timeBuf);
+}
+
+std::string File::listDir(std::string &target)
+{
     std::string body;
-    std::vector<directory_listing> listing = getDirectoryListings(path_);
+    std::vector<directory_listing> listing = getDirListings(path_);
 
-    body += generateHtmlHeader("Index of " + target);
+    body += genHtmlHeader("Index of " + target);
     body += "<h1>Index of " + target + "</h1><hr><pre>";
 
-    for (size_t i = 0; i < listing.size(); ++i) {
+    for (size_t i = 0; i < listing.size(); ++i)
+    {
         body += formatListing(listing[i], target);
     }
 
     body += "</pre><hr>";
-    body += generateHtmlFooter();
+    body += genHtmlFooter();
 
     return body;
 }
 
-std::string File::setWidth(size_t width, const std::string& str) {
-    if (str.length() >= width) {
+std::string File::setWidth(size_t width, const std::string &str)
+{
+    if (str.length() >= width)
+    {
         return str.substr(0, width - 3) + "..>";
     }
     return str + std::string(width - str.length(), ' ');
 }
 
-std::string File::formatListing(const directory_listing& listing, const std::string& basePath) {
+std::string File::formatListing(const directory_listing &listing, const std::string &basePath)
+{
     std::string formatted;
 
     formatted += "<a href=\"" + basePath + "/" + listing.name_ + "\">" + listing.name_ + "</a>";
@@ -239,18 +307,25 @@ std::string File::formatListing(const directory_listing& listing, const std::str
 
     return formatted;
 }
+bool sortAutoListing(const directory_listing &a, const directory_listing &b)
+{
+    return a.name_ < b.name_;
+}
 
-std::vector<directory_listing> File::getDirectoryListings(const std::string& dirPath) {
+std::vector<directory_listing> File::getDirListings(const std::string &dirPath)
+{
     std::vector<directory_listing> listings;
 
-    DIR* dir = opendir(dirPath.c_str());
-    if (!dir) {
+    DIR *dir = opendir(dirPath.c_str());
+    if (!dir)
+    {
         std::cerr << "Error opening directory: " << strerror(errno) << std::endl;
         return listings;
     }
 
-    struct dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL)
+    {
         std::string fileName = entry->d_name;
         if (fileName == "." || fileName == "..")
             continue; // Skip current and parent directories
@@ -260,16 +335,19 @@ std::vector<directory_listing> File::getDirectoryListings(const std::string& dir
     }
 
     closedir(dir);
+    std::sort(listings.begin(), listings.end(), sortAutoListing);
     return listings;
 }
 
-directory_listing File::createListing(const std::string& fileName, const std::string& dirPath) {
+directory_listing File::createListing(const std::string &fileName, const std::string &dirPath)
+{
     directory_listing listing;
     listing.name_ = fileName;
 
     std::string filePath = dirPath + "/" + fileName;
     struct stat fileStat;
-    if (lstat(filePath.c_str(), &fileStat) != 0) {
+    if (lstat(filePath.c_str(), &fileStat) != 0)
+    {
         std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
         return listing; // Return empty listing if stat fails
     }
@@ -277,7 +355,7 @@ directory_listing File::createListing(const std::string& fileName, const std::st
     listing.is_dir_ = S_ISDIR(fileStat.st_mode);
     listing.size_ = fileStat.st_size;
 
-    struct tm* timeinfo = localtime(&fileStat.st_mtime);
+    struct tm *timeinfo = localtime(&fileStat.st_mtime);
     char dateBuf[20];
     strftime(dateBuf, sizeof(dateBuf), "%d-%b-%Y %H:%M", timeinfo);
     listing.date_ = std::string(dateBuf);
@@ -285,9 +363,8 @@ directory_listing File::createListing(const std::string& fileName, const std::st
     return listing;
 }
 
-
-
-std::string File::generateHtmlHeader(const std::string& title) {
+std::string File::genHtmlHeader(const std::string &title)
+{
     std::string header;
     header += "<!DOCTYPE html>\r\n";
     header += "<html>\r\n";
@@ -300,10 +377,98 @@ std::string File::generateHtmlHeader(const std::string& title) {
     return header;
 }
 
-
-std::string File::generateHtmlFooter() {
+std::string File::genHtmlFooter()
+{
     std::string footer;
     footer += "</body>\r\n";
     footer += "</html>\r\n";
     return footer;
+}
+
+std::string File::find_index(std::vector<std::string> &indexes)
+{
+    DIR *dir;
+    struct dirent *ent;
+
+    if ((dir = opendir(path_.c_str())))
+    {
+        while ((ent = readdir(dir)))
+        {
+            // Check if the current directory entry is an index file
+            if (std::find(indexes.begin(), indexes.end(), ent->d_name) != indexes.end())
+            {
+                // Construct the full path to the index file
+                std::string ret = path_ + "/" + std::string(ent->d_name);
+                closedir(dir);
+                return ret;
+            }
+        }
+        closedir(dir);
+    }
+    else
+    {
+        std::cout << "opendir : " << strerror(errno) << " of " << path_ << std::endl;
+    }
+
+    return "";
+}
+
+
+void File::findMatchingFiles() {
+  DIR *dir;
+  struct dirent *ent;
+
+  std::string path = path_.substr(0, path_.find_last_of("/"));
+  
+  // Clear matches_ before populating it again
+  if (!matches_.empty())
+    matches_.clear();
+
+  if ((dir = opendir(path.c_str()))) {
+    while ((ent = readdir(dir))) {
+      std::string name(ent->d_name);
+      // Check conditions for matching file names
+      if (file_name_full_ != name && name.find(file_name_) != std::string::npos &&
+          name.find(mime_ext_) != std::string::npos) {
+        matches_.push_back(ent->d_name);
+      }
+    }
+    closedir(dir);
+  } else {
+    std::cerr << "opendir : " << strerror(errno) << " of " << path_ << std::endl;
+  }
+}
+
+std::vector<std::string> &File::getMatches() {
+  return matches_;
+}
+
+std::string File::getContent() {
+  std::stringstream final;
+  char buf[4096 + 1];
+  int ret;
+
+  lseek(fd_, 0, SEEK_SET);
+  while ((ret = read(fd_, buf, 4096)) != 0) {
+    if (ret == -1) {
+      std::cerr << "read : " << strerror(errno) << std::endl;
+      return "";
+    }
+    buf[ret] = '\0';
+    final << buf;
+  }
+  return final.str();
+};
+
+int &File::getFd() {
+  return fd_;
+}
+
+std::string &File::getMimeExt() {
+  return mime_ext_;
+}
+
+
+std::string &File::getFilePath() {
+  return path_;
 }
