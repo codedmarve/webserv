@@ -51,6 +51,11 @@ void HttpResponse::cleanUp()
   }
 }
 
+bool HttpResponse::shouldDisconnect() {
+    return headers_.find("Connection") != headers_.end() && headers_["Connection"] == "close";
+}
+
+
 void HttpResponse::initMethodMap()
 {
   methods_["GET"] = &HttpResponse::GET;
@@ -299,6 +304,29 @@ std::string HttpResponse::buildMethodList()
   return list;
 }
 
+std::string HttpResponse::response_log(LogLevel level) {
+    std::string ret;
+
+    if (level == INFO) {
+        ret = "[status: " + ftos(status_code_) + " " + file_->getStatusCode(status_code_) + "]";
+        if (headers_.count("Content-Length"))
+            ret = ret + " [length: " + headers_["Content-Length"] + "]";
+    } else if (level > INFO) {
+        ret = "\n\n" + response_.substr(0, header_size_ - 4) + "\n";
+        if (body_size_) {
+            if (body_size_ < 200)
+                ret = ret + "\n" + response_.substr(header_size_);
+            else
+                ret = ret + "\n" + response_.substr(header_size_, 200) + "...";
+        }
+    }
+
+    // Write the log to stdout
+    std::cout << ret << std::endl;
+
+    return ret; // Optionally return the log string if needed elsewhere
+}
+
 bool HttpResponse::getRedirect()
 {
   return redirect_;
@@ -308,11 +336,6 @@ std::string HttpResponse::redirect_target()
 {
   return redirect_target_;
 }
-
-/**
- * LOCALIZATION
- */
-
 
 void HttpResponse::createResponse()
 {
@@ -349,4 +372,25 @@ void HttpResponse::createResponse()
   body_size_ = body_.size();
 
   body_.clear();
+}
+
+int HttpResponse::sendResponse(int fd) {
+    std::string fullResponse = response_;
+    if (!body_.empty()) {
+        headers_["Content-Length"] = ftos(body_.length());
+        fullResponse += "\r\n\r\n";
+        fullResponse += body_;
+    }
+
+    int ret = send(fd, fullResponse.c_str() + total_sent_, fullResponse.length() - total_sent_, 0);
+    if (ret <= 0) {
+        std::cerr << "send : " << strerror(errno) << std::endl;
+        return -1;
+    }
+
+    total_sent_ += ret;
+    if (total_sent_ >= fullResponse.length())
+        return 0;
+
+    return 1;
 }

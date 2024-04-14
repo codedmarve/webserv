@@ -24,11 +24,10 @@ public:
     void initMethodMap();
 
     enum LogLevel {
-    NONE,
-    INFO,
-    DEBUG
+        NONE,
+        INFO,
+        DEBUG
     };
-
 
 
     void cleanUp();
@@ -48,7 +47,7 @@ public:
     std::string accept_charset(std::vector<std::string> &matches);
     bool getRedirect();
     std::string redirect_target();
-    // bool shouldDisconnect();
+    bool shouldDisconnect();
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);
@@ -61,6 +60,8 @@ public:
     std::string findBestCharset(const std::vector<CharsetAndQ>& charsetAndQValues, const std::vector<std::string>& matches);
     void buildDebugger (std::string method);
 
+    std::string response_log(LogLevel level);
+
     int GET();
     int POST();
     int PUT();
@@ -68,7 +69,7 @@ public:
 
     int getStatus();
     std::string getResponseBody();
-    int send(int fd);
+    int sendResponse(int fd);
 
 
 
