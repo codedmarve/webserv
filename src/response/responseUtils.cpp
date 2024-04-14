@@ -102,3 +102,31 @@ std::string get_http_date() {
     time_t currentTime = tv.tv_sec;
     return formatHttpDate(currentTime);
 }
+
+
+std::string generateETagForFile(File& file) {
+    std::stringstream ss;
+    
+    // Check if the file exists and is a regular file
+    if (file.is_file()) {
+        std::string lastModified = file.last_modified();
+        
+        // If lastModified is "Unknown" or empty, return an empty ETag
+        if (lastModified.empty() || lastModified == "Unknown") {
+            return "";
+        }
+        
+        // Convert lastModified to a number
+        std::stringstream convert(lastModified);
+        time_t modifiedTime;
+        convert >> modifiedTime;
+
+        // Convert modifiedTime to hexadecimal
+        ss << std::hex << modifiedTime;
+        
+        return ss.str();
+    }
+
+    // If file does not exist or is not a regular file, return an empty ETag
+    return "";
+}

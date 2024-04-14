@@ -35,8 +35,7 @@ public:
     int buildErrorPage(int status_code);
     void redirectToErrorPage(const std::string& target, int status_code);
     std::string buildDefaultErrorPage(int status_code);
-    // bool isCGI(std::string extension);
-    // void build();
+    void build();
     int handleMethods();
     int handleDirectoryRequest();
     int handleFileRequest();
@@ -45,13 +44,11 @@ public:
     void handleAcceptCharset(std::vector<std::string> &matches);
     int handleOtherMethods();
     void createResponse();
-    // bool checkAuth();
     bool localization(std::vector<std::string> &matches);
     std::string accept_charset(std::vector<std::string> &matches);
-    // std::string buildMethodList();
-    // bool shouldDisconnect();
     bool getRedirect();
     std::string redirect_target();
+    // bool shouldDisconnect();
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);
@@ -62,6 +59,7 @@ public:
     CharsetAndQ extractCharsetAndQ(const std::string& charsetAndQ);
     std::string handleDefaultCharset(const std::string& bestCharset);
     std::string findBestCharset(const std::vector<CharsetAndQ>& charsetAndQValues, const std::vector<std::string>& matches);
+    void buildDebugger (std::string method);
 
     int GET();
     int POST();
@@ -72,7 +70,6 @@ public:
     std::string getResponseBody();
     int send(int fd);
 
-    void build();
 
 
 private:

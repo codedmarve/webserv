@@ -27,6 +27,7 @@ public:
     ~File();
 
     bool is_directory();
+    bool is_file();
     bool openFile(bool create = false);
     bool exists();
     bool exists(const std::string &path);
@@ -40,7 +41,7 @@ public:
     void appendFile(const std::string &body);
     bool deleteFile();
     void set_path(std::string path, bool negotiation = false);
-    void findMatchingFiles();
+    void findMatchingFiles(); // parse_match
     
 
     std::string last_modified();

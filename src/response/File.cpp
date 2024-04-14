@@ -225,6 +225,16 @@ bool File::is_directory()
     return S_ISDIR(statbuf.st_mode);
 }
 
+bool File::is_file() {
+    struct stat fileStat;
+    if (stat(path_.c_str(), &fileStat) != 0) {
+        std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
+        return false;
+    }
+
+    return S_ISREG(fileStat.st_mode);
+}
+
 std::string File::last_modified()
 {
     struct stat fileStat;

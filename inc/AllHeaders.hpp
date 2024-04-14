@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <arpa/inet.h>
 #include <cctype>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -24,8 +25,10 @@
 #include <iostream>
 #include <limits>
 #include <map>
+#include <memory>
 #include <netdb.h>
 #include <netinet/in.h>
+#include <pthread.h>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -106,5 +109,8 @@ std::string ftos(size_t num);
 std::string removeDupSlashes(std::string str);
 std::string formatHttpDate(time_t timeValue);
 std::string get_http_date();
+std::string md5(const std::string& input);
+std::string generateETagForFile(File& file);
+
 
 #endif

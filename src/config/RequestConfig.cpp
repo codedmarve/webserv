@@ -312,17 +312,11 @@ std::map<std::string, std::string> RequestConfig::getHeaders()
     std::map<std::string, std::string>::const_iterator it;
     MapStr headers = request_.getHeaders();
 
-    std::cout << "[Headers] \n";
-    for (it = headers.begin(); it != headers.end(); ++it)
-    {
-        std::cout << it->first << ": " << it->second << std::endl;
-    }
     return headers;
 }
 
 std::string &RequestConfig::getTarget()
 {
-    std::cout << "[target] " << target_ << "\n";
     return target_;
 }
 
@@ -333,31 +327,26 @@ std::string &RequestConfig::getRequestTarget()
 
 std::string &RequestConfig::getQuery()
 {
-    std::cout << "[query] " << request_.getQuery() << "\n";
     return request_.getQuery();
 }
 
 std::string &RequestConfig::getFragment()
 {
-    std::cout << "[fragment] " << request_.getFragment() << "\n";
     return request_.getFragment();
 }
 
 std::string &RequestConfig::getMethod()
 {
-    std::cout << "[Method] " << request_.getMethod() << "\n";
     return request_.getMethod();
 }
 
 std::string &RequestConfig::getHost()
 {
-    std::cout << "[ip] " << host_port_.ip_ << "\n";
     return host_port_.ip_;
 }
 
 uint32_t &RequestConfig::getPort()
 {
-    std::cout << "[port] " << host_port_.port_ << "\n";
     return host_port_.port_;
 }
 
@@ -373,13 +362,11 @@ Client &RequestConfig::getClient()
 
 std::string &RequestConfig::getRoot()
 {
-    std::cout << "[root] " << root_ << "\n";
     return root_;
 }
 
 std::string &RequestConfig::getUri()
 {
-    std::cout << "[uri] " << uri_ << "\n";
     return uri_;
 }
 
@@ -389,69 +376,42 @@ std::string &RequestConfig::getAuth() {
 
 size_t &RequestConfig::getClientMaxBodySize()
 {
-    std::cout << "[client_max_body_size] " << client_max_body_size_ << "\n";
     return client_max_body_size_;
 }
 
 bool RequestConfig::getAutoIndex()
 {
-    std::cout << "[autoindex] " << autoindex_ << "\n";
     return autoindex_;
 }
 
 std::vector<std::string> &RequestConfig::getIndexes()
 {
-    std::cout << "[index] ";
-    for (size_t i = 0; i < indexes_.size(); ++i)
-    {
-        std::cout << indexes_[i] << " ";
-    }
-    std::cout << std::endl;
     return indexes_;
 }
 
 std::map<int, std::string> &RequestConfig::getErrorPages()
 {
-    std::map<int, std::string>::const_iterator it;
-
-    std::cout << "[ErrorCodes/Pages] \n";
-    for (it = error_codes_.begin(); it != error_codes_.end(); ++it)
-    {
-        std::cout << it->first << ": " << it->second << std::endl;
-    }
     return error_codes_;
 }
 
 std::vector<std::string> &RequestConfig::getMethods()
 {
-    std::map<int, std::string>::const_iterator it;
-
-    std::cout << "[Methods] \n";
-    for (size_t i = 0; i < methods_.size(); ++i)
-    {
-        std::cout << methods_[i] << " ";
-    }
-    std::cout << std::endl;
     return methods_;
 }
 
 std::string &RequestConfig::getBody()
 {
-    std::cout << "[Body]\n"
-              << request_.getBody() << "\n";
     return request_.getBody();
 }
 
 std::string &RequestConfig::getHeader(std::string key)
 {
     std::transform(key.begin(), key.end(), key.begin(), tolower);
-    std::cout << "[header] " << key << ": " << request_.getHeader(key) << "\n";
     return request_.getHeader(key);
 }
 
 std::string &RequestConfig::getProtocol()
 {
-    std::cout << "[protocol] " << request_.getProtocol() << "\n";
     return request_.getProtocol();
 }
 
