@@ -89,7 +89,6 @@ void HttpResponse::build()
   file_ = new File();
 
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());
-  std::cout << "file path: " << file_->getFilePath() << std::endl;
 
   if (error_code_ > 200)
     status_code_ = error_code_;
@@ -240,9 +239,7 @@ int HttpResponse::buildErrorPage(int status_code) {
     }
   }
 
-  // Build the default error page
   body_ = buildDefaultErrorPage(status_code);
-  // file_
 
   // Set appropriate headers
   headers_["Content-Type"] = file_->getMimeType(".html");
@@ -404,21 +401,15 @@ bool HttpResponse::localization(std::vector<std::string> &matches)
     langQPairs.push_back(extractLangAndQ(langAndQ));
 
     if (nextComma == std::string::npos)
-    {
-      break; // Reached the end of Accept-Language
-    }
+      break;
     else
-    {
       pos = nextComma + 1;
-    }
   }
 
   std::string bestLanguage = findBestLanguage(matches, langQPairs);
 
   if (bestLanguage.empty())
-  {
     bestLanguage = "en"; // Default to English
-  }
 
   if (!bestLanguage.empty())
   {
