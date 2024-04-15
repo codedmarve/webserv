@@ -28,7 +28,7 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
   redirect_code_ = 0;
   redirect_ = false;
   charset_ = "";
-  initMethodMap();
+  initMethods();
 }
 
 HttpResponse::~HttpResponse() {}
@@ -55,10 +55,18 @@ bool HttpResponse::shouldDisconnect() {
     return headers_.find("Connection") != headers_.end() && headers_["Connection"] == "close";
 }
 
+void HttpResponse::printMethodMap() {
+    std::map<std::string, int (HttpResponse::*)()>::iterator it;
 
-void HttpResponse::initMethodMap()
+    for (it = methods_.begin(); it != methods_.end(); ++it) {
+        std::cout << "Method: " << it->first << ", Function Pointer: " << it->second << std::endl;
+    }
+}
+
+void HttpResponse::initMethods()
 {
   methods_["GET"] = &HttpResponse::GET;
+  methods_["HEAD"] = &HttpResponse::GET;
   methods_["POST"] = &HttpResponse::POST;
   methods_["PUT"] = &HttpResponse::PUT;
   methods_["DELETE"] = &HttpResponse::DELETE;
@@ -86,7 +94,7 @@ void HttpResponse::build()
 
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());
 
-  buildDebugger(method);
+  // buildDebugger(method);
 
   if (error_code_ > 200)
     status_code_ = error_code_;
@@ -148,9 +156,7 @@ int HttpResponse::handleFileRequest()
   std::string path = file_->getFilePath();
 
   if (!file_->exists())
-  {
     return 404;
-  }
 
   file_->findMatchingFiles();
   std::vector<std::string> &matches = file_->getMatches();
@@ -159,9 +165,7 @@ int HttpResponse::handleFileRequest()
   handleAcceptCharset(matches);
 
   if (!file_->openFile())
-  {
     return 403;
-  }
 
   headers_["Last-Modified"] = file_->last_modified();
 
@@ -199,16 +203,27 @@ int HttpResponse::handlePutPostRequest()
 
 void HttpResponse::handleAcceptLanguage(std::vector<std::string> &matches)
 {
+  std::string path = file_->getFilePath();
+
   if (!config_.getHeader("Accept-Language").empty())
   {
     if (localization(matches))
     {
-      file_->set_path(file_->getFilePath().substr(0, file_->getFilePath().find_last_of("/") + 1) + matches.front(), true);
+      file_->set_path(path.substr(0, path.find_last_of("/") + 1) + matches.front(), true);
     }
   }
 }
 
+void HttpResponse::handleAcceptCharset(std::vector<std::string> &matches)
+{
+  std::string path = file_->getFilePath();
 
+  if (!config_.getHeader("Accept-Charset").empty())
+  {
+    charset_ = accept_charset(matches);
+    file_->set_path(path.substr(0, path.find_last_of("/") + 1) + matches.front(), true);
+    }
+  }
 
 int HttpResponse::handleOtherMethods()
 {

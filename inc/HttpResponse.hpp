@@ -21,7 +21,7 @@ public:
     ~HttpResponse();
 
     typedef int (HttpResponse::*type)();
-    void initMethodMap();
+    void initMethods();
 
     enum LogLevel {
         NONE,
@@ -48,6 +48,7 @@ public:
     bool getRedirect();
     std::string redirect_target();
     bool shouldDisconnect();
+    void printMethodMap();
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);

@@ -191,12 +191,12 @@ void Servers::handleIncomingConnection(int server_fd){
 		return;
 	}
 	HttpRequest parser;
-	int count = 0;
+	// int count = 0;
 
 	int reqStatus = -1;
 	while (!finish){	
 		finish = getRequest(new_socket, request);
-		std::cout << "Count: " << count++ << std::endl;
+		// std::cout << "Count: " << count++ << std::endl;
 		// send (new_socket, request.c_str(), request.size(), 0);
 		/**
 		 * /// @note reqStatus
@@ -206,9 +206,9 @@ void Servers::handleIncomingConnection(int server_fd){
 		*/
 		reqStatus = parser.parseRequest(request);
 		if (reqStatus != 200) {
-			(reqStatus > 200 || reqStatus == -1)
-				? std::cout << "\nREQ. ERROR:" << reqStatus << "\n"
-				: std::cout << "\nREQ. COMPLETE:" << reqStatus << "\n";
+			// (reqStatus > 200 || reqStatus == -1)
+			// 	? std::cout << "\nREQ. ERROR:" << reqStatus << "\n"
+			// 	: std::cout << "\nREQ. COMPLETE:" << reqStatus << "\n";
 			finish = true;
 		} 
 	}

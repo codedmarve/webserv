@@ -162,14 +162,6 @@ std::string HttpResponse::handleDefaultCharset(const std::string &bestCharset)
   return (bestCharset.empty()) ? "utf-8" : bestCharset;
 }
 
-void HttpResponse::handleAcceptCharset(std::vector<std::string> &matches)
-{
-  if (!config_.getHeader("Accept-Charset").empty())
-  {
-    charset_ = accept_charset(matches);
-    file_->set_path(file_->getFilePath().substr(0, file_->getFilePath().find_last_of("/") + 1) + matches.front(), true);
-  }
-}
 
 std::string HttpResponse::accept_charset(std::vector<std::string> &matches)
 {
@@ -187,13 +179,9 @@ std::string HttpResponse::accept_charset(std::vector<std::string> &matches)
     charsetAndQValues.push_back(entry);
 
     if (nextComma == std::string::npos)
-    {
       break;
-    }
     else
-    {
       pos = nextComma + 1;
-    }
   }
 
   std::string bestCharset = findBestCharset(charsetAndQValues, matches);
