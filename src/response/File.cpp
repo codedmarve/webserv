@@ -393,7 +393,7 @@ std::string File::find_index(std::vector<std::string> &indexes)
     DIR *dir;
     struct dirent *ent;
 
-    printVecStr(indexes, "find_index");
+    // printVecStr(indexes, "find_index");
 
     dir = opendir(path_.c_str());
     if (dir)
@@ -408,7 +408,7 @@ std::string File::find_index(std::vector<std::string> &indexes)
                 std::string ret = "/" + std::string(ent->d_name);
                 // print_file_info(ret);
                 closedir(dir);
-                std::cout << "Found index: " << ret << std::endl;
+                // std::cout << "Found index: " << ret << std::endl;
                 return ret;
             }
             else

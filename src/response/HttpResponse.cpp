@@ -114,12 +114,13 @@ void HttpResponse::build()
     status_code_ = 401;
   else
     status_code_ = handleMethods();
+  
 
   if (status_code_ >= 300 && !body_.length())
     status_code_ = buildErrorPage(status_code_);
-
-  if (!getRedirect())
+  if (!getRedirect()) {
     createResponse();
+  }
 }
 
 int HttpResponse::handleMethods()
@@ -153,7 +154,7 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  std::cout << "index: " << index << std::endl;
+  // std::cout << "index: " << index << std::endl;
   if (!index.empty())
   {
     redirect_ = true;
@@ -374,7 +375,7 @@ std::string HttpResponse::redirect_target()
 
 void HttpResponse::createResponse()
 {
-  headers_["Server"] = "webserv/1.0";
+  headers_["Server"] = "webserv/1.1";
 
   if (config_.getMethod() == "HEAD")
   {
@@ -385,6 +386,7 @@ void HttpResponse::createResponse()
   {
     status_code_ = redirect_code_;
   }
+
 
   std::string status_code_phrase = file_->getStatusCode(status_code_);
   std::string status_line = "HTTP/1.1 " + ftos(status_code_) + " " + status_code_phrase + "\r\n";
@@ -405,8 +407,13 @@ void HttpResponse::createResponse()
   // Calculate header and body sizes
   header_size_ = status_line.size() + header_block.size();
   body_size_ = body_.size();
-
   body_.clear();
+  // std::cout << "RESPONSE: " << response_ << std::endl;
+}
+
+std::string HttpResponse::getSampleResponse()
+{
+  return response_;
 }
 
 int HttpResponse::sendResponse(int fd)

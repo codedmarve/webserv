@@ -27,6 +27,7 @@ public:
     void setupResponse();
     HttpRequest *getRequest(bool val = false);
     HttpResponse *getResponse();
+    std::string getResponseString();
 
 private:
     HttpRequest *request_;

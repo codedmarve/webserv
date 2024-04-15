@@ -25,6 +25,10 @@ void Client::setupConfig()
   config_->setUp(serverId_);
   CgiHandle cgi(config_);
 }
+std::string Client::getResponseString()
+{
+  return response_->getSampleResponse();
+}
 
 void Client::setupResponse()
 {
@@ -43,10 +47,11 @@ void Client::setupResponse()
     ret = 0;
     response_->build();
 
+
     if (response_->getRedirect())
     {
       config_->redirectLocation(response_->redirect_target());
-      std::cout << "REDIRECTING TO: " << response_->redirect_target() << std::endl;
+      // std::cout << "REDIRECTING TO: " << response_->redirect_target() << std::endl;
       response_->cleanUp();
       ret = 1;
     }

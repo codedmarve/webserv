@@ -71,6 +71,7 @@ public:
     int getStatus();
     std::string getResponseBody();
     int sendResponse(int fd);
+    std::string getSampleResponse();
 
 
 
