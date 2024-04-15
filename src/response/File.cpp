@@ -9,8 +9,7 @@ File::File(std::string path) : fd_(0)
 
 File::~File()
 {
-    if (fd_ >= 0)
-        closeFile();
+    closeFile();
 }
 
 void File::set_path(std::string path, bool negotiation)
@@ -142,9 +141,7 @@ void File::closeFile()
 {
     if (fd_ <= 0)
         return;
-
     std::cout << "Closing file: " << path_ << std::endl;
-
     close(fd_);
     fd_ = -1;
 }
@@ -441,14 +438,14 @@ void File::findMatchingFiles()
     dir = opendir(path.c_str());
     if (dir)
     {
-        std::cout << "file_name_ : " << file_name_ << std::endl;
-        std::cout << "file_name_full_ : " << file_name_full_ << std::endl;
-        std::cout << "mime_ext_ : " << mime_ext_ << std::endl;
+        // std::cout << "file_name_ : " << file_name_ << std::endl;
+        // std::cout << "file_name_full_ : " << file_name_full_ << std::endl;
+        // std::cout << "mime_ext_ : " << mime_ext_ << std::endl;
         while ((ent = readdir(dir)))
         {
             std::string name(ent->d_name);
             // Check conditions for matching file names
-            std::cout << "Name: " << name << std::endl;
+            // std::cout << "Name: " << name << std::endl;
             if (file_name_full_ != name && name.find(file_name_) != std::string::npos &&
                 name.find(mime_ext_) != std::string::npos)
             {

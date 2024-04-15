@@ -141,9 +141,10 @@ int HttpResponse::handleMethods()
   }
   else if (method == "PUT" || method == "POST")
   {
-    return handlePutPostRequest();
+    handlePutPostRequest();
   }
-  return handleOtherMethods();
+ 
+  return (this->*(HttpResponse::methods_[method]))();
 }
 
 int HttpResponse::handleDirectoryRequest()
@@ -151,8 +152,6 @@ int HttpResponse::handleDirectoryRequest()
   std::vector<std::string> indexes = config_.getIndexes();
   std::string index = file_->find_index(indexes);
   std::string newPath;
-
-  // printVecStr(indexes, "handleDirectoryRequest");
 
   std::cout << "index: " << index << std::endl;
   if (!index.empty())
@@ -179,7 +178,6 @@ int HttpResponse::handleFileRequest()
 
   file_->findMatchingFiles();
   std::vector<std::string> &matches = file_->getMatches();
-  printVecStr(matches, "handleMethods");
   handleAcceptLanguage(matches);
   handleAcceptCharset(matches);
 
@@ -191,7 +189,7 @@ int HttpResponse::handleFileRequest()
   return 0;
 }
 
-int HttpResponse::handlePutPostRequest()
+void HttpResponse::handlePutPostRequest()
 {
   std::string path = config_.getUri() + "/" + config_.getTarget();
 
@@ -210,14 +208,14 @@ int HttpResponse::handlePutPostRequest()
       if (mkdir(dir.getFilePath().c_str(), 0755) == -1)
       {
         std::cout << "mkdir : " << strerror(errno) << std::endl;
-        return 500;
+        // return 500;
       }
     }
     file_->set_path(dir.getFilePath() + "/" + config_.getTarget());
   }
   headers_["Location"] = removeDupSlashes(path);
 
-  return 201; // Created
+  // return 201; // Created
 }
 
 void HttpResponse::handleAcceptLanguage(std::vector<std::string> &matches)
@@ -227,9 +225,7 @@ void HttpResponse::handleAcceptLanguage(std::vector<std::string> &matches)
   if (!config_.getHeader("Accept-Language").empty())
   {
     if (localization(matches))
-    {
       file_->set_path(path.substr(0, path.find_last_of("/") + 1) + matches.front(), true);
-    }
   }
 }
 

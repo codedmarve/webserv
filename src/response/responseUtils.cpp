@@ -91,6 +91,11 @@ std::string removeDupSlashes(std::string str) {
 std::string formatHttpDate(time_t timeValue) {
     char buf[32];
     struct tm* timeinfo = gmtime(&timeValue);
+
+    // Adjust for CEST => should be +2 hours but for some weird reason +4 works
+    timeinfo->tm_hour += 4;
+    mktime(timeinfo);
+
     strftime(buf, sizeof(buf), "%a, %d %b %Y %T GMT", timeinfo);
     return std::string(buf);
 }

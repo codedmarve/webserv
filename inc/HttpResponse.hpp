@@ -38,7 +38,7 @@ public:
     int handleMethods();
     int handleDirectoryRequest();
     int handleFileRequest();
-    int handlePutPostRequest();
+    void handlePutPostRequest();
     void handleAcceptLanguage(std::vector<std::string> &matches);
     void handleAcceptCharset(std::vector<std::string> &matches);
     int handleOtherMethods();
