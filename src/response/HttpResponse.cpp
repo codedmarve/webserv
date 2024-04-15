@@ -51,16 +51,19 @@ void HttpResponse::cleanUp()
   }
 }
 
-bool HttpResponse::shouldDisconnect() {
-    return headers_.find("Connection") != headers_.end() && headers_["Connection"] == "close";
+bool HttpResponse::shouldDisconnect()
+{
+  return headers_.find("Connection") != headers_.end() && headers_["Connection"] == "close";
 }
 
-void HttpResponse::printMethodMap() {
-    std::map<std::string, int (HttpResponse::*)()>::iterator it;
+void HttpResponse::printMethodMap()
+{
+  std::map<std::string, int (HttpResponse::*)()>::iterator it;
 
-    for (it = methods_.begin(); it != methods_.end(); ++it) {
-        std::cout << "Method: " << it->first << ", Function Pointer: " << it->second << std::endl;
-    }
+  for (it = methods_.begin(); it != methods_.end(); ++it)
+  {
+    std::cout << "Method: " << it->first << ", Function Pointer: " << it->second << std::endl;
+  }
 }
 
 void HttpResponse::initMethods()
@@ -125,7 +128,16 @@ int HttpResponse::handleMethods()
 
   if (method == "GET" || method == "HEAD")
   {
-    return (file_->is_directory()) ? handleDirectoryRequest() : handleFileRequest();
+    if (file_->is_directory()) {
+      int ret = handleDirectoryRequest();
+        if ( ret == 200 || ret == 404 )
+          return ret;
+    }
+    if (!file_->is_directory()) {
+      int ret = handleFileRequest();
+      if ( ret == 403 || ret == 404 )
+        return ret;
+    }
   }
   else if (method == "PUT" || method == "POST")
   {
@@ -138,23 +150,24 @@ int HttpResponse::handleDirectoryRequest()
 {
   std::vector<std::string> indexes = config_.getIndexes();
   std::string index = file_->find_index(indexes);
+  std::string newPath;
 
   // printVecStr(indexes, "handleDirectoryRequest");
 
-
-  std::cout << "is_directory: " << index << std::endl;
+  std::cout << "index: " << index << std::endl;
   if (!index.empty())
   {
     redirect_ = true;
-    redirect_target_ = removeDupSlashes("/" + config_.getRequestTarget() + "/" + index);
-    return 301;
+    newPath = "/" + config_.getRequestTarget();
+    newPath += "/" + index;
+    redirect_target_ = removeDupSlashes(newPath);
+    return 200;
   }
   else if (!config_.getAutoIndex())
   {
     return 404;
   }
-
-  return 200;
+  return 0;
 }
 
 int HttpResponse::handleFileRequest()
@@ -166,7 +179,7 @@ int HttpResponse::handleFileRequest()
 
   file_->findMatchingFiles();
   std::vector<std::string> &matches = file_->getMatches();
-
+  printVecStr(matches, "handleMethods");
   handleAcceptLanguage(matches);
   handleAcceptCharset(matches);
 
@@ -175,7 +188,7 @@ int HttpResponse::handleFileRequest()
 
   headers_["Last-Modified"] = file_->last_modified();
 
-  return 200;
+  return 0;
 }
 
 int HttpResponse::handlePutPostRequest()
@@ -228,8 +241,8 @@ void HttpResponse::handleAcceptCharset(std::vector<std::string> &matches)
   {
     charset_ = accept_charset(matches);
     file_->set_path(path.substr(0, path.find_last_of("/") + 1) + matches.front(), true);
-    }
   }
+}
 
 int HttpResponse::handleOtherMethods()
 {
@@ -325,27 +338,32 @@ std::string HttpResponse::buildMethodList()
   return list;
 }
 
-std::string HttpResponse::response_log(LogLevel level) {
-    std::string ret;
+std::string HttpResponse::response_log(LogLevel level)
+{
+  std::string ret;
 
-    if (level == INFO) {
-        ret = "[status: " + ftos(status_code_) + " " + file_->getStatusCode(status_code_) + "]";
-        if (headers_.count("Content-Length"))
-            ret = ret + " [length: " + headers_["Content-Length"] + "]";
-    } else if (level > INFO) {
-        ret = "\n\n" + response_.substr(0, header_size_ - 4) + "\n";
-        if (body_size_) {
-            if (body_size_ < 200)
-                ret = ret + "\n" + response_.substr(header_size_);
-            else
-                ret = ret + "\n" + response_.substr(header_size_, 200) + "...";
-        }
+  if (level == INFO)
+  {
+    ret = "[status: " + ftos(status_code_) + " " + file_->getStatusCode(status_code_) + "]";
+    if (headers_.count("Content-Length"))
+      ret = ret + " [length: " + headers_["Content-Length"] + "]";
+  }
+  else if (level > INFO)
+  {
+    ret = "\n\n" + response_.substr(0, header_size_ - 4) + "\n";
+    if (body_size_)
+    {
+      if (body_size_ < 200)
+        ret = ret + "\n" + response_.substr(header_size_);
+      else
+        ret = ret + "\n" + response_.substr(header_size_, 200) + "...";
     }
+  }
 
-    // Write the log to stdout
-    std::cout << ret << std::endl;
+  // Write the log to stdout
+  std::cout << ret << std::endl;
 
-    return ret; // Optionally return the log string if needed elsewhere
+  return ret; // Optionally return the log string if needed elsewhere
 }
 
 bool HttpResponse::getRedirect()
@@ -395,23 +413,26 @@ void HttpResponse::createResponse()
   body_.clear();
 }
 
-int HttpResponse::sendResponse(int fd) {
-    std::string fullResponse = response_;
-    if (!body_.empty()) {
-        headers_["Content-Length"] = ftos(body_.length());
-        fullResponse += "\r\n\r\n";
-        fullResponse += body_;
-    }
+int HttpResponse::sendResponse(int fd)
+{
+  std::string fullResponse = response_;
+  if (!body_.empty())
+  {
+    headers_["Content-Length"] = ftos(body_.length());
+    fullResponse += "\r\n\r\n";
+    fullResponse += body_;
+  }
 
-    int ret = send(fd, fullResponse.c_str() + total_sent_, fullResponse.length() - total_sent_, 0);
-    if (ret <= 0) {
-        std::cerr << "send : " << strerror(errno) << std::endl;
-        return -1;
-    }
+  int ret = send(fd, fullResponse.c_str() + total_sent_, fullResponse.length() - total_sent_, 0);
+  if (ret <= 0)
+  {
+    std::cerr << "send : " << strerror(errno) << std::endl;
+    return -1;
+  }
 
-    total_sent_ += ret;
-    if (total_sent_ >= fullResponse.length())
-        return 0;
+  total_sent_ += ret;
+  if (total_sent_ >= fullResponse.length())
+    return 0;
 
-    return 1;
+  return 1;
 }

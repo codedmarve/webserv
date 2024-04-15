@@ -10,12 +10,8 @@ File::File(std::string path) : fd_(0)
 File::~File()
 {
     if (fd_ >= 0)
-    {
         closeFile();
-        std::cout << "File Closed: " << path_ << std::endl;
-    }
 }
-
 
 void File::set_path(std::string path, bool negotiation)
 {
@@ -36,7 +32,7 @@ void File::parseExt()
     size_t lastDotPos = file.find_last_of(".");
     if (lastDotPos != std::string::npos && lastDotPos != 0)
     {
-        mime_ext_ = file.substr(lastDotPos + 1);
+        mime_ext_ = file.substr(lastDotPos);
 
         std::transform(mime_ext_.begin(), mime_ext_.end(), mime_ext_.begin(), tolower);
 
@@ -44,11 +40,11 @@ void File::parseExt()
             mime_ext_ = mime_ext_.substr(0, 15);
 
         // Check for non-alphanumeric characters and replace them with "_"
-        for (std::string::iterator it = mime_ext_.begin(); it != mime_ext_.end(); ++it)
-        {
-            if (!isalnum(*it))
-                *it = '_';
-        }
+        // for (std::string::iterator it = mime_ext_.begin(); it != mime_ext_.end(); ++it)
+        // {
+        //     if (!isalnum(*it))
+        //         *it = '_';
+        // }
     }
 
     // Extract the file name without extension
@@ -67,7 +63,6 @@ void File::parseExtNegotiation()
     file_name_full_ = file;
 
     size_t lastDotPos = file.find_last_of(".");
-    // mimes_ = new MimeTypes();
 
     if (lastDotPos != std::string::npos && lastDotPos != 0)
     {
@@ -80,7 +75,7 @@ void File::parseExtNegotiation()
         {
             while (lastDotPos != std::string::npos && lastDotPos != 0)
             {
-                fileExtension = file.substr(lastDotPos + 1);
+                fileExtension = file.substr(lastDotPos);
                 std::transform(fileExtension.begin(), fileExtension.end(), fileExtension.begin(), tolower);
 
                 mimeType = getMimeType("." + fileExtension);
@@ -125,7 +120,6 @@ std::string File::getStatusCode(int code)
     return status_codes.getStatusCode(code);
 }
 
-
 bool File::openFile(bool create)
 {
     close(fd_);
@@ -146,12 +140,13 @@ bool File::openFile(bool create)
 
 void File::closeFile()
 {
-    if (fd_ >= 0)
-    {
-        close(fd_);
-        fd_ = -1;
-        std::cout << "File Closed: " << path_ << std::endl;
-    }
+    if (fd_ <= 0)
+        return;
+
+    std::cout << "Closing file: " << path_ << std::endl;
+
+    close(fd_);
+    fd_ = -1;
 }
 
 void File::appendFile(const std::string &body)
@@ -221,9 +216,11 @@ bool File::is_directory()
     return S_ISDIR(statbuf.st_mode);
 }
 
-bool File::is_file() {
+bool File::is_file()
+{
     struct stat fileStat;
-    if (stat(path_.c_str(), &fileStat) != 0) {
+    if (stat(path_.c_str(), &fileStat) != 0)
+    {
         std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
         return false;
     }
@@ -364,7 +361,7 @@ std::string File::genHtmlFooter()
     return footer;
 }
 
-void File::print_dir_entry(struct dirent* ent) const
+void File::print_dir_entry(struct dirent *ent) const
 {
     std::cout << "Name: " << ent->d_name << std::endl;
     std::cout << "Inode: " << ent->d_ino << std::endl;
@@ -378,15 +375,16 @@ void File::print_dir_entry(struct dirent* ent) const
     std::cout << std::endl;
 }
 
-void File::print_file_info(const std::string& filename) const
+void File::print_file_info(const std::string &file) const
 {
     struct stat file_stat;
+    const std::string &filename = removeDupSlashes(path_ + file);
     if (stat(filename.c_str(), &file_stat) == 0)
     {
         std::cout << "File: " << filename << std::endl;
         std::cout << "Size: " << file_stat.st_size << " bytes" << std::endl;
         std::cout << "Permissions: " << (file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) << std::endl;
-        std::cout << "Last modified: " << ctime(&file_stat.st_mtime); // Convert to human-readable time
+        std::cout << "Last modified: " << ctime(&file_stat.st_mtime);
         (S_ISDIR(file_stat.st_mode) ? std::cout << "Type: Directory" : std::cout << "Type: Regular file") << std::endl;
     }
     else
@@ -410,13 +408,15 @@ std::string File::find_index(std::vector<std::string> &indexes)
             if (std::find(indexes.begin(), indexes.end(), ent->d_name) != indexes.end())
             {
                 // Construct the full path to the index file
-                std::string ret = path_ + "/" + std::string(ent->d_name);
-                print_file_info(ret);
+                std::string ret = "/" + std::string(ent->d_name);
+                // print_file_info(ret);
                 closedir(dir);
                 std::cout << "Found index: " << ret << std::endl;
                 return ret;
-            } else {
-                print_dir_entry(ent);
+            }
+            else
+            {
+                // print_dir_entry(ent);
             }
         }
         closedir(dir);
@@ -429,62 +429,76 @@ std::string File::find_index(std::vector<std::string> &indexes)
     return "";
 }
 
+void File::findMatchingFiles()
+{
+    DIR *dir;
+    struct dirent *ent;
+    std::string path = path_.substr(0, path_.find_last_of("/"));
 
-void File::findMatchingFiles() {
-  DIR *dir;
-  struct dirent *ent;
-
-  std::string path = path_.substr(0, path_.find_last_of("/"));
-  
-  // Clear matches_ before populating it again
-  if (!matches_.empty())
-    matches_.clear();
-
-  if ((dir = opendir(path.c_str()))) {
-    while ((ent = readdir(dir))) {
-      std::string name(ent->d_name);
-      // Check conditions for matching file names
-      if (file_name_full_ != name && name.find(file_name_) != std::string::npos &&
-          name.find(mime_ext_) != std::string::npos) {
-        matches_.push_back(ent->d_name);
-      }
+    // Clear matches_ before populating it again
+    if (!matches_.empty())
+        matches_.clear();
+    dir = opendir(path.c_str());
+    if (dir)
+    {
+        std::cout << "file_name_ : " << file_name_ << std::endl;
+        std::cout << "file_name_full_ : " << file_name_full_ << std::endl;
+        std::cout << "mime_ext_ : " << mime_ext_ << std::endl;
+        while ((ent = readdir(dir)))
+        {
+            std::string name(ent->d_name);
+            // Check conditions for matching file names
+            std::cout << "Name: " << name << std::endl;
+            if (file_name_full_ != name && name.find(file_name_) != std::string::npos &&
+                name.find(mime_ext_) != std::string::npos)
+            {
+                matches_.push_back(ent->d_name);
+            }
+        }
+        closedir(dir);
     }
-    closedir(dir);
-  } else {
-    std::cerr << "opendir : " << strerror(errno) << " of " << path_ << std::endl;
-  }
+    else
+    {
+        std::cerr << "opendir : " << strerror(errno) << " of " << path_ << std::endl;
+    }
 }
 
-std::vector<std::string> &File::getMatches() {
-  return matches_;
+std::vector<std::string> &File::getMatches()
+{
+    return matches_;
 }
 
-std::string File::getContent() {
-  std::stringstream final;
-  char buf[4096 + 1];
-  int ret;
+std::string File::getContent()
+{
+    std::stringstream final;
+    char buf[4096 + 1];
+    int ret;
 
-  lseek(fd_, 0, SEEK_SET);
-  while ((ret = read(fd_, buf, 4096)) != 0) {
-    if (ret == -1) {
-      std::cerr << "read : " << strerror(errno) << std::endl;
-      return "";
+    lseek(fd_, 0, SEEK_SET);
+    while ((ret = read(fd_, buf, 4096)) != 0)
+    {
+        if (ret == -1)
+        {
+            std::cerr << "read : " << strerror(errno) << std::endl;
+            return "";
+        }
+        buf[ret] = '\0';
+        final << buf;
     }
-    buf[ret] = '\0';
-    final << buf;
-  }
-  return final.str();
+    return final.str();
 };
 
-int &File::getFd() {
-  return fd_;
+int &File::getFd()
+{
+    return fd_;
 }
 
-std::string &File::getMimeExt() {
-  return mime_ext_;
+std::string &File::getMimeExt()
+{
+    return mime_ext_;
 }
 
-
-std::string &File::getFilePath() {
-  return path_;
+std::string &File::getFilePath()
+{
+    return path_;
 }

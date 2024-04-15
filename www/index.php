@@ -13,19 +13,11 @@
     <content>
       <h1>42 - Webserv</h1>
 
-        <ul class="list-group">
-          <h1>Links</h1>
-          <li><a href="index.php">index.php</a></li>
-          <li><a href="/admin">/admin</a></li>
-          <li><a href="/data">/data</a></li>
-          <li><a href="/autoindex/">/autoindex/</a></li>
-          <br>
-          <li><h3>mac tester : http://localhost:8000/8001</h3></li>
-          <li><h3>linux tester : http://localhost:8002</h3></li>
-        </ul>
+      <?php echo '<p>This went through PHP!</p>'; ?>
 
       <footer>
         <div class="footer">
+          <h1>Made by</h1>
           <img src="https://images.unsplash.com/photo-1708683689609-a139cf28335a?q=80&w=1935&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" width="200" height="200" class="rounded-circle">
           <img src="https://images.unsplash.com/photo-1699463771425-9098d0539957?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" width="200" height="200" class="rounded-circle">
         </div>
