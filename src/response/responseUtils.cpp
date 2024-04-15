@@ -107,14 +107,12 @@ std::string get_http_date() {
 std::string generateETagForFile(File& file) {
     std::stringstream ss;
     
-    // Check if the file exists and is a regular file
+    // Check file exists && a regular file
     if (file.is_file()) {
         std::string lastModified = file.last_modified();
         
-        // If lastModified is "Unknown" or empty, return an empty ETag
-        if (lastModified.empty() || lastModified == "Unknown") {
+        if (lastModified.empty() || lastModified == "Unknown")
             return "";
-        }
         
         // Convert lastModified to a number
         std::stringstream convert(lastModified);
@@ -125,8 +123,16 @@ std::string generateETagForFile(File& file) {
         ss << std::hex << modifiedTime;
         
         return ss.str();
-    }
-
-    // If file does not exist or is not a regular file, return an empty ETag
+    } else 
     return "";
+}
+
+void printVecStr(std::vector<std::string> &value, std::string callingFunction) {
+    std::vector<std::string>::iterator it;
+    std::cout << "Printing vector from " << callingFunction << std::endl;
+
+    for (it = value.begin(); it != value.end(); ++it) {
+        std::cout << "Value: " << *it << std::endl;
+    }
+    std::cout << std::endl;
 }

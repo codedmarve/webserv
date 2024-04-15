@@ -136,7 +136,13 @@ int HttpResponse::handleMethods()
 
 int HttpResponse::handleDirectoryRequest()
 {
-  std::string index = file_->find_index(config_.getIndexes());
+  std::vector<std::string> indexes = config_.getIndexes();
+  std::string index = file_->find_index(indexes);
+
+  // printVecStr(indexes, "handleDirectoryRequest");
+
+
+  std::cout << "is_directory: " << index << std::endl;
   if (!index.empty())
   {
     redirect_ = true;

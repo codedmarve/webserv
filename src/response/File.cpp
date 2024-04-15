@@ -14,11 +14,6 @@ File::~File()
         closeFile();
         std::cout << "File Closed: " << path_ << std::endl;
     }
-    // if (mimes_)
-    // {
-    //     delete mimes_;
-    //     mimes_ = NULL;
-    // }
 }
 
 
@@ -369,22 +364,59 @@ std::string File::genHtmlFooter()
     return footer;
 }
 
+void File::print_dir_entry(struct dirent* ent) const
+{
+    std::cout << "Name: " << ent->d_name << std::endl;
+    std::cout << "Inode: " << ent->d_ino << std::endl;
+    std::cout << "Type: ";
+    if (ent->d_type == DT_REG)
+        std::cout << "Regular file" << std::endl;
+    else if (ent->d_type == DT_DIR)
+        std::cout << "Directory" << std::endl;
+    else
+        std::cout << "Other" << std::endl;
+    std::cout << std::endl;
+}
+
+void File::print_file_info(const std::string& filename) const
+{
+    struct stat file_stat;
+    if (stat(filename.c_str(), &file_stat) == 0)
+    {
+        std::cout << "File: " << filename << std::endl;
+        std::cout << "Size: " << file_stat.st_size << " bytes" << std::endl;
+        std::cout << "Permissions: " << (file_stat.st_mode & (S_IRWXU | S_IRWXG | S_IRWXO)) << std::endl;
+        std::cout << "Last modified: " << ctime(&file_stat.st_mtime); // Convert to human-readable time
+        (S_ISDIR(file_stat.st_mode) ? std::cout << "Type: Directory" : std::cout << "Type: Regular file") << std::endl;
+    }
+    else
+        std::cout << "Failed to get information for " << filename << std::endl;
+}
+
 std::string File::find_index(std::vector<std::string> &indexes)
 {
     DIR *dir;
     struct dirent *ent;
 
-    if ((dir = opendir(path_.c_str())))
+    printVecStr(indexes, "find_index");
+
+    dir = opendir(path_.c_str());
+    if (dir)
     {
         while ((ent = readdir(dir)))
         {
-            // Check if the current directory entry is an index file
+            // Print directory entry information
+
             if (std::find(indexes.begin(), indexes.end(), ent->d_name) != indexes.end())
             {
                 // Construct the full path to the index file
                 std::string ret = path_ + "/" + std::string(ent->d_name);
+                print_file_info(ret);
                 closedir(dir);
+                std::cout << "Found index: " << ret << std::endl;
                 return ret;
+            } else {
+                print_dir_entry(ent);
             }
         }
         closedir(dir);

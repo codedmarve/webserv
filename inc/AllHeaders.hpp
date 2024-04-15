@@ -61,6 +61,7 @@
 #include "Client.hpp"
 #include "InputArgs.hpp"
 
+
 typedef std::map<std::string, std::string> MapStr;
 typedef std::vector<std::string> VecStr;
 typedef std::map<std::string, VecStr> KeyValues;
@@ -111,6 +112,7 @@ std::string formatHttpDate(time_t timeValue);
 std::string get_http_date();
 std::string md5(const std::string& input);
 std::string generateETagForFile(File& file);
+void printVecStr(std::vector<std::string> &value, std::string callingFunction);
 
 
 #endif

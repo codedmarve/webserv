@@ -42,6 +42,8 @@ public:
     bool deleteFile();
     void set_path(std::string path, bool negotiation = false);
     void findMatchingFiles(); // parse_match
+    void print_file_info(const std::string& filename) const;
+    void print_dir_entry(struct dirent* ent) const;
     
 
     std::string last_modified();
