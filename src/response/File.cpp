@@ -393,8 +393,6 @@ std::string File::find_index(std::vector<std::string> &indexes)
     DIR *dir;
     struct dirent *ent;
 
-    // printVecStr(indexes, "find_index");
-
     dir = opendir(path_.c_str());
     if (dir)
     {

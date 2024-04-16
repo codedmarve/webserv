@@ -174,6 +174,8 @@ int HttpResponse::handleFileRequest()
 {
   std::string path = file_->getFilePath();
 
+  std::cout << "******Path: " << path << std::endl;
+
   if (!file_->exists())
     return 404;
 

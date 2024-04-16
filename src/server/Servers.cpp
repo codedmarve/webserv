@@ -211,18 +211,23 @@ void Servers::handleIncomingConnection(int server_fd){
 			// 	: std::cout << "\nREQ. COMPLETE:" << reqStatus << "\n";
 			finish = true;
 		} 
-	} 
-	std::string response;
-	if (reqStatus != 200)
-	{
-		Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
+		std::string response;
+		if (reqStatus != 200)
+		{
+			Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
 
-		DB db = {configDB_.getServers(), configDB_.getRootConfig()};
-		Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
-		client.setupResponse();
-		// std::cout << "RESPONSE: " << client.getResponseString(); // $$$$$$$$$$$
-		response = client.getResponseString();
-	}
+			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
+			client.setupResponse();
+			// std::cout << "RESPONSE: " << client.getResponseString(); // $$$$$$$$$$$
+			response = client.getResponseString();
+		}
+		ssize_t bytes = write(new_socket, response.c_str(), response.size());
+		if (bytes == -1) {
+			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
+			return;
+		}
+	} 
 	// std::vector<std::string> domains = _domain_to_server[server_fd];
 	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
 	// 	std::cout << "Server domains: " << *it << std::endl;
@@ -231,11 +236,6 @@ void Servers::handleIncomingConnection(int server_fd){
 	// parser.printRequest(parser);
 	
 	// std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
-    ssize_t bytes = write(new_socket, response.c_str(), response.size());
-	if (bytes == -1) {
-		std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
-		return;
-	}
 	// std::cout << "I am here now!!" << std::endl;
     // Close the socket
     if (close(new_socket) == -1)
