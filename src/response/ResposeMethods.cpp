@@ -30,13 +30,8 @@ int HttpResponse::GET()
 
         body_ = file_->getContent();
     }
-
     headers_["Content-Length"] = ftos(body_.length());
     headers_["Cache-Control"] = "no-cache";
-
-//   std::cout << "Body: " << body_ << std::endl;
-//     std::cout << "Content-Type: " << headers_["Content-Type"] << std::endl;
-//   std::cout << "Content-Length: " << headers_["Content-Length"] << std::endl;
 
     pthread_mutex_unlock(&g_write);
 

@@ -154,7 +154,6 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  // std::cout << "index: " << index << std::endl;
   if (!index.empty())
   {
     redirect_ = true;
@@ -173,8 +172,6 @@ int HttpResponse::handleDirectoryRequest()
 int HttpResponse::handleFileRequest()
 {
   std::string path = file_->getFilePath();
-
-  std::cout << "******Path: " << path << std::endl;
 
   if (!file_->exists())
     return 404;

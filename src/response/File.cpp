@@ -398,15 +398,12 @@ std::string File::find_index(std::vector<std::string> &indexes)
     {
         while ((ent = readdir(dir)))
         {
-            // Print directory entry information
-
             if (std::find(indexes.begin(), indexes.end(), ent->d_name) != indexes.end())
             {
                 // Construct the full path to the index file
                 std::string ret = "/" + std::string(ent->d_name);
                 // print_file_info(ret);
                 closedir(dir);
-                // std::cout << "Found index: " << ret << std::endl;
                 return ret;
             }
             else
@@ -430,25 +427,23 @@ void File::findMatchingFiles()
     struct dirent *ent;
     std::string path = path_.substr(0, path_.find_last_of("/"));
 
-    // Clear matches_ before populating it again
     if (!matches_.empty())
         matches_.clear();
     dir = opendir(path.c_str());
     if (dir)
     {
-        // std::cout << "file_name_ : " << file_name_ << std::endl;
-        // std::cout << "file_name_full_ : " << file_name_full_ << std::endl;
-        // std::cout << "mime_ext_ : " << mime_ext_ << std::endl;
+        /// @note: Debugging purposes
+        // std::cout << "Directory: " << path << std::endl;
         while ((ent = readdir(dir)))
         {
             std::string name(ent->d_name);
-            // Check conditions for matching file names
+            /// @note Debugging purposes
             // std::cout << "Name: " << name << std::endl;
-            if (file_name_full_ != name && name.find(file_name_) != std::string::npos &&
+            if (name == file_name_full_)
+                matches_.push_back(name);
+            else if (name.find(file_name_) != std::string::npos &&
                 name.find(mime_ext_) != std::string::npos)
-            {
-                matches_.push_back(ent->d_name);
-            }
+                    matches_.push_back(name);
         }
         closedir(dir);
     }
@@ -465,23 +460,33 @@ std::vector<std::string> &File::getMatches()
 
 std::string File::getContent()
 {
-    std::stringstream final;
-    char buf[4096 + 1];
-    int ret;
-
-    lseek(fd_, 0, SEEK_SET);
-    while ((ret = read(fd_, buf, 4096)) != 0)
+    std::ifstream fileStream(path_.c_str(), std::ios::binary);
+    if (!fileStream.is_open())
     {
-        if (ret == -1)
-        {
-            std::cerr << "read : " << strerror(errno) << std::endl;
-            return "";
-        }
-        buf[ret] = '\0';
-        final << buf;
+        std::cerr << "Failed to open file: " << path_ << std::endl;
+        return "";
     }
-    return final.str();
-};
+
+    // Get the size of the file for proper buffer allocation
+    fileStream.seekg(0, std::ios::end);
+    std::streamsize fileSize = fileStream.tellg();
+    fileStream.seekg(0, std::ios::beg);
+
+    // Create a buffer to hold the entire file contents
+    std::vector<char> buffer(fileSize);
+
+    // Read the entire file into the buffer
+    if (!fileStream.read(buffer.data(), fileSize))
+    {
+        std::cerr << "Error reading file: " << path_ << std::endl;
+        return "";
+    }
+
+    // Construct a string from the buffer
+    std::string content(buffer.begin(), buffer.end());
+
+    return content;
+}
 
 int &File::getFd()
 {
