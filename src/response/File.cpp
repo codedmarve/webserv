@@ -246,9 +246,18 @@ std::string File::listDir(std::string &target)
 
     body += genHtmlHeader("Index of " + target);
     body += "<h1>Index of " + target + "</h1><hr><pre>";
+    body += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px; font-size: 1rem; font-weight:bold;\">";
+    body += "<span>Directory</span>";
+    body += "<span>Date</span>";
+    body += "<span>Size</span>";
+    body += "</div><hr>\r\n";
 
     for (size_t i = 0; i < listing.size(); ++i)
     {
+        // std::cout << "Listing: " << listing[i].name_ << std::endl;
+        // std::cout << "Is dir: " << listing[i].is_dir_ << std::endl;
+        // std::cout << "target: " << target << std::endl;
+
         body += formatListing(listing[i], target);
     }
 
@@ -258,28 +267,25 @@ std::string File::listDir(std::string &target)
     return body;
 }
 
-std::string File::setWidth(size_t width, const std::string &str)
-{
-    if (str.length() >= width)
-    {
-        return str.substr(0, width - 3) + "..>";
-    }
-    return str + std::string(width - str.length(), ' ');
-}
-
 std::string File::formatListing(const directory_listing &listing, const std::string &basePath)
 {
     std::string formatted;
 
-    formatted += "<a href=\"" + basePath + "/" + listing.name_ + "\">" + listing.name_ + "</a>";
-    formatted += setWidth(68 - listing.name_.length(), listing.date_);
-
-    formatted += (listing.is_dir_) ? setWidth(20, "-") : setWidth(20, ftos(listing.size_));
-
-    formatted += "\r\n";
+    std::string link = removeDupSlashes(basePath + listing.name_);
+    std::cout << "Link: " << path_ << std::endl;
+    formatted += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">";
+    formatted += "<a href=\"" + link + "\">" + listing.name_ + "</a>";
+    formatted += "<span>" + listing.date_ + "</span>";
+    formatted += "<span>" + (listing.is_dir_ ? "-" : ftos(listing.size_)) + "</span>";
+    formatted += "</div>\r\n";
 
     return formatted;
 }
+
+
+
+
+
 bool sortAutoListing(const directory_listing &a, const directory_listing &b)
 {
     return a.name_ < b.name_;
@@ -402,7 +408,7 @@ std::string File::find_index(std::vector<std::string> &indexes)
             {
                 // Construct the full path to the index file
                 std::string ret = "/" + std::string(ent->d_name);
-                // print_file_info(ret);
+                print_file_info(ret);
                 closedir(dir);
                 return ret;
             }
