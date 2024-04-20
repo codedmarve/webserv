@@ -131,7 +131,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setMethods(cascadeFilter("allow_methods", target_));
     setAuth(cascadeFilter("credentials", target_));
 
-    printConfigSetUp();
+    // printConfigSetUp();
 }
 
 void RequestConfig::printConfigSetUp()
