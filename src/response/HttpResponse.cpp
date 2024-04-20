@@ -126,15 +126,18 @@ void HttpResponse::build()
 int HttpResponse::handleMethods()
 {
   std::string &method = config_.getMethod();
+  std::cout << "PATH: " << file_->getFilePath() << std::endl;
 
   if (method == "GET" || method == "HEAD")
   {
     if (file_->is_directory()) {
+      std::cout << "Handling directory request\n";
       int ret = handleDirectoryRequest();
         if ( ret == 200 || ret == 404 )
           return ret;
     }
     if (!file_->is_directory()) {
+      std::cout << "Handling file request\n";
       int ret = handleFileRequest();
       if ( ret == 403 || ret == 404 )
         return ret;
@@ -154,9 +157,11 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
+  std::cout << "Index: " << index << "\n";
   if (!index.empty())
   {
-    redirect_ = true;
+    std::cout << "Index not Redirecting to index: " << index << std::endl;
+    redirect_ = config_.getAutoIndex() ? false : true;
     newPath = "/" + config_.getRequestTarget();
     newPath += "/" + index;
     redirect_target_ = removeDupSlashes(newPath);
@@ -164,8 +169,16 @@ int HttpResponse::handleDirectoryRequest()
   }
   else if (!config_.getAutoIndex())
   {
+    /// @note added this to handle autoindex
+    std::cout << "Autoindex: " << config_.getAutoIndex() << std::endl;
+    if (file_->exists(file_->getFilePath())) {
+      config_.setAutoIndex(true);
+      return 0;
+    }
     return 404;
   }
+
+  std::cout << "Clean in and out\n";
   return 0;
 }
 

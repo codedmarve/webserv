@@ -224,6 +224,11 @@ void RequestConfig::setAutoIndex(const VecStr autoindex)
     autoindex_ = (autoindex[0] == "on") ? true : false;
 }
 
+void RequestConfig::setAutoIndex(bool autoindex)
+{
+    autoindex_ = autoindex;
+}
+
 void RequestConfig::setIndexes(const VecStr &indexes)
 {
     indexes_ = indexes;

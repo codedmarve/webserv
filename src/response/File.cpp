@@ -271,7 +271,9 @@ std::string File::formatListing(const directory_listing &listing, const std::str
 {
     std::string formatted;
 
-    std::string link = removeDupSlashes(basePath + listing.name_);
+    std::string link = removeDupSlashes(basePath + "/" + listing.name_);
+    std::cout << "Basepath: " << basePath << std::endl;
+    std::cout << "Listing name: " << listing.name_ << std::endl;
     formatted += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">";
     formatted += "<a href=\"" + link + "\">" + listing.name_ + "</a>";
     formatted += "<span>" + listing.date_ + "</span>";
@@ -323,6 +325,7 @@ directory_listing File::createListing(const std::string &fileName, const std::st
     listing.name_ = fileName;
 
     std::string filePath = dirPath + "/" + fileName;
+    std::cout << "*****File path: " << filePath << std::endl;
     struct stat fileStat;
     if (lstat(filePath.c_str(), &fileStat) != 0)
     {

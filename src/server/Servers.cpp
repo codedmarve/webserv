@@ -182,7 +182,7 @@ void Servers::handleIncomingConnection(int server_fd){
 		close(new_socket);
     	return;
 }
-    std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << std::endl;
+    std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
 	int flags = fcntl(new_socket, F_SETFL, FD_CLOEXEC, O_NONBLOCK);//COMMENT THE 0_NONBLOCK LINE IF THE BEHAVIOUR IS UNDEFINED.
 	if (flags == -1)
 	{
@@ -255,7 +255,7 @@ void Servers::initEvents(){
 			for (int i = 0; i < n; i++) {
 				for (std::vector<int>::iterator it2 = _server_fds.begin(); it2 != _server_fds.end(); ++it2) {
 					if (events[i].data.fd == *it2) {
-						std::cout << "Incoming connection on server: " << *it2 << std::endl;
+						std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
 						handleIncomingConnection(*it2);
 					}
 				}

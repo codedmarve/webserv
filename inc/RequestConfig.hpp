@@ -41,6 +41,7 @@ public:
   void setUri(const std::string uri);
   void setClientMaxBodySize(const VecStr size);
   void setAutoIndex(const VecStr autoindex);
+  void setAutoIndex(bool autoindex);
   void setIndexes(const VecStr &indexes);
   void setErrorPages(const VecStr &errors);
   void setMethods(const VecStr &methods);

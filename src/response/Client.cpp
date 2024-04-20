@@ -51,7 +51,6 @@ void Client::setupResponse()
     if (response_->getRedirect())
     {
       config_->redirectLocation(response_->redirect_target());
-      // std::cout << "REDIRECTING TO: " << response_->redirect_target() << std::endl;
       response_->cleanUp();
       ret = 1;
     }
