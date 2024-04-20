@@ -131,53 +131,38 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setMethods(cascadeFilter("allow_methods", target_));
     setAuth(cascadeFilter("credentials", target_));
 
-    // printConfigSetUp();
+    printConfigSetUp();
 }
 
 void RequestConfig::printConfigSetUp()
 {
     /// @note debugging purpose
-    getTarget();
+    std::cout << "\nTarget: " << getTarget() << std::endl;
+    std::cout << "\nURI: " << getUri() << std::endl;
+    std::cout << "\nROOT: " << getRoot() << std::endl;
+    std::cout << "\nHOST: " << getHost() << std::endl;
+    std::cout << "\nPORT: " << getPort() << std::endl;
+    std::cout << "\nMETHOD: " << getMethod() << std::endl;
+    std::cout << "\nCLIENTMAXBODY: " << getClientMaxBodySize() << std::endl;
+    std::cout << "\nAUTOINDEX: " << getAutoIndex() << std::endl;
+    std::cout << getProtocol() << std::endl;
+    std::cout << "\nBODY: " << getBody() << std::endl;
+    std::cout << "\nINDEXES: \n";
+    printVec(getIndexes(), "SETUP");
+    std::cout << "\nERRORPAGES\n";
+    printMap(getErrorPages());
+    std::cout << "\nMETHODS\n";
+    printVec(getMethods(), "SETUP");
+    std::cout << "\nHEADERS\n";
+    printMap(getHeaders());
     std::cout << std::endl;
-    getUri();
-    std::cout << std::endl;
-    getRoot();
-    std::cout << std::endl;
-    getHost();
-    std::cout << std::endl;
-    getPort();
-    std::cout << std::endl;
-    getMethod();
-    std::cout << std::endl;
-    getClientMaxBodySize();
-    std::cout << std::endl;
-    getAutoIndex();
-    std::cout << std::endl;
-    getIndexes();
-    std::cout << std::endl;
-    getErrorPages();
-    std::cout << std::endl;
-    getMethods();
-    std::cout << std::endl;
-    getBody();
-    std::cout << std::endl;
-    getHeaders();
-    std::cout << std::endl;
-    getHeader("Host");
-    std::cout << std::endl;
-    getProtocol();
-    std::cout << std::endl;
-    std::cout << "[Accepted Method] " << isMethodAccepted(getMethod());
-    std::cout <<"[content-length] " << getContentLength() << std::endl;
-    ;
+    
+    std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
+    std::cout <<"\n[content-length] " << getContentLength() << "\n" << std::endl;
+
     // printAllDBData(db_.serversDB);
     // printData(targetServer);
-    // VecStr result = filterDataByDirectives(targetServer_, "autoindex", target_);
-    // VecStr result = cascadeFilter("default_type", target_);
-    // for (size_t i = 0; i < result.size(); ++i)
-    // {
-    //     std::cout << "Value: " << result[i] << std::endl;
-    // }
+    // printVec(cascadeFilter("default_type", target_), "setup");
 }
 
 void RequestConfig::setTarget(const std::string &target)

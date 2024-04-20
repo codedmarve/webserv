@@ -272,7 +272,6 @@ std::string File::formatListing(const directory_listing &listing, const std::str
     std::string formatted;
 
     std::string link = removeDupSlashes(basePath + listing.name_);
-    std::cout << "Link: " << path_ << std::endl;
     formatted += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">";
     formatted += "<a href=\"" + link + "\">" + listing.name_ + "</a>";
     formatted += "<span>" + listing.date_ + "</span>";

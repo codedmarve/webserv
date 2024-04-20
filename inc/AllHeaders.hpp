@@ -112,7 +112,11 @@ std::string formatHttpDate(time_t timeValue);
 std::string get_http_date();
 std::string md5(const std::string& input);
 std::string generateETagForFile(File& file);
-void printVecStr(std::vector<std::string> &value, std::string callingFunction);
 
+template<typename KeyType, typename ValueType>
+void printMap(const std::map<KeyType, ValueType> &m);
+
+template<typename T>
+void printVec(const std::vector<T> &value, const std::string &callingFunction);
 
 #endif

@@ -132,8 +132,10 @@ std::string generateETagForFile(File& file) {
     return "";
 }
 
-void printVecStr(std::vector<std::string> &value, std::string callingFunction) {
-    std::vector<std::string>::iterator it;
+
+template<typename T>
+void printVec(const std::vector<T> &value, const std::string &callingFunction) {
+    typename std::vector<T>::const_iterator it;
     std::cout << "Printing vector from " << callingFunction << std::endl;
 
     for (it = value.begin(); it != value.end(); ++it) {
@@ -141,3 +143,15 @@ void printVecStr(std::vector<std::string> &value, std::string callingFunction) {
     }
     std::cout << std::endl;
 }
+template void printVec<std::string>(const std::vector<std::string> &value, const std::string &callingFunction);
+template void printVec<int>(const std::vector<int> &value, const std::string &callingFunction);
+
+template<typename KeyType, typename ValueType>
+void printMap(const std::map<KeyType, ValueType> &m) {
+    typename std::map<KeyType, ValueType>::const_iterator it;
+    for (it = m.begin(); it != m.end(); ++it) {
+        std::cout << it->first << ": " << it->second << std::endl;
+    }
+}
+template void printMap(const std::map<std::string, std::string> &m);
+template void printMap(const std::map<int, std::string> &m);
