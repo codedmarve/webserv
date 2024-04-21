@@ -18,14 +18,7 @@ class ConfigDB;
 class InputArgs;
 struct DB;
 struct Listen;
-// struct Listen {
-//     std::string ip_;
-//     uint32_t port_;
-
-//     Listen() : ip_(""), port_(0) {}
-//     Listen(std::string ip, uint32_t port) : ip_(ip), port_(port) {}
-// };
-
+class HttpRequest;
 
 class Servers {
 	private:
@@ -66,6 +59,7 @@ class Servers {
 		//Temporal function until we have a completed config file
 		void handleIncomingConnection(int server_fd);
 		void printServerAddress(int server_fd);
+		size_t handleResponse(int reqStatus, int server_fd, int new_socket, HttpRequest &parser);
 };
 
 #endif

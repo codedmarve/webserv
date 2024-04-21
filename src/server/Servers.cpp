@@ -205,26 +205,25 @@ void Servers::handleIncomingConnection(int server_fd){
 		*/
 		reqStatus = parser.parseRequest(request);
 		if (reqStatus != 200) {
-			// (reqStatus > 200 || reqStatus == -1)
-			// 	? std::cout << "\nREQ. ERROR:" << reqStatus << "\n"
-			// 	: std::cout << "\nREQ. COMPLETE:" << reqStatus << "\n";
 			finish = true;
 		}
-		std::string response;
-		if (reqStatus != 200)
-		{
-			Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
-
-			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
-			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
-			client.setupResponse();
-			response = client.getResponseString();
-		}
-		ssize_t bytes = write(new_socket, response.c_str(), response.size());
-		if (bytes == -1) {
-			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
+		if (!handleResponse(reqStatus, server_fd, new_socket, parser))
 			return;
-		}
+		// std::string response;
+		// if (reqStatus != 200)
+		// {
+		// 	Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
+
+		// 	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+		// 	Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
+		// 	client.setupResponse();
+		// 	response = client.getResponseString();
+		// }
+		// ssize_t bytes = write(new_socket, response.c_str(), response.size());
+		// if (bytes == -1) {
+		// 	std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
+		// 	return;
+		// }
 	} 
 	// std::vector<std::string> domains = _domain_to_server[server_fd];
 	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
@@ -432,4 +431,23 @@ bool Servers::getRequest(int client_fd, std::string &request){
 		}
 	}
 	return false;
+}
+
+size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, HttpRequest &parser) {
+		std::string response;
+		if (reqStatus != 200)
+		{
+			Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
+
+			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
+			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
+			client.setupResponse();
+			response = client.getResponseString();
+		}
+		ssize_t bytes = write(new_socket, response.c_str(), response.size());
+		if (bytes == -1) {
+			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
+			return 0;
+		}
+		return 1;
 }
