@@ -49,6 +49,8 @@ public:
     std::string redirect_target();
     bool shouldDisconnect();
     void printMethodMap();
+    void setErrorPageHeaders(int status_code);
+    int checkCustomErrorPage(int status_code);
     // std::string response_log(LogLevel level);
     // std::string getCurrentDateTime();
     // void logError(const std::string& message);

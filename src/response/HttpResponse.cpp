@@ -275,68 +275,6 @@ int HttpResponse::handleOtherMethods()
   return 405;
 }
 
-int HttpResponse::buildErrorPage(int status_code)
-{
-  // Check if a custom error page is configured for this status code
-  const std::string &customErrorPage = config_.getErrorPages()[status_code];
-  if (!customErrorPage.empty())
-  {
-    std::string target = removeDupSlashes(customErrorPage);
-    std::string cur_target = removeDupSlashes("/" + config_.getTarget());
-
-    // If the custom error page is different from the current target, redirect
-    if (target != cur_target)
-    {
-      redirectToErrorPage(target, status_code);
-      return 0;
-    }
-  }
-
-  body_ = buildDefaultErrorPage(status_code);
-
-  // Set appropriate headers
-  headers_["Content-Type"] = file_->getMimeType(".html");
-  headers_["Content-Length"] = ftos(body_.length());
-
-  // Additional headers for specific status codes
-  if (status_code == 401)
-    headers_["WWW-Authenticate"] = "Basic realm=\"Access to restricted area\"";
-  if (status_code == 408 || status_code == 503)
-    headers_["Connection"] = "close";
-  if (status_code == 503)
-    headers_["Retry-After"] = "30";
-
-  return status_code;
-}
-
-void HttpResponse::redirectToErrorPage(const std::string &target, int status_code)
-{
-  config_.getMethod() = "GET";
-
-  redirect_ = true;
-  redirect_code_ = status_code;
-  redirect_target_ = target;
-}
-
-std::string HttpResponse::buildDefaultErrorPage(int status_code)
-{
-  std::string errorPage;
-  errorPage += "<html>\r\n";
-  errorPage += "<head>\r\n";
-  errorPage += "<title>" + ftos(status_code) + " " + file_->getStatusCode(status_code) + "</title>\r\n";
-  errorPage += "<meta charset=\"utf-8\">\r\n";
-  errorPage += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n";
-  errorPage += "<meta name=\"description\" content=\"" + file_->getStatusCode(status_code) + "\">\r\n";
-  errorPage += "<meta name=\"author\" content=\"Your Website\">\r\n";
-  errorPage += "</head>\r\n";
-  errorPage += "<body>\r\n";
-  errorPage += "<center><h1>" + ftos(status_code) + " " + file_->getStatusCode(status_code) + "</h1></center>\r\n";
-  errorPage += "<hr><center>" + headers_["Server"] + "</center>\r\n";
-  errorPage += "</body>\r\n";
-  errorPage += "</html>\r\n";
-  return errorPage;
-}
-
 bool HttpResponse::checkAuth()
 {
   std::string authCredentials = config_.getHeader("Authorization");
