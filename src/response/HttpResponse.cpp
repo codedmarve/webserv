@@ -145,7 +145,20 @@ int HttpResponse::handleMethods()
         return ret;
     }
   }
-  else if (method == "PUT" || method == "POST")
+  std::cout << "isCGI: " << isCgi(file_->getMimeExt()) << "\n";
+  /// @note added this to handle cgi
+  // Hi Alex, here is what to expect
+  // if you look into the config file you will see how cgi is configured
+  // cgi [ext] [filename]
+  // so this isCgi() function will check if the file extension is in the cgi map
+  // and return true or false accordingly
+  // for example if you have a file called test.py is called this will check what its mapped against in the cgi map
+  if (isCgi(file_->getMimeExt())) {
+    
+    return status_code_;
+  }
+  
+  if (method == "PUT" || method == "POST")
   {
     handlePutPostRequest();
   }
@@ -159,7 +172,6 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  std::cout << "Index: " << config_.getAutoIndex() << "\n";
   if (!index.empty())
   {
     redirect_ = true;
@@ -454,3 +466,10 @@ int HttpResponse::sendResponse(int fd)
 
   return 1;
 }
+
+bool HttpResponse::isCgi(std::string ext) {
+  std::map<std::string, std::string> &cgi = config_.getCgi();
+
+  return cgi.find(ext) != cgi.end();
+}
+

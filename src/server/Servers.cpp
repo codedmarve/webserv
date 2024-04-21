@@ -191,7 +191,6 @@ void Servers::handleIncomingConnection(int server_fd){
 		return;
 	}
 	HttpRequest parser;
-	// int count = 0;
 
 	int reqStatus = -1;
 	while (!finish){	
@@ -210,7 +209,7 @@ void Servers::handleIncomingConnection(int server_fd){
 			// 	? std::cout << "\nREQ. ERROR:" << reqStatus << "\n"
 			// 	: std::cout << "\nREQ. COMPLETE:" << reqStatus << "\n";
 			finish = true;
-		} 
+		}
 		std::string response;
 		if (reqStatus != 200)
 		{
@@ -219,7 +218,6 @@ void Servers::handleIncomingConnection(int server_fd){
 			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
-			// std::cout << "RESPONSE: " << client.getResponseString(); // $$$$$$$$$$$
 			response = client.getResponseString();
 		}
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());

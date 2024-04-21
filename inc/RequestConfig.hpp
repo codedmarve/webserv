@@ -47,6 +47,8 @@ public:
   void setMethods(const VecStr &methods);
   void setAuth(const VecStr &auths);
   void setUpload(const VecStr &upload);
+  void setCgi(const VecStr &cgi);
+  void setCgiBin(const VecStr &cgiBin);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -70,6 +72,8 @@ public:
   size_t getContentLength();
   std::string &getAuth();
   std::string &getUpload();
+  std::map<std::string, std::string> &getCgi();
+  std::string &getCgiBin();
 
   void printConfigSetUp();
 
@@ -92,6 +96,8 @@ private:
   size_t serverId;
   std::string auth_;
   std::string upload_;
+  std::map<std::string, std::string> cgi_;
+  std::string cgi_bin_;
 };
 
 #endif

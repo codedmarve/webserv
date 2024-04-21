@@ -135,6 +135,7 @@ void printMap(const std::map<KeyType, ValueType> &m) {
     for (it = m.begin(); it != m.end(); ++it) {
         std::cout << it->first << ": " << it->second << std::endl;
     }
+    std::cout << std::endl;
 }
 template void printMap(const std::map<std::string, std::string> &m);
 template void printMap(const std::map<int, std::string> &m);

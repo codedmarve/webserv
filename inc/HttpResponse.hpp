@@ -72,6 +72,7 @@ public:
     std::string getResponseBody();
     int sendResponse(int fd);
     std::string getSampleResponse();
+    bool isCgi(std::string extension);
 
 
 

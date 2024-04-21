@@ -4,7 +4,10 @@ RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Cl
 {
 }
 
-RequestConfig::~RequestConfig() {}
+RequestConfig::~RequestConfig() {
+    cgi_.clear();
+    error_codes_.clear();
+}
 
 const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue> &targetServ, std::string directive, std::string location = "")
 {
@@ -130,6 +133,9 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setErrorPages(cascadeFilter("error_page", target_));
     setMethods(cascadeFilter("allow_methods", target_));
     setAuth(cascadeFilter("credentials", target_));
+    setCgi(cascadeFilter("cgi", target_));
+    setCgiBin(cascadeFilter("cgi-bin", target_));
+    std::cout << std::endl;
 
     // printConfigSetUp();
 }
@@ -156,6 +162,10 @@ void RequestConfig::printConfigSetUp()
     std::cout << "\nHEADERS\n";
     printMap(getHeaders());
     std::cout << std::endl;
+    std::cout << "\nCGI\n";
+    printMap(cgi_);
+    std::cout<< std::endl;
+    std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
     
     std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
     std::cout <<"\n[content-length] " << getContentLength() << "\n" << std::endl;
@@ -244,6 +254,32 @@ void RequestConfig::setMethods(const VecStr &methods)
 
     methods_ = methods;
 }
+
+void RequestConfig::setCgi(const VecStr &cgi)
+{
+    cgi_.clear();
+
+    if (cgi.size() % 2 != 0)
+        std::cerr << "Warning: Cgi value is empty\n";
+
+    for (size_t i = 0; i < cgi.size(); i += 2)
+    {
+        const std::string &key = cgi[i];
+        std::string value;
+
+        if (i + 1 < cgi.size())
+            value = cgi[i + 1];
+        cgi_[key] = value;
+    }
+}
+
+
+void RequestConfig::setCgiBin(const VecStr &cgi)
+{
+    cgi_bin_ =  (cgi_bin_.empty()) ? "" : cgi[0];
+}
+
+
 
 void RequestConfig::setErrorPages(const VecStr &errors)
 {
@@ -408,6 +444,16 @@ std::string &RequestConfig::getProtocol()
 std::string &RequestConfig::getUpload()
 {
     return upload_;
+}
+
+std::map<std::string, std::string> &RequestConfig::getCgi()
+{
+    return cgi_;
+}
+
+std::string &RequestConfig::getCgiBin()
+{
+    return cgi_bin_;
 }
 
 bool RequestConfig::isMethodAccepted(std::string &method)
