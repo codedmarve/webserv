@@ -114,11 +114,11 @@ void HttpResponse::build()
     status_code_ = 401;
   else
     status_code_ = handleMethods();
-  
 
   if (status_code_ >= 300 && !body_.length())
     status_code_ = buildErrorPage(status_code_);
-  if (!getRedirect()) {
+  if (!getRedirect())
+  {
     createResponse();
   }
 }
@@ -130,16 +130,18 @@ int HttpResponse::handleMethods()
 
   if (method == "GET" || method == "HEAD")
   {
-    if (file_->is_directory()) {
+    if (file_->is_directory())
+    {
       std::cout << "Handling directory request\n";
       int ret = handleDirectoryRequest();
-        if ( ret == 200 || ret == 404 )
-          return ret;
+      if (ret == 200 || ret == 404)
+        return ret;
     }
-    if (!file_->is_directory()) {
+    if (!file_->is_directory())
+    {
       std::cout << "Handling file request\n";
       int ret = handleFileRequest();
-      if ( ret == 403 || ret == 404 )
+      if (ret == 403 || ret == 404)
         return ret;
     }
   }
@@ -147,7 +149,7 @@ int HttpResponse::handleMethods()
   {
     handlePutPostRequest();
   }
- 
+
   return (this->*(HttpResponse::methods_[method]))();
 }
 
@@ -157,28 +159,31 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  std::cout << "Index: " << index << "\n";
-  if (!index.empty() && !config_.getAutoIndex())
+  std::cout << "Index: " << config_.getAutoIndex() << "\n";
+  if (!index.empty())
   {
     redirect_ = true;
     newPath = "/" + config_.getRequestTarget();
     newPath += "/" + index;
     redirect_target_ = removeDupSlashes(newPath);
+
     return 200;
-  } else if (config_.getAutoIndex()) {
-    config_.setAutoIndex(true);
-    return 0;
-  } else if (!config_.getAutoIndex())
+  }
+
+  if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
   {
+    std::cout << "DEBUG 2\n";
+    return 404;
+  }
+  else if (!config_.getAutoIndex())
+  {
+    std::cout << "DEBUG 4\n";
     /// @note added this to handle autoindex
-    // std::cout << "Autoindex: " << config_.getAutoIndex() << std::endl;
     if (file_->exists(file_->getFilePath()))
       return (config_.setAutoIndex(true), 0);
     return 404;
   }
-
-  std::cout << "Clean in and out\n";
-  return 0;
+  return (config_.setAutoIndex(true), 0);
 }
 
 int HttpResponse::handleFileRequest()
@@ -397,7 +402,6 @@ void HttpResponse::createResponse()
   {
     status_code_ = redirect_code_;
   }
-
 
   std::string status_code_phrase = file_->getStatusCode(status_code_);
   std::string status_line = "HTTP/1.1 " + ftos(status_code_) + " " + status_code_phrase + "\r\n";

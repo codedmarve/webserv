@@ -5,8 +5,13 @@ body {
     padding: 0;
 }
 .container {
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    height: 90vh;
+}
+.card {
     max-width: 800px;
-    margin: 100px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 5px;
