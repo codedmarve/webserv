@@ -158,23 +158,22 @@ int HttpResponse::handleDirectoryRequest()
   std::string newPath;
 
   std::cout << "Index: " << index << "\n";
-  if (!index.empty())
+  if (!index.empty() && !config_.getAutoIndex())
   {
-    std::cout << "Index not Redirecting to index: " << index << std::endl;
-    redirect_ = config_.getAutoIndex() ? false : true;
+    redirect_ = true;
     newPath = "/" + config_.getRequestTarget();
     newPath += "/" + index;
     redirect_target_ = removeDupSlashes(newPath);
     return 200;
-  }
-  else if (!config_.getAutoIndex())
+  } else if (config_.getAutoIndex()) {
+    config_.setAutoIndex(true);
+    return 0;
+  } else if (!config_.getAutoIndex())
   {
     /// @note added this to handle autoindex
-    std::cout << "Autoindex: " << config_.getAutoIndex() << std::endl;
-    if (file_->exists(file_->getFilePath())) {
-      config_.setAutoIndex(true);
-      return 0;
-    }
+    // std::cout << "Autoindex: " << config_.getAutoIndex() << std::endl;
+    if (file_->exists(file_->getFilePath()))
+      return (config_.setAutoIndex(true), 0);
     return 404;
   }
 

@@ -42,23 +42,6 @@ std::string ftos(size_t num) {
     return oss.str();
 }
 
-// std::string removeDupSlashes(std::string str)
-// {
-//     if (str.empty())
-//         return str;
-
-//     for (std::string::iterator it = str.begin(); it != str.end();) {
-//         if (*it == '/') {
-//             it++;
-//             while (it != str.end() && *it == '/') {
-//                 it = str.erase(it);
-//             }
-//         } else {
-//             it++;
-//         }
-//     }
-//     return str;
-// }
 
 std::string removeDupSlashes(std::string str) {
     if (str.empty())

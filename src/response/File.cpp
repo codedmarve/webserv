@@ -272,10 +272,8 @@ std::string File::formatListing(const directory_listing &listing, const std::str
     std::string formatted;
 
     std::string link = removeDupSlashes(basePath + "/" + listing.name_);
-    std::cout << "Basepath: " << basePath << std::endl;
-    std::cout << "Listing name: " << listing.name_ << std::endl;
     formatted += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">";
-    formatted += "<a href=\"" + link + "\">" + listing.name_ + "</a>";
+    formatted += "<a style=\"font-weight:bold;\" href=\"" + link + "\">" + listing.name_ + "</a>";
     formatted += "<span>" + listing.date_ + "</span>";
     formatted += "<span>" + (listing.is_dir_ ? "-" : ftos(listing.size_)) + "</span>";
     formatted += "</div>\r\n";
@@ -307,8 +305,8 @@ std::vector<directory_listing> File::getDirListings(const std::string &dirPath)
     while ((entry = readdir(dir)) != NULL)
     {
         std::string fileName = entry->d_name;
-        if (fileName == "." || fileName == "..")
-            continue; // Skip current and parent directories
+        // if (fileName == "." || fileName == "..")
+        //     continue; // Skip current and parent directories
 
         directory_listing listing = createListing(fileName, dirPath);
         listings.push_back(listing);
@@ -325,12 +323,11 @@ directory_listing File::createListing(const std::string &fileName, const std::st
     listing.name_ = fileName;
 
     std::string filePath = dirPath + "/" + fileName;
-    std::cout << "*****File path: " << filePath << std::endl;
     struct stat fileStat;
     if (lstat(filePath.c_str(), &fileStat) != 0)
     {
         std::cerr << "Error getting file info: " << strerror(errno) << std::endl;
-        return listing; // Return empty listing if stat fails
+        return listing;
     }
 
     listing.is_dir_ = S_ISDIR(fileStat.st_mode);
