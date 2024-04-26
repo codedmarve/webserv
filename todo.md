@@ -1,3 +1,7 @@
 ### April 05
-- [ ] add getters for requestconfig
-- [ ] set up response
+- [ ] config file numbering of servers
+- [ ] multiple reconnections
+- [ ] another thing location root data doesnt override
+- [ ] auto indexing ...doesn't store state
+- [ ] cgi
+- [ ] 

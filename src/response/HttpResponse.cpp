@@ -172,6 +172,19 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
+  std::cout << "INDEX: " << index << std::endl;
+  std::cout << "AUTOINDEX: " << config_.getAutoIndex() << std::endl;
+  std::cout << "Index size: " << indexes.size() << std::endl;
+  if (indexes.size() > 0)
+  {
+    for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++)
+    {
+      std::cout << "INDEX: " << *it << std::endl;
+    }
+  }
+  std::cout << "File path: " << file_->getFilePath() << std::endl;
+  std::cout << "File exists: " << file_->exists(file_->getFilePath() + "/" + indexes[0]) << std::endl;
+
   if (!index.empty())
   {
     redirect_ = true;
@@ -180,6 +193,12 @@ int HttpResponse::handleDirectoryRequest()
     redirect_target_ = removeDupSlashes(newPath);
 
     return 200;
+  }
+
+  if (indexes.empty() && !config_.getAutoIndex())
+  {
+    std::cout << "DEBUG 1\n";
+    return 404;
   }
 
   if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))

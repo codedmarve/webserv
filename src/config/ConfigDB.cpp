@@ -107,10 +107,18 @@ std::string		ConfigDB::handleKeySection(int &start, int &end, std::string &line)
     } else {
         sectionCounts[currentSection]++;
     }
+	std::vector<std::string>::iterator it = this->_variablePath.begin();
+	bool server = false;
+	while(it != this->_variablePath.end())
+	{
+		if(*it == "server")
+			server = true;
+		it++;
+	}
     if (sectionCounts[currentSection] >= 0) {
         std::stringstream ss;
-        ss << "[" << sectionCounts[currentSection] << "]";
-        currentSection += ss.str();
+        ss << "[" << ((!server) ? sectionCounts[currentSection] : sectionCounts["server"]) << "]";
+		currentSection += ss.str();
     }
     return currentSection;
 }
@@ -153,12 +161,12 @@ void ConfigDB::fillMap(std::string value, std::string key, std::string currentSe
 void   ConfigDB::execParser(char *argv[]){
     std::string configData;
     std::string currentSection = "";
-    std::map<std::string, int> sectionCounts;
     int start = 0;
     int end = 0;
 
     configData = this->readFile(argv);
     VecStr lines = customSplit(configData, '\n');
+    int serverCount = 0;
     for (VecStr::const_iterator it = lines.begin(); it != lines.end(); ++it) {
         std::string trimmedLine = *it;
         size_t endSection = trimmedLine.find('}');
@@ -168,15 +176,22 @@ void   ConfigDB::execParser(char *argv[]){
             continue; 
         }
         if (trimmedLine[trimmedLine.size() - 1] == '{') {
+        std::cout << "Line: " << trimmedLine[trimmedLine.size() - 1] << std::endl;
             currentSection = this->handleKeySection(start, end, trimmedLine);
+            std::cout << "Current Section: " << currentSection << std::endl;
         }
         else if (endSection != std::string::npos) {
             this->eraseLastSection();
         }
         else {
+            // std::cout << "End Section: " << currentSection << std::endl;
             VecStr tokens = customSplit(trimmedLine, ' ');
             if (tokens.size() >= 2) {
                 std::string key = tokens[0];
+                std::cout << "Key: " << key << std::endl;
+                if (key == "server") {
+                    serverCount++;
+                }
                 std::string value = tokens[1];
                 std::string cutSemicolon;
                 value = cutTillSemicolon(value);
