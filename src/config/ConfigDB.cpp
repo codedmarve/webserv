@@ -166,7 +166,6 @@ void   ConfigDB::execParser(char *argv[]){
 
     configData = this->readFile(argv);
     VecStr lines = customSplit(configData, '\n');
-    int serverCount = 0;
     for (VecStr::const_iterator it = lines.begin(); it != lines.end(); ++it) {
         std::string trimmedLine = *it;
         size_t endSection = trimmedLine.find('}');
@@ -176,9 +175,7 @@ void   ConfigDB::execParser(char *argv[]){
             continue; 
         }
         if (trimmedLine[trimmedLine.size() - 1] == '{') {
-        std::cout << "Line: " << trimmedLine[trimmedLine.size() - 1] << std::endl;
             currentSection = this->handleKeySection(start, end, trimmedLine);
-            std::cout << "Current Section: " << currentSection << std::endl;
         }
         else if (endSection != std::string::npos) {
             this->eraseLastSection();
@@ -188,10 +185,6 @@ void   ConfigDB::execParser(char *argv[]){
             VecStr tokens = customSplit(trimmedLine, ' ');
             if (tokens.size() >= 2) {
                 std::string key = tokens[0];
-                std::cout << "Key: " << key << std::endl;
-                if (key == "server") {
-                    serverCount++;
-                }
                 std::string value = tokens[1];
                 std::string cutSemicolon;
                 value = cutTillSemicolon(value);

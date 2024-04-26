@@ -1,5 +1,5 @@
 ### April 05
-- [ ] config file numbering of servers
+- [x] config file numbering of servers
 - [ ] multiple reconnections
 - [ ] another thing location root data doesnt override
 - [ ] auto indexing ...doesn't store state

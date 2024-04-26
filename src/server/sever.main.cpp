@@ -27,7 +27,7 @@ int serverMain(int argc, char **argv) {
      * 
      * @return NULL;
      */
-    base.printChoice(false, -1, false, -1, true);
+    base.printChoice(false, -1, false, -1, false);
 
     
     Servers servers(base);
