@@ -207,6 +207,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
 {
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
+    std::cout << "Request target: " << request_.getTarget() << std::endl;
 
 
     setLocationsMap(targetServer_);
@@ -229,6 +230,17 @@ void RequestConfig::setUp(size_t targetServerIdx)
         location = getRequestLocation(request_.getTarget());
     }
     std::cout << std::endl;
+}
+
+void RequestConfig::redirectLocation(std::string target)
+{
+    RequestConfig *location = NULL;
+    int status = request_.getStatus();
+    if (status != 200 && status != 100)
+    {
+        location = getRequestLocation(target);
+    }
+    target_ = target;
 }
 
 void RequestConfig::setTarget(const std::string &target)
@@ -523,10 +535,7 @@ bool RequestConfig::isMethodAccepted(std::string &method)
     return false;
 }
 
-void RequestConfig::redirectLocation(std::string target)
-{
-    target_ = target;
-}
+
 
 void RequestConfig::printConfigSetUp()
 {
