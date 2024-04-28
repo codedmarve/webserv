@@ -126,7 +126,6 @@ void HttpResponse::build()
 int HttpResponse::handleMethods()
 {
   std::string &method = config_.getMethod();
-  std::cout << "PATH: " << file_->getFilePath() << std::endl;
 
   if (method == "GET" || method == "HEAD")
   {
@@ -220,6 +219,7 @@ int HttpResponse::handleFileRequest()
 
   file_->findMatchingFiles();
   std::vector<std::string> &matches = file_->getMatches();
+  printVec(matches, "handleFileRequest"); 
   handleAcceptLanguage(matches);
   handleAcceptCharset(matches);
 

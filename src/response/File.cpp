@@ -281,10 +281,6 @@ std::string File::formatListing(const directory_listing &listing, const std::str
     return formatted;
 }
 
-
-
-
-
 bool sortAutoListing(const directory_listing &a, const directory_listing &b)
 {
     return a.name_ < b.name_;
@@ -403,25 +399,20 @@ std::string File::find_index(std::vector<std::string> &indexes)
     {
         while ((ent = readdir(dir)))
         {
+            // print_dir_entry(ent);
             if (std::find(indexes.begin(), indexes.end(), ent->d_name) != indexes.end())
             {
-                // Construct the full path to the index file
-                std::string ret = "/" + std::string(ent->d_name);
-                print_file_info(ret);
+                std::string ret = "/";
+                ret += ent->d_name;
+                // print_file_info(ret);
                 closedir(dir);
                 return ret;
-            }
-            else
-            {
-                // print_dir_entry(ent);
             }
         }
         closedir(dir);
     }
     else
-    {
         std::cout << "opendir : " << strerror(errno) << " of " << path_ << std::endl;
-    }
 
     return "";
 }
@@ -438,7 +429,6 @@ void File::findMatchingFiles()
     if (dir)
     {
         /// @note: Debugging purposes
-        // std::cout << "Directory: " << path << std::endl;
         while ((ent = readdir(dir)))
         {
             std::string name(ent->d_name);
@@ -447,8 +437,8 @@ void File::findMatchingFiles()
             if (name == file_name_full_)
                 matches_.push_back(name);
             else if (name.find(file_name_) != std::string::npos &&
-                name.find(mime_ext_) != std::string::npos)
-                    matches_.push_back(name);
+                     name.find(mime_ext_) != std::string::npos)
+                matches_.push_back(name);
         }
         closedir(dir);
     }

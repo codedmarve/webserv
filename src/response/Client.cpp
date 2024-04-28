@@ -47,10 +47,10 @@ void Client::setupResponse()
     ret = 0;
     response_->build();
 
-
     if (response_->getRedirect())
     {
       config_->redirectLocation(response_->redirect_target());
+      std::cout << "REDIRECTED TO: " << response_->redirect_target() << std::endl;
       response_->cleanUp();
       ret = 1;
     }

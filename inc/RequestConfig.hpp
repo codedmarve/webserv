@@ -77,6 +77,7 @@ public:
   std::map<std::string, std::string> &getCgi();
   std::string &getCgiBin();
   std::map<std::string, int> &getLocationsMap();
+  RequestConfig *getRequestLocation(std::string request_target);
 
   void printConfigSetUp();
 

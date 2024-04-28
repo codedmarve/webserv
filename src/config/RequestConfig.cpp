@@ -4,7 +4,8 @@ RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Cl
 {
 }
 
-RequestConfig::~RequestConfig() {
+RequestConfig::~RequestConfig()
+{
     cgi_.clear();
     error_codes_.clear();
 }
@@ -67,7 +68,7 @@ const VecStr &RequestConfig::cascadeFilter(std::string directive, std::string lo
     const VecStr &dirValue = filterDataByDirectives(targetServer_, directive, location);
     if (!dirValue.empty())
         return dirValue;
-    
+
     if (dirValue.empty() && !location.empty())
     {
         const VecStr &filteredValue = filterDataByDirectives(targetServer_, directive, "");
@@ -77,7 +78,8 @@ const VecStr &RequestConfig::cascadeFilter(std::string directive, std::string lo
 
     return checkRootDB(directive);
 }
-std::string RequestConfig::locationExtractor(const std::string &locationStr) {
+std::string RequestConfig::locationExtractor(const std::string &locationStr)
+{
     size_t j;
 
     for (j = 0; j < locationStr.size(); ++j)
@@ -95,9 +97,12 @@ LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
     LocationModifier modifierType_ = NONE;
     std::string modifiers;
     size_t pos = locationStr.find_first_of("/");
-    if (pos != std::string::npos) {
+    if (pos != std::string::npos)
+    {
         modifiers = locationStr.substr(0, pos);
-    } else {
+    }
+    else
+    {
         return modifierType_;
     }
 
@@ -137,14 +142,62 @@ LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
  * SETTERS
  */
 
-void RequestConfig::setLocationsMap(const std::vector<KeyMapValue>& values) {
+RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
+{
+    RequestConfig *requestConfig = NULL;
+    // std::map<std::string,int regex_locations;
+    std::map<std::string, int>::iterator it = locationsMap_.begin();
+    while (it != locationsMap_.end())
+    {
+        std::cout << "Modifiers: " << it->second << std::endl;
+        std::cout << "Uri: " << it->first << std::endl;
+        std::cout << "Target: " << request_target << std::endl;
+
+        if (it->second != CASE_SENSITIVE && it->second != CASE_INSENSITIVE)
+        {
+            if (it->second == 1 && it->first == request_target)
+                return &(*this);
+            else if (request_target.find(it->first) == 0)
+            {
+                if (requestConfig && requestConfig->uri_.length() < it->first.length())
+                    requestConfig = &(*this);
+                else if (!requestConfig)
+                    requestConfig = &(*this);
+            }
+        }
+        // else
+        // reg_locations.push_back(&(*it));
+
+        it++;
+    }
+    if (requestConfig)
+        std::cout << "RequestConfig: " << requestConfig->uri_ << std::endl;
+    //   if (location && location->modifier_ == 4)
+    // return location;
+
+    // if (location && !location->locations_.empty())
+    // {
+    //     for (std::vector<ServerConfig>::iterator it = location->locations_.begin(); it != location->locations_.end(); it++)
+    //     {
+    //     if (it->modifier_ == 2 || it->modifier_ == 3)
+    //         reg_locations.insert(reg_locations.begin(), &(*it));
+    //     }
+    // }
+    (void)request_target;
+    return requestConfig;
+}
+
+void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
+{
     int modifier = NONE;
-    for (size_t i = 0; i < values.size(); ++i) {
-        const MapStr& keyMap = values[i].first;
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        const MapStr &keyMap = values[i].first;
         std::string loc = keyMap.find("location")->second;
         modifier = checkModifier(loc);
 
-        if (!loc.empty() && locationsMap_.find(loc) == locationsMap_.end()) {
+        if (!loc.empty() && locationsMap_.find(loc) == locationsMap_.end())
+        {
             locationsMap_[loc] = modifier;
         }
     }
@@ -155,12 +208,9 @@ void RequestConfig::setUp(size_t targetServerIdx)
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
 
-    // std::vector<KeyMapValue> *location = NULL;
-    // int status = request_.getStatus();
-    // if (status != 200 && status != 100)
-    
+
     setLocationsMap(targetServer_);
-    setTarget(request_.getURI());
+    setTarget(request_.getTarget());
     setUri(request_.getURI());
     setRoot(cascadeFilter("root", target_));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", target_));
@@ -171,8 +221,13 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("credentials", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
-    
 
+    RequestConfig *location = NULL;
+    int status = request_.getStatus();
+    if (status != 200 && status != 100)
+    {
+        location = getRequestLocation(request_.getTarget());
+    }
     std::cout << std::endl;
 }
 
@@ -222,7 +277,6 @@ void RequestConfig::setClientMaxBodySize(const VecStr size)
 void RequestConfig::setUpload(const VecStr &upload)
 {
     upload_ = upload[0];
-
 }
 
 void RequestConfig::setAutoIndex(const VecStr autoindex)
@@ -274,13 +328,10 @@ void RequestConfig::setCgi(const VecStr &cgi)
     }
 }
 
-
 void RequestConfig::setCgiBin(const VecStr &cgi)
 {
-    cgi_bin_ =  (cgi_bin_.empty()) ? "" : cgi[0];
+    cgi_bin_ = (cgi_bin_.empty()) ? "" : cgi[0];
 }
-
-
 
 void RequestConfig::setErrorPages(const VecStr &errors)
 {
@@ -377,9 +428,9 @@ uint32_t &RequestConfig::getPort()
     return host_port_.port_;
 }
 
-size_t RequestConfig::getContentLength() {
+size_t RequestConfig::getContentLength()
+{
     return request_.getContentLength();
-
 }
 
 Client &RequestConfig::getClient()
@@ -397,8 +448,9 @@ std::string &RequestConfig::getUri()
     return uri_;
 }
 
-std::string &RequestConfig::getAuth() {
-  return auth_;
+std::string &RequestConfig::getAuth()
+{
+    return auth_;
 }
 
 size_t &RequestConfig::getClientMaxBodySize()
@@ -500,11 +552,12 @@ void RequestConfig::printConfigSetUp()
     std::cout << std::endl;
     std::cout << "\nCGI\n";
     printMap(cgi_);
-    std::cout<< std::endl;
+    std::cout << std::endl;
     std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
-    
+
     std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
-    std::cout <<"\n[content-length] " << getContentLength() << "\n" << std::endl;
+    std::cout << "\n[content-length] " << getContentLength() << "\n"
+              << std::endl;
 
     // printAllDBData(db_.serversDB);
     // printData(targetServer);

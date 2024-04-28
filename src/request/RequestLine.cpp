@@ -18,6 +18,7 @@ int HttpRequest::extractRequestLineData(std::string requestLine) {
     // Extract METHOD, URI and Protocol
     method_ = requestLine.substr(0, methodEnd);
     uri_ = requestLine.substr(uriStart, protocolStart - uriStart);
+    setTarget(uri_);
     protocol_ = requestLine.substr(protocolStart + 1);
     return 200;
 }

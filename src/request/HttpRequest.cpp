@@ -26,7 +26,7 @@ int HttpRequest::parseRequest(std::string &buffer) {
     gettimeofday(&last_tv_, NULL);
     req_buffer_ += buffer;
     buffer.clear();
-    /// @note This if/else logic depends on how we wanna handle buffer
+    
     if (buffer_section_ == REQUEST_LINE) {
         httpStatus = parseRequestLine();
     }
@@ -41,7 +41,6 @@ int HttpRequest::parseRequest(std::string &buffer) {
     } else if (buffer_section_ == CHUNK) {
         httpStatus = parseChunkedBody();
     }
-
     if (buffer_section_ == COMPLETE || httpStatus == 100) {
         buffer_section_ = COMPLETE;
     } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 100)) {
