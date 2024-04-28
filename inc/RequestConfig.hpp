@@ -31,9 +31,10 @@ public:
   const VecStr &filterDataByDirectives(const std::vector<KeyMapValue> &values, std::string directive, std::string location);
   const VecStr &cascadeFilter(std::string directive, std::string location);
   const VecStr &checkRootDB(std::string directive);
-  std::string checkModifier(const std::string &modifiers);
+  LocationModifier checkModifier(const std::string &modifiers);
   bool isMethodAccepted(std::string &method);
   void redirectLocation(std::string target);
+  std::string locationExtractor(const std::string &locationStr);
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
@@ -49,6 +50,7 @@ public:
   void setUpload(const VecStr &upload);
   void setCgi(const VecStr &cgi);
   void setCgiBin(const VecStr &cgiBin);
+  void setLocationsMap(const std::vector<KeyMapValue>& values);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -74,6 +76,7 @@ public:
   std::string &getUpload();
   std::map<std::string, std::string> &getCgi();
   std::string &getCgiBin();
+  std::map<std::string, int> &getLocationsMap();
 
   void printConfigSetUp();
 
@@ -83,8 +86,7 @@ private:
   Client &client_;
   Listen &host_port_;
   DB &db_;
-  LocationModifier modifierType_;
-
+  // LocationModifier modifierType_;
   std::string target_;
   std::string root_;
   std::string uri_;
@@ -98,6 +100,7 @@ private:
   std::string upload_;
   std::map<std::string, std::string> cgi_;
   std::string cgi_bin_;
+  std::map<std::string, int> locationsMap_;
 };
 
 #endif

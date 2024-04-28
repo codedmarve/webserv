@@ -4,4 +4,7 @@
 - [ ] another thing location root data doesnt override
 - [ ] auto indexing ...doesn't store state
 - [ ] cgi
-- [ ] 
+- [ ] perfect authorisation
+- [ ] test client body limit
+- [ ] fix best match
+- [ ] throw error if the drectives doesn't end in a colon
