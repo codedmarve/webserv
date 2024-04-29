@@ -76,6 +76,8 @@ public:
     std::string getSampleResponse();
     bool isCgi(std::string extension);
 
+    void readCgiOutput();
+
 
 
 private:
