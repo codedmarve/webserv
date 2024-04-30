@@ -2,6 +2,7 @@
 
 RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
 {
+    // std::cout << "[REQ BODY] " << request_.getBody() << std::endl;
 }
 
 RequestConfig::~RequestConfig() {

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/29 02:31:42 by alappas          ###   ########.fr       */
+/*   Updated: 2024/04/29 23:34:27 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,11 +120,6 @@ void CgiHandle::execCgi(){
 	}
 	else if (_cgi_pid == 0)
 	{
-		// for (int i = 0; this->_argv[i]; i++)
-		// 	std::cout << "ARGS: " << this->_argv[i] << std::endl;
-		// for (int i = 0; this->_envp[i]; i++)
-		// 	std::cout << "ENVP: " << this->_envp[i] << std::endl;
-		// std::cout << "PATH: " << this->_path << std::endl;
 		if (dup2(this->pipe_in[0], STDIN_FILENO) == -1 || dup2(this->pipe_out[1], STDOUT_FILENO) == -1)
 		{
 			std::cerr << "Error: dup2 failed" << std::endl;
@@ -172,7 +167,7 @@ std::string CgiHandle::getIp(){
 
 void CgiHandle::setPath(){
 	std::string path(getenv("PWD"));
-	path += "/cgi-bin" + this->_config->getUri();
+	path += this->_config->getUri();
 	this->_path = strdup(path.c_str());
 }
 

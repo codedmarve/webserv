@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/29 13:31:51 by alappas          ###   ########.fr       */
+/*   Updated: 2024/04/29 23:14:22 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -440,7 +440,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			client.setupResponse();
 			response = client.getResponseString();
 		}
-		std::cout << "Response: " << response << std::endl;
+		// std::cout << "Response: " << response << std::endl;
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;

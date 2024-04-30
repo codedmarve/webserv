@@ -29,6 +29,7 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	redirect_ = false;
 	charset_ = "";
 	initMethods();
+	std::cout << "{HttpResponse BODY: " << config_.getBody() << "}" << std::endl;
 }
 
 HttpResponse::~HttpResponse() {}
@@ -154,9 +155,8 @@ int HttpResponse::handleMethods()
 	// and return true or false accordingly
 	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
 	if (isCgi(file_->getMimeExt())) {
-		readCgiOutput();
+		HandleCgi();
 		return status_code_;
-		// return 200;
 	}
 	
 	if (method == "PUT" || method == "POST")
@@ -167,32 +167,7 @@ int HttpResponse::handleMethods()
 	return (this->*(HttpResponse::methods_[method]))();
 }
 
-void HttpResponse::readCgiOutput()
-{
-	CgiHandle cgi(&config_, file_->getMimeExt());
-	cgi.execCgi();
-	if (cgi.getExitStatus() == 500)
-	{
-		status_code_ = 500;
-		return;
-	}
-	int bytesRead = 0;
-	char buffer[4000];
-	// std::string body;
-	// while ((bytesRead = read(cgi.getPipeOut(), buffer, 1024)) > 0)
-	// {
-		bytesRead = read(cgi.getPipeOut(), buffer, 4000);
-		body_.append(buffer, bytesRead);
-	// }
-	// if (bytesRead == -1)
-	// {
-	// 	std::cerr << "read : " << strerror(errno) << std::endl;
-	// 	status_code_ = 500;
-	// 	return;
-	// }
-	// body_ = body;
-	std::cout << "BODY: " << body_ << std::endl;
-}
+
 
 int HttpResponse::handleDirectoryRequest()
 {
@@ -448,7 +423,98 @@ int HttpResponse::sendResponse(int fd)
 
 bool HttpResponse::isCgi(std::string ext) {
 	std::map<std::string, std::string> &cgi = config_.getCgi();
-
 	return cgi.find(ext) != cgi.end();
 }
 
+void HttpResponse::HandleCgi()
+{
+	CgiHandle cgi(&config_, file_->getMimeExt());
+	cgi.execCgi();
+	if ((status_code_ = cgi.getExitStatus()) == 500)
+		return ;
+	// setCgiPipe(cgi);
+	std::string req_body = config_.getBody();
+	while (status_code_ != 500 && status_code_ != 200)
+	{
+		std::cout << "STATUS: " << status_code_ << std::endl;
+		toCgi(cgi, req_body);
+		fromCgi(cgi); 
+	}
+	// std::string body;
+	// int bytesRead = 0;
+	// char buffer[4096];
+	// while ((bytesRead = read(cgi.getPipeOut(), buffer, 1024)) > 0)
+	// {
+		// bytesRead = read(cgi.getPipeOut(), buffer, 4000);
+		// body_.append(buffer, bytesRead);
+	// // }
+	// if (bytesRead == -1)
+	// {
+	// 	std::cerr << "read : " << strerror(errno) << std::endl;
+	// 	status_code_ = 500;
+	// 	return;
+	// }
+	// body_ = body;
+	std::cout << "BODY: " << body_ << std::endl;
+}
+
+int HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)
+{
+	
+	if (req_body.length() > 0)
+	{
+		std::string body = req_body;
+		int bytesWritten = write(cgi.getPipeIn(), req_body.c_str(), req_body.length());
+		if (bytesWritten >= 0){
+			req_body = req_body.substr(bytesWritten);
+			if (req_body.length() == 0)
+				close(cgi.getPipeIn());
+		}
+		if (bytesWritten == -1)
+		{
+			std::cerr << "write : " << strerror(errno) << std::endl;
+			status_code_ = 500;
+			return -1;
+		}
+	}
+	else {
+		close(cgi.getPipeIn());
+	}
+	return 0;
+}
+
+int HttpResponse::fromCgi(CgiHandle &cgi)
+{
+	int bytesRead;
+	char buffer[4096];
+	if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
+	{
+		body_.append(buffer, bytesRead);
+		// std::cout << "BODY: " << body_ << std::endl;
+		// std::cout << "bytesRead: " << bytesRead << std::endl;
+	}
+	else if (bytesRead == -1)
+	{
+		close (cgi.getPipeOut());
+		status_code_ = 500;
+		return -1;
+	}
+	if (bytesRead == 0 || bytesRead < 4096)
+	{
+		// std::cout << "CGI DONE" << std::endl;
+		close (cgi.getPipeOut());
+		status_code_ = 200;
+	}
+	return 0;
+}
+
+void HttpResponse::setCgiPipe(CgiHandle &cgi)
+{
+	int flags;
+	if ((flags = fcntl(cgi.getPipeOut(), F_GETFL, 0)) == -1 || fcntl(cgi.getPipeOut(), F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		std::cerr << "fcntl error" << std::endl;
+		status_code_ = 500;
+		return ;
+	}
+}
