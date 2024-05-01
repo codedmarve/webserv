@@ -189,18 +189,6 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  // std::cout << "INDEX: " << index << std::endl;
-  // std::cout << "AUTOINDEX: " << config_.getAutoIndex() << std::endl;
-  // std::cout << "Index size: " << indexes.size() << std::endl;
-  // if (indexes.size() > 0)
-  // {
-  //   for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++)
-  //   {
-  //     std::cout << "INDEX: " << *it << std::endl;
-  //   }
-  // }
-  // std::cout << "File path: " << file_->getFilePath() << std::endl;
-
   if (!index.empty())
   {
     redirect_ = true;
@@ -210,22 +198,28 @@ int HttpResponse::handleDirectoryRequest()
 
     return 200;
   }
-
-
-  if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
+  if (!config_.getAutoIndex() && indexes.size() == 0)
   {
-    std::cout << "DEBUG 2\n";
+    std::cout << "DEBUG 1\n";
     return 404;
-  }
-  else if (!config_.getAutoIndex())
+  } else if (config_.getAutoIndex())
   {
-    std::cout << "DEBUG 4\n";
-    /// @note added this to handle autoindex
-    if (file_->exists(file_->getFilePath()))
-      return (config_.setAutoIndex(true), 0);
-    return 404;
+    return 0;
   }
-  return (config_.setAutoIndex(true), 0);
+
+  // if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
+  // {
+  //   std::cout << "DEBUG 2\n";
+  //   return 404;
+  // }
+  // else if (!config_.getAutoIndex())
+  // {
+  //   std::cout << "DEBUG 4\n";
+  //   if (file_->exists(file_->getFilePath()))
+  //     return (config_.setAutoIndex(true), 0);
+  //   return 404;
+  // }
+  return (0);
 }
 
 int HttpResponse::handleFileRequest()

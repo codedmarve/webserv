@@ -6,5 +6,6 @@
 - [ ] cgi
 - [ ] perfect authorisation
 - [ ] test client body limit
-- [ ] fix best match
+- [x] fix best match
 - [ ] throw error if the drectives doesn't end in a colon
+- [ ] remove errno
