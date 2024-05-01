@@ -94,6 +94,7 @@ private:
     size_t body_size_;
     std::string charset_;
     std::map<std::string, HttpResponse::type> methods_;
+    std::pair<std::string, int> findLocation(std::string target);
     std::map<std::string, std::string> headers_;   
 
     std::string buildMethodList();

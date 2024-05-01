@@ -90,10 +90,28 @@ void HttpResponse::buildDebugger(std::string method)
   std::cout << "BuildErrorPage: " << buildErrorPage(status_code_) << std::endl;
 }
 
+std::pair<std::string, int> HttpResponse::findLocation(std::string target)
+{
+  std::map<std::string, int> locationsMap = config_.getLocationsMap();
+  for (std::map<std::string, int>::iterator it = locationsMap.begin(); it != locationsMap.end(); ++it)
+  {
+    if (target == it->first)
+      return *it;
+  }
+  return std::make_pair("", 0);
+}
+
 void HttpResponse::build()
 {
   std::string &method = config_.getMethod();
   file_ = new File();
+
+
+    if (findLocation(config_.getTarget()).first != "")
+    {
+      config_.setTarget("");
+      config_.setUri("");
+    }
 
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());
 
@@ -186,7 +204,7 @@ int HttpResponse::handleDirectoryRequest()
   if (!index.empty())
   {
     redirect_ = true;
-    newPath = "/" + config_.getRequestTarget();
+    newPath = "/" + config_.getTarget();
     newPath += "/" + index;
     redirect_target_ = removeDupSlashes(newPath);
 

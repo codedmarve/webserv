@@ -222,11 +222,11 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
 
-    RequestConfig *location = NULL;
+    // RequestConfig *location = NULL;
     int status = request_.getStatus();
     if (status != 200 && status != 100)
     {
-        location = getRequestLocation(request_.getTarget());
+        // location = getRequestLocation(request_.getTarget());
     }
     std::cout << std::endl;
 }
