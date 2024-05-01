@@ -204,27 +204,27 @@ int HttpResponse::handleDirectoryRequest()
 
     return 200;
   }
-  if (!config_.getAutoIndex() && indexes.size() == 0)
-  {
-    std::cout << "DEBUG 1\n";
-    return 404;
-  } else if (config_.getAutoIndex())
-  {
-    return 0;
-  }
+  // if (!config_.getAutoIndex() && indexes.size() == 0)
+  // {
+  //   std::cout << "DEBUG 1\n";
+  //   return 404;
+  // } else if (config_.getAutoIndex())
+  // {
+  //   return (config_.setAutoIndex(true), 0);
+  // }
 
-  // if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
-  // {
-  //   std::cout << "DEBUG 2\n";
-  //   return 404;
-  // }
-  // else if (!config_.getAutoIndex())
-  // {
-  //   std::cout << "DEBUG 4\n";
-  //   if (file_->exists(file_->getFilePath()))
-  //     return (config_.setAutoIndex(true), 0);
-  //   return 404;
-  // }
+  if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
+  {
+    std::cout << "DEBUG 2\n";
+    return 404;
+  }
+  else if (!config_.getAutoIndex())
+  {
+    std::cout << "DEBUG 4\n";
+    if (file_->exists(file_->getFilePath()))
+      return (config_.setAutoIndex(true), 0);
+    return 404;
+  }
   return (0);
 }
 
