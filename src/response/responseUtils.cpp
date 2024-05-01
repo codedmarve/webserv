@@ -1,36 +1,47 @@
 #include "../../inc/AllHeaders.hpp"
 
+std::map<char, int> initializeB64Index() {
+    std::map<char, int> index;
+    const char B64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for (int i = 0; i < 64; ++i) {
+        index[B64chars[i]] = i;
+    }
+    return index;
+}
+
+// Initialize the B64 index map
+const std::map<char, int> B64index = initializeB64Index();
+
+// Base64 decode function
 const std::string b64decode(const void *data, const size_t &len) {
     if (len == 0) return "";
 
-    // Base64 index for decoding
-    const char B64index[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-    unsigned char *p = (unsigned char*)data;
+    const unsigned char *p = static_cast<const unsigned char*>(data);
     size_t j = 0,
            pad1 = len % 4 || p[len - 1] == '=',
            pad2 = pad1 && (len % 4 > 2 || p[len - 2] != '=');
     const size_t last = (len - pad1) / 4 << 2;
-    std::string result(last / 4 * 3 + pad1 + pad2, '\0');
-    unsigned char *str = (unsigned char*) &result[0];
+    std::string result((last / 4 * 3) + pad1 + pad2, '\0');
+    unsigned char *str = reinterpret_cast<unsigned char*>(&result[0]);
 
     for (size_t i = 0; i < last; i += 4) {
-        int n = B64index[p[i]] << 18 | B64index[p[i + 1]] << 12 | B64index[p[i + 2]] << 6 | B64index[p[i + 3]];
+        int n = B64index.at(p[i]) << 18 | B64index.at(p[i + 1]) << 12 | B64index.at(p[i + 2]) << 6 | B64index.at(p[i + 3]);
         str[j++] = n >> 16;
-        str[j++] = n >> 8 & 0xFF;
+        str[j++] = (n >> 8) & 0xFF;
         str[j++] = n & 0xFF;
     }
     if (pad1) {
-        int n = B64index[p[last]] << 18 | B64index[p[last + 1]] << 12;
+        int n = B64index.at(p[last]) << 18 | B64index.at(p[last + 1]) << 12;
         str[j++] = n >> 16;
         if (pad2) {
-            n |= B64index[p[last + 2]] << 6;
-            str[j++] = n >> 8 & 0xFF;
+            n |= B64index.at(p[last + 2]) << 6;
+            str[j++] = (n >> 8) & 0xFF;
         }
     }
     return result;
 }
 
+// Base64 decode function overload for std::string input
 std::string b64decode(const std::string &str64) {
     return b64decode(str64.c_str(), str64.size());
 }

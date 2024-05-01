@@ -218,9 +218,10 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setIndexes(cascadeFilter("index", target_));
     setErrorPages(cascadeFilter("error_page", target_));
     setMethods(cascadeFilter("allow_methods", target_));
-    setAuth(cascadeFilter("credentials", target_));
+    setAuth(cascadeFilter("auth", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
+
 
     // RequestConfig *location = NULL;
     int status = request_.getStatus();
@@ -248,6 +249,7 @@ void RequestConfig::setRoot(const VecStr root)
 
 void RequestConfig::setAuth(const VecStr &auth)
 {
+    std::cout << "****SIZE: " << auth.size() << std::endl;
     if (auth.empty())
     {
         auth_ = "off";

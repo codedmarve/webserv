@@ -132,6 +132,7 @@ void HttpResponse::build()
     status_code_ = 401;
   else
     status_code_ = handleMethods();
+  
 
   if (status_code_ >= 300 && !body_.length())
     status_code_ = buildErrorPage(status_code_);
@@ -305,6 +306,8 @@ bool HttpResponse::checkAuth()
   std::string authCredentials = config_.getHeader("Authorization");
   if (authCredentials.empty())
     return false;
+
+
   std::string token = b64decode(authCredentials.substr(authCredentials.find(' ') + 1));
   return (token == config_.getAuth());
 }
