@@ -117,6 +117,11 @@ void HttpResponse::build()
 
   // buildDebugger(method);
 
+  std::cout << "Auth: " << config_.getAuth() << std::endl;
+  std::cout << "checkAuth: " << checkAuth() << std::endl;
+
+  bool authorization =config_.getAuth() != "off" && !checkAuth();
+
   if (error_code_ > 200)
     status_code_ = error_code_;
   else if (!config_.isMethodAccepted(method))
@@ -128,7 +133,7 @@ void HttpResponse::build()
   {
     status_code_ = 413;
   }
-  else if (config_.getAuth() != "off" && !checkAuth())
+  else if (authorization)
     status_code_ = 401;
   else
     status_code_ = handleMethods();
