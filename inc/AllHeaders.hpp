@@ -6,7 +6,7 @@
 /*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/31 15:56:20 by drey             ###   ########.fr       */
+/*   Updated: 2024/05/01 14:07:37 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@
 #include "ServerConfig.hpp"
 #include "Client.hpp"
 #include "InputArgs.hpp"
+#include "ErrorCodes.hpp"
 
 
 typedef std::map<std::string, std::string> MapStr;

@@ -90,14 +90,37 @@ void HttpResponse::buildDebugger(std::string method)
   std::cout << "BuildErrorPage: " << buildErrorPage(status_code_) << std::endl;
 }
 
+std::pair<std::string, int> HttpResponse::findLocation(std::string target)
+{
+  std::map<std::string, int> locationsMap = config_.getLocationsMap();
+  for (std::map<std::string, int>::iterator it = locationsMap.begin(); it != locationsMap.end(); ++it)
+  {
+    if (target == it->first)
+      return *it;
+  }
+  return std::make_pair("", 0);
+}
+
 void HttpResponse::build()
 {
   std::string &method = config_.getMethod();
   file_ = new File();
 
+
+    if (findLocation(config_.getTarget()).first != "")
+    {
+      config_.setTarget("");
+      config_.setUri("");
+    }
+
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());
 
   // buildDebugger(method);
+
+  std::cout << "Auth: " << config_.getAuth() << std::endl;
+  std::cout << "checkAuth: " << checkAuth() << std::endl;
+
+  bool authorization =config_.getAuth() != "off" && !checkAuth();
 
   if (error_code_ > 200)
     status_code_ = error_code_;
@@ -110,10 +133,11 @@ void HttpResponse::build()
   {
     status_code_ = 413;
   }
-  else if (config_.getAuth() != "off" && !checkAuth())
+  else if (authorization)
     status_code_ = 401;
   else
     status_code_ = handleMethods();
+  
 
   if (status_code_ >= 300 && !body_.length())
     status_code_ = buildErrorPage(status_code_);
@@ -171,43 +195,37 @@ int HttpResponse::handleDirectoryRequest()
   std::string index = file_->find_index(indexes);
   std::string newPath;
 
-  // std::cout << "INDEX: " << index << std::endl;
-  // std::cout << "AUTOINDEX: " << config_.getAutoIndex() << std::endl;
-  // std::cout << "Index size: " << indexes.size() << std::endl;
-  // if (indexes.size() > 0)
-  // {
-  //   for (std::vector<std::string>::iterator it = indexes.begin(); it != indexes.end(); it++)
-  //   {
-  //     std::cout << "INDEX: " << *it << std::endl;
-  //   }
-  // }
-  // std::cout << "File path: " << file_->getFilePath() << std::endl;
-
   if (!index.empty())
   {
     redirect_ = true;
-    newPath = "/" + config_.getRequestTarget();
+    newPath = "/" + config_.getTarget();
     newPath += "/" + index;
     redirect_target_ = removeDupSlashes(newPath);
 
     return 200;
   }
-
-
-  if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
+  if (!config_.getAutoIndex() && indexes.size() == 0)
   {
-    std::cout << "DEBUG 2\n";
+    std::cout << "DEBUG 1\n";
     return 404;
-  }
-  else if (!config_.getAutoIndex())
+  } else if (config_.getAutoIndex())
   {
-    std::cout << "DEBUG 4\n";
-    /// @note added this to handle autoindex
-    if (file_->exists(file_->getFilePath()))
-      return (config_.setAutoIndex(true), 0);
-    return 404;
+    return 0;
   }
-  return (config_.setAutoIndex(true), 0);
+
+  // if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
+  // {
+  //   std::cout << "DEBUG 2\n";
+  //   return 404;
+  // }
+  // else if (!config_.getAutoIndex())
+  // {
+  //   std::cout << "DEBUG 4\n";
+  //   if (file_->exists(file_->getFilePath()))
+  //     return (config_.setAutoIndex(true), 0);
+  //   return 404;
+  // }
+  return (0);
 }
 
 int HttpResponse::handleFileRequest()
@@ -293,6 +311,8 @@ bool HttpResponse::checkAuth()
   std::string authCredentials = config_.getHeader("Authorization");
   if (authCredentials.empty())
     return false;
+
+
   std::string token = b64decode(authCredentials.substr(authCredentials.find(' ') + 1));
   return (token == config_.getAuth());
 }

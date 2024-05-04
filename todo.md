@@ -1,10 +1,11 @@
 ### April 05
 - [x] config file numbering of servers
 - [ ] multiple reconnections
-- [ ] another thing location root data doesnt override
+- [x] another thing location root data doesnt override
 - [ ] auto indexing ...doesn't store state
 - [ ] cgi
-- [ ] perfect authorisation
+- [x] authorization works
 - [ ] test client body limit
-- [ ] fix best match
+- [x] fix best match
 - [ ] throw error if the drectives doesn't end in a colon
+- [ ] remove errno

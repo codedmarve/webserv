@@ -219,15 +219,16 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setIndexes(cascadeFilter("index", target_));
     setErrorPages(cascadeFilter("error_page", target_));
     setMethods(cascadeFilter("allow_methods", target_));
-    setAuth(cascadeFilter("credentials", target_));
+    setAuth(cascadeFilter("auth", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
 
-    RequestConfig *location = NULL;
+
+    // RequestConfig *location = NULL;
     int status = request_.getStatus();
     if (status != 200 && status != 100)
     {
-        location = getRequestLocation(request_.getTarget());
+        // location = getRequestLocation(request_.getTarget());
     }
     std::cout << std::endl;
 }
@@ -250,22 +251,13 @@ void RequestConfig::setTarget(const std::string &target)
 
 void RequestConfig::setRoot(const VecStr root)
 {
-    if (root.empty())
-    {
-        root_ = "html";
-        return;
-    }
-    root_ = root[0];
+
+    root_ = root.empty() ? "html" : root[0];
 }
 
 void RequestConfig::setAuth(const VecStr &auth)
 {
-    if (auth.empty())
-    {
-        auth_ = "off";
-        return;
-    }
-    auth_ = auth[0];
+    auth_ = auth.empty() ? "off" : auth[0];
 }
 
 void RequestConfig::setUri(const std::string uri)
@@ -275,14 +267,7 @@ void RequestConfig::setUri(const std::string uri)
 
 void RequestConfig::setClientMaxBodySize(const VecStr size)
 {
-    size_t val;
-    if (size.empty())
-    {
-        client_max_body_size_ = 20971520; // default 20mb
-        return;
-    }
-    std::istringstream iss(size[0]);
-    iss >> val;
+    size_t val = size.empty() ? 20971520 : (std::istringstream(size[0]) >> val, val);
     client_max_body_size_ = val;
 }
 
@@ -293,12 +278,7 @@ void RequestConfig::setUpload(const VecStr &upload)
 
 void RequestConfig::setAutoIndex(const VecStr autoindex)
 {
-    if (autoindex.empty())
-    {
-        autoindex_ = false;
-        return;
-    }
-    autoindex_ = (autoindex[0] == "on") ? true : false;
+    autoindex_ = autoindex.empty() ? false : (autoindex[0] == "on");
 }
 
 void RequestConfig::setAutoIndex(bool autoindex)
@@ -313,13 +293,7 @@ void RequestConfig::setIndexes(const VecStr &indexes)
 
 void RequestConfig::setMethods(const VecStr &methods)
 {
-    if (methods.empty())
-    {
-        methods_ = cascadeFilter("limit_except", target_);
-        return;
-    }
-
-    methods_ = methods;
+    methods_ = methods.empty() ? cascadeFilter("limit_except", target_) : methods;
 }
 
 void RequestConfig::setCgi(const VecStr &cgi)
