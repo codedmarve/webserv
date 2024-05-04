@@ -110,8 +110,8 @@ void HttpResponse::build()
 
     if (findLocation(config_.getTarget()).first != "")
     {
-      config_.setTarget("");
-      config_.setUri("");
+      config_.setTarget("/");
+      config_.setUri("/");
     }
 
   file_->set_path(config_.getRoot() + "/" + config_.getTarget());

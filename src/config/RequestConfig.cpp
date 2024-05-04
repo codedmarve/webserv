@@ -37,6 +37,38 @@ const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValu
     return emptyVector;
 }
 
+
+
+bool RequestConfig::directiveExists(std::string directive, std::string location)
+{
+    std::cout << "TARGET: " << target_ << std::endl;
+    for (size_t i = 0; i < targetServer_.size(); ++i)
+    {
+        const MapStr &keyMap = targetServer_[i].first;
+        MapStr::const_iterator dirIt = keyMap.find("directives");
+        MapStr::const_iterator locIt = keyMap.find("location");
+
+        (void)directive;
+
+        if (dirIt != keyMap.end() && locIt != keyMap.end()) 
+        {
+            std::string dir = dirIt->second;
+            std::string loc = locIt->second;
+
+            if (loc == location && dir == directive)
+            {
+                std::cout << "Checking: Directive = " << dir << ", Location = " << loc << std::endl;
+                return true;
+            }
+        }
+    }
+    return false; // Directive not found in the specified location
+}
+
+
+
+
+
 const VecStr &RequestConfig::checkRootDB(std::string directive)
 {
     GroupedDBMap::const_iterator it;
@@ -210,7 +242,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
     serverId = targetServerIdx;
     std::cout << "Request target: " << request_.getTarget() << std::endl;
 
-
     setLocationsMap(targetServer_);
     setTarget(request_.getTarget());
     setUri(request_.getURI());
@@ -223,7 +254,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("auth", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
-
 
     // RequestConfig *location = NULL;
     int status = request_.getStatus();
@@ -294,7 +324,7 @@ void RequestConfig::setIndexes(const VecStr &indexes)
 
 void RequestConfig::setMethods(const VecStr &methods)
 {
-    methods_ = methods.empty() ? cascadeFilter("limit_except", target_) : methods;
+    allowed_methods_ = methods.empty() ? cascadeFilter("limit_except", target_) : methods;
 }
 
 void RequestConfig::setCgi(const VecStr &cgi)
@@ -462,7 +492,7 @@ std::map<int, std::string> &RequestConfig::getErrorPages()
 
 std::vector<std::string> &RequestConfig::getMethods()
 {
-    return methods_;
+    return allowed_methods_;
 }
 
 std::string &RequestConfig::getBody()
@@ -503,14 +533,19 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-    if (methods_.empty() || method.empty())
-        return true;
-    if (std::find(methods_.begin(), methods_.end(), method) != methods_.end())
+    // std::cout << "Target: " << target_ << "\n";
+    // std::cout << "Directive Exists: " << directiveExists( "allow_methods", target_) << "\n";
+    // std::cout << "Directive Exists: " << directiveExists( "limit_except", target_) << "\n";
+    bool methodFlag = directiveExists( "allow_methods", target_) || directiveExists( "limit_except", target_);
+    std::cout << "MethodFlag: " << methodFlag << "\n";
+    // if ()
+    //     return true;
+    if (methodFlag && (allowed_methods_.empty() || method.empty()))
+        return false;
+    if (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end())
         return true;
     return false;
 }
-
-
 
 void RequestConfig::printConfigSetUp()
 {

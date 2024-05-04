@@ -78,6 +78,7 @@ public:
   std::string &getCgiBin();
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
+  bool directiveExists(std::string directive, std::string location);
 
   void printConfigSetUp();
 
@@ -95,7 +96,7 @@ private:
   bool autoindex_;
   std::vector<std::string> indexes_;
   std::map<int, std::string> error_codes_;
-  std::vector<std::string> methods_;
+  std::vector<std::string> allowed_methods_;
   size_t serverId;
   std::string auth_;
   std::string upload_;

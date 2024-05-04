@@ -181,10 +181,13 @@ void ConfigDB::fillMap(std::string value, std::string key, std::string currentSe
 void ConfigDB::splitDirectiveAndValue(std::string currentSection, VecStr::const_iterator it, std::string trimmedLine)
 {
     VecStr tokens = customSplit(trimmedLine, ' ');
+    std::cout << "Trimmed line: " << trimmedLine << std::endl;
     if (tokens.size() >= 2)
     {
         std::string key = tokens[0];
         std::string value = tokens[1];
+        std::cout << "Key: " << key << std::endl;
+        std::cout << "Value: " << value << std::endl;
         std::string cutSemicolon;
         value = cutTillSemicolon(value);
         std::string KeyWithoutLastSection;
