@@ -23,7 +23,7 @@ void Client::setupConfig()
   /// @note AGGREGATED ALL CONFIGURATIONS HERE
   config_ = new RequestConfig(*request_, host_port_, db_, *this);
   config_->setUp(serverId_);
-  CgiHandle cgi(config_);
+  // CgiHandle cgi(config_);
 }
 std::string Client::getResponseString()
 {

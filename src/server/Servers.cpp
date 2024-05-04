@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/02 21:58:53 by alappas          ###   ########.fr       */
+/*   Updated: 2024/04/29 23:14:22 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -417,18 +417,14 @@ bool Servers::getRequest(int client_fd, std::string &request){
 		buffer[bytes] = '\0';
 		request.append(buffer, bytes);
 	}
-	if (bytes == 0)// || bytes < 4095)
+	if (bytes == 0)
 	{
 		return true;
 	}
 	if (bytes == -1)
 	{
-		if (errno == EAGAIN && errno == EWOULDBLOCK)
-			return true ;
-		else{
-			std::cerr << "Recv failed" << std::endl;
-			return true;
-		}
+		std::cerr << "Recv failed" << std::endl;
+		return true;
 	}
 	return false;
 }
@@ -444,6 +440,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			client.setupResponse();
 			response = client.getResponseString();
 		}
+		// std::cout << "Response: " << response << std::endl;
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;

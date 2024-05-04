@@ -76,6 +76,11 @@ public:
     std::string getSampleResponse();
     bool isCgi(std::string extension);
 
+    void HandleCgi();
+    void setCgiPipe(CgiHandle &cgi);
+    int toCgi(CgiHandle &cgi, std::string &req_body);
+    int fromCgi(CgiHandle &cgi);
+
 
 
 private:

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/10 03:10:13 by alappas          ###   ########.fr       */
+/*   Updated: 2024/04/29 23:34:27 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,9 @@
 // CgiHandle::CgiHandle()
 // : _cgi_path(NULL), _cgi_pid(-1), _exit_status(0){}
 
-CgiHandle::CgiHandle(RequestConfig *config)
-: _config(config), _cgi_path(""), _cgi_pid(-1), _exit_status(0), _argv(NULL), _envp(NULL), _path(NULL){
+CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext)
+: _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0), _argv(NULL), _envp(NULL), _path(NULL), pipe_in(), pipe_out(){
 	this->initEnv();
-	
 }
 
 CgiHandle::~CgiHandle(){
@@ -36,6 +35,7 @@ CgiHandle::~CgiHandle(){
 	}
 	if (this->_path)
 		free(this->_path);
+	closePipe();
 }
 
 CgiHandle::CgiHandle(const CgiHandle &other)
@@ -54,13 +54,22 @@ void CgiHandle::initEnv(){
 
 	std::stringstream ss;
 	
-	this->_env["CONTENT_TYPE"] = this->_config->getHeader("content-type");
+	if (this->_config->getMethod() == "POST")
+	{
+		this->_env["CONTENT_TYPE"] = this->_config->getHeader("content-type");
+		ss << this->_config->getHeader("content-length");
+		std::string content_length = ss.str();
+		this->_env["CONTENT_LENGTH"] = content_length;
+		ss.clear();
+	}
 	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
-	this->_env["REMOTE_ADDR"] = getIp();
+	// this->_env["REMOTE_ADDR"] = getIp();
 	this->_env["QUERY_STRING"] = this->_config->getQuery();
-	this->_env["REMOTE_PORT"] = this->_config->getPort();
-	ss << this->_config->getContentLength();
-	this->_env["CONTENT_LENGTH"] = ss.str();
+	ss << this->_config->getPort();
+	std::string port = ss.str();
+	this->_env["REMOTE_PORT"] = port;
+	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + port + "/cgi-bin" + this->_config->getUri();
+	this->_env["SERVER_PORT"] = port;
 	ss.clear();
 	this->_env["REQUEST_URI"] = this->_config->getUri();
 	this->_env["SERVER_SOFTWARE"] = "AMANIX";
@@ -68,9 +77,6 @@ void CgiHandle::initEnv(){
 	this->_env["SERVER_PROTOCOL"] = this->_config->getProtocol();
 	this->_env["REQUEST_METHOD"] = this->_config->getMethod();
 	this->_env["PWD"] = std::string (getenv("PWD"));
-	ss << this->_config->getPort();
-	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + ss.str() + this->_config->getUri();
-	this->_env["SERVER_PORT"] = ss.str();
 	this->_env["SCRIPT_NAME"] = this->_config->getUri();
 	this->_env["REDIRECT_STATUS"] = "200";
 	this->_env["SERVER_NAME"] = "localhost";//getHeader?
@@ -81,23 +87,23 @@ void CgiHandle::initEnv(){
 void CgiHandle::createEnvArray(){
 	std::map<std::string, std::string>::iterator it;
 	int i = 0;
-	this->_argv = new char*[this->_env.size() + 1];
+	this->_envp = new char*[this->_env.size() + 1];
 	for (it = this->_env.begin(); it != this->_env.end(); it++)
 	{
-		this->_argv[i] = strdup((it->first + "=" + it->second).c_str());
+		this->_envp[i] = strdup((it->first + "=" + it->second).c_str());
 		i++;
 	}
-	this->_argv[i] = NULL;
+	this->_envp[i] = NULL;
 }
 
 void CgiHandle::execCgi(){
-	
 	this->setPath();
 	this->setArgv();
 	this->createEnvArray();
-	if (this->_argv[0] == NULL || this->_argv[1] == NULL)
+	this->setPipe();
+	if (!this->_path || !this->_argv)// || !this->_envp)
 	{
-		std::cerr << "Error: invalid arguments" << std::endl;
+		std::cerr << "Error: execve argument creation failed" << std::endl;
 		this->_exit_status = 500;
 		return ;
 	}
@@ -112,19 +118,29 @@ void CgiHandle::execCgi(){
 		this->_exit_status = 500;
 		return ;
 	}
-	else
+	else if (_cgi_pid == 0)
 	{
-		dup2(this->pipe_in[0], STDIN_FILENO);
-		dup2(this->pipe_out[1], STDOUT_FILENO);
+		if (dup2(this->pipe_in[0], STDIN_FILENO) == -1 || dup2(this->pipe_out[1], STDOUT_FILENO) == -1)
+		{
+			std::cerr << "Error: dup2 failed" << std::endl;
+			this->_exit_status = 500;
+			return ;
+		}
 		closePipe();
-		_exit_status = execve(this->_path, this->_argv, this->_envp);
-		exit(_exit_status);
+		if ((_exit_status = execve(this->_argv[0], this->_argv, this->_envp)) == -1)
+		{
+			std::cerr << "Error: execve failed " << errno << std::endl;
+			this->_exit_status = 500;
+			return ;
+		}
 	}
+	waitpid(this->_cgi_pid, &this->_exit_status, 0);
 }
 
 int CgiHandle::setPipe(){
 	if (pipe(this->pipe_in) == -1 || pipe(this->pipe_out) == -1)
 	{
+		closePipe();
 		std::cerr << "Error: pipe failed" << std::endl;
 		return (-1);
 	}
@@ -132,10 +148,14 @@ int CgiHandle::setPipe(){
 }
 
 void CgiHandle::closePipe(){
-	close(this->pipe_in[0]);
-	close(this->pipe_in[1]);
-	close(this->pipe_out[0]);
-	close(this->pipe_out[1]);
+	if (this->pipe_in[0] != -1)
+		close(this->pipe_in[0]);
+	if (this->pipe_in[1] != -1)
+		close(this->pipe_in[1]);
+	if (this->pipe_out[0] != -1)
+		close(this->pipe_out[0]);
+	if (this->pipe_out[1] != -1)
+		close(this->pipe_out[1]);
 }
 
 std::string CgiHandle::getIp(){
@@ -151,8 +171,30 @@ void CgiHandle::setPath(){
 	this->_path = strdup(path.c_str());
 }
 
+std::string CgiHandle::getExecPath(){
+	if (this->_cgi_ext == ".py")
+		return "/usr/bin/python3";
+	else if (this->_cgi_ext == ".sh")
+		return "/bin/bash";
+	else
+		return "";
+}
+
 void CgiHandle::setArgv(){
-	this->_argv = new char*[2];
-	this->_argv[0] = strdup(this->_path);
-	this->_argv[1] = NULL;
+	this->_argv = new char*[3];
+	this->_argv[0] = strdup(this->getExecPath().c_str());
+	this->_argv[1] = strdup(this->_path);
+	this->_argv[2] = NULL;
+}
+
+int CgiHandle::getPipeIn(){
+	return this->pipe_in[1];
+}
+
+int CgiHandle::getPipeOut(){
+	return this->pipe_out[0];
+}
+
+int CgiHandle::getExitStatus(){
+	return this->_exit_status;
 }

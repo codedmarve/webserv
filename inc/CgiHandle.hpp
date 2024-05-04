@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:32 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/10 02:55:26 by alappas          ###   ########.fr       */
+/*   Updated: 2024/04/29 02:22:39 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class CgiHandle{
 		RequestConfig	*_config;
 		std::string	_cgi_path;
 		pid_t		_cgi_pid;
+		std::string	_cgi_ext;
 		int			_exit_status;
 		char		**_argv;
 		char		**_envp;
@@ -32,7 +33,7 @@ class CgiHandle{
 		
 	public:
 		CgiHandle();
-		CgiHandle(RequestConfig *config);
+		CgiHandle(RequestConfig *config, std::string cgi_ext);
 		~CgiHandle();
 		CgiHandle(const CgiHandle &other);
 		CgiHandle &operator=(const CgiHandle &other);
@@ -42,6 +43,10 @@ class CgiHandle{
 		int		setPipe();
 		void	closePipe();
 		std::string getIp();
+		int getPipeIn();
+		int getPipeOut();
+		int getExitStatus();
+		std::string getExecPath();
 		void setPath();
 		void setArgv();
 };
