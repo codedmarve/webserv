@@ -118,8 +118,8 @@ void HttpResponse::build()
 
 	// buildDebugger(method);
 
-  std::cout << "Auth: " << config_.getAuth() << std::endl;
-  std::cout << "checkAuth: " << checkAuth() << std::endl;
+//   std::cout << "Auth: " << config_.getAuth() << std::endl;
+//   std::cout << "checkAuth: " << checkAuth() << std::endl;
 
   bool isAuthorized =config_.getAuth() != "off" && !checkAuth();
 
@@ -156,20 +156,20 @@ int HttpResponse::handleMethods()
 	{
 		if (file_->is_directory())
 		{
-			std::cout << "Handling directory request\n";
+			// std::cout << "Handling directory request\n";
 			int ret = handleDirectoryRequest();
 			if (ret == 200 || ret == 404)
 				return ret;
 		}
 		if (!file_->is_directory())
 		{
-			std::cout << "Handling file request\n";
+			// std::cout << "Handling file request\n";
 			int ret = handleFileRequest();
 			if (ret == 403 || ret == 404)
 				return ret;
 		}
 	}
-	std::cout << "isCGI: " << isCgi(file_->getMimeExt()) << "\n";
+	// std::cout << "isCGI: " << isCgi(file_->getMimeExt()) << "\n";
 	/// @note added this to handle cgi
 	// Hi Alex, here is what to expect
 	// if you look into the config file you will see how cgi is configured
@@ -218,12 +218,12 @@ int HttpResponse::handleDirectoryRequest()
 
   if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
   {
-    std::cout << "DEBUG 2\n";
+    // std::cout << "DEBUG 2\n";
     return 404;
   }
   else if (!config_.getAutoIndex())
   {
-    std::cout << "DEBUG 4\n";
+    // std::cout << "DEBUG 4\n";
     if (file_->exists(file_->getFilePath()))
       return (config_.setAutoIndex(true), 0);
     return 404;

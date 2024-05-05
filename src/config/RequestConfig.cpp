@@ -232,7 +232,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
 {
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
-    std::cout << "Request target: " << request_.getTarget() << std::endl;
 
     setLocationsMap(targetServer_);
     setTarget(request_.getTarget());
@@ -246,6 +245,9 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("auth", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
+    setRedirectMap(cascadeFilter("return", target_));
+
+    printMap(getRedirectionMap());
 
     // RequestConfig *location = NULL;
     int status = request_.getStatus();
@@ -258,11 +260,11 @@ void RequestConfig::setUp(size_t targetServerIdx)
 
 void RequestConfig::redirectLocation(std::string target)
 {
-    RequestConfig *location = NULL;
+    // RequestConfig *location = NULL;
     int status = request_.getStatus();
     if (status != 200 && status != 100)
     {
-        location = getRequestLocation(target);
+        // location = getRequestLocation(target);
     }
     target_ = target;
 }
@@ -342,6 +344,64 @@ void RequestConfig::setCgiBin(const VecStr &cgi)
     cgi_bin_ = (cgi_bin_.empty()) ? "" : cgi[0];
 }
 
+// void RequestConfig::setErrorPages(const VecStr &errors)
+// {
+//     std::map<int, std::string> resultMap;
+//     std::string errorCodes;
+
+//     if (!errors.empty())
+//     {
+//         for (size_t i = 0; i < errors.size(); ++i)
+//         {
+//             std::istringstream iss(errors[i]);
+//             int errorCode;
+//             if (iss >> errorCode)
+//             {
+//                 // Its errorCode. concatenate it
+//                 if (!errorCodes.empty())
+//                     errorCodes += " ";
+//                 errorCodes += errors[i];
+//             }
+//             else
+//             { // It's errorPage
+//                 if (!errorCodes.empty())
+//                 {
+//                     // Split the concatenated errorCodes
+//                     std::istringstream codeStream(errorCodes);
+//                     int code;
+//                     while (codeStream >> code)
+//                     {
+//                         resultMap[code] = errors[i];
+//                     }
+//                     errorCodes.clear();
+//                 }
+//             }
+//         }
+
+//         // Assign the last errorPage to remaining errorCodes
+//         if (!errorCodes.empty())
+//         {
+//             std::istringstream codeStream(errorCodes);
+//             int code;
+//             while (codeStream >> code)
+//             {
+//                 resultMap[code] = errors.back();
+//             }
+//         }
+//     }
+//     error_codes_ = resultMap;
+// }
+
+void RequestConfig::assignErrorCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap)
+{
+    std::istringstream codeStream(errorCodes);
+    int code;
+    while (codeStream >> code)
+    {
+        resultMap[code] = errorPage;
+    }
+}
+
 void RequestConfig::setErrorPages(const VecStr &errors)
 {
     std::map<int, std::string> resultMap;
@@ -361,16 +421,10 @@ void RequestConfig::setErrorPages(const VecStr &errors)
                 errorCodes += errors[i];
             }
             else
-            { // It's errorPage
+            { 
                 if (!errorCodes.empty())
                 {
-                    // Split the concatenated errorCodes
-                    std::istringstream codeStream(errorCodes);
-                    int code;
-                    while (codeStream >> code)
-                    {
-                        resultMap[code] = errors[i];
-                    }
+                    assignErrorCodes(errorCodes, errors[i], resultMap);
                     errorCodes.clear();
                 }
             }
@@ -379,15 +433,57 @@ void RequestConfig::setErrorPages(const VecStr &errors)
         // Assign the last errorPage to remaining errorCodes
         if (!errorCodes.empty())
         {
-            std::istringstream codeStream(errorCodes);
-            int code;
-            while (codeStream >> code)
-            {
-                resultMap[code] = errors.back();
-            }
+            assignErrorCodes(errorCodes, errors.back(), resultMap);
         }
     }
     error_codes_ = resultMap;
+}
+
+void RequestConfig::assignRedirCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap)
+{
+    std::istringstream codeStream(errorCodes);
+    int code;
+    while (codeStream >> code)
+    {
+        resultMap[code] = errorPage;
+    }
+}
+
+void RequestConfig::setRedirectMap(const VecStr &redirectMap)
+{
+    std::map<int, std::string> resultMap;
+    std::string redirCodes;
+
+    if (!redirectMap.empty())
+    {
+        for (size_t i = 0; i < redirectMap.size(); ++i)
+        {
+            std::istringstream iss(redirectMap[i]);
+            int redirectCode;
+            if (iss >> redirectCode)
+            {
+                // Its errorCode. concatenate it
+                if (!redirCodes.empty())
+                    redirCodes += " ";
+                redirCodes += redirectMap[i];
+            }
+            else
+            { 
+                if (!redirCodes.empty())
+                {
+                    assignRedirCodes(redirCodes, redirectMap[i], resultMap);
+                    redirCodes.clear();
+                }
+            }
+        }
+
+        // Assign the last errorPage to remaining errorCodes
+        if (!redirCodes.empty())
+        {
+            assignRedirCodes(redirCodes, redirectMap.back(), resultMap);
+        }
+    }
+    redirectMap_ = resultMap;
 }
 
 /**
@@ -480,6 +576,11 @@ std::vector<std::string> &RequestConfig::getIndexes()
 std::map<int, std::string> &RequestConfig::getErrorPages()
 {
     return error_codes_;
+}
+
+std::map<int, std::string> &RequestConfig::getRedirectionMap()
+{
+    return redirectMap_;
 }
 
 std::vector<std::string> &RequestConfig::getMethods()

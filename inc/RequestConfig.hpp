@@ -51,6 +51,7 @@ public:
   void setCgi(const VecStr &cgi);
   void setCgiBin(const VecStr &cgiBin);
   void setLocationsMap(const std::vector<KeyMapValue>& values);
+  void setRedirectMap(const VecStr &redirects);
 
   std::string &getTarget();
   std::string &getRequestTarget();
@@ -65,6 +66,7 @@ public:
   bool getAutoIndex();
   VecStr &getIndexes();
   std::map<int, std::string> &getErrorPages();
+  std::map<int, std::string> &getRedirectionMap();
   std::vector<std::string> &getMethods();
   std::string &getMethod();
   std::string &getBody();
@@ -79,6 +81,8 @@ public:
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
   bool directiveExists(std::string directive, std::string location);
+  void assignErrorCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap);
+  void assignRedirCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap);
 
   void printConfigSetUp();
 
@@ -96,6 +100,7 @@ private:
   bool autoindex_;
   std::vector<std::string> indexes_;
   std::map<int, std::string> error_codes_;
+  std::map<int, std::string> redirectMap_;
   std::vector<std::string> allowed_methods_;
   size_t serverId;
   std::string auth_;
