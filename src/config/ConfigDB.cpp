@@ -180,32 +180,32 @@ void ConfigDB::fillMap(std::string value, std::string key, std::string currentSe
 }
 void ConfigDB::splitDirectiveAndValue(std::string currentSection, VecStr::const_iterator it, std::string trimmedLine)
 {
-    VecStr tokens = customSplit(trimmedLine, ' ');
-    std::cout << "Trimmed line: " << trimmedLine << std::endl;
-    if (tokens.size() >= 2)
-    {
-        std::string key = tokens[0];
-        std::string value = tokens[1];
-        std::cout << "Key: " << key << std::endl;
-        std::cout << "Value: " << value << std::endl;
-        std::string cutSemicolon;
-        value = cutTillSemicolon(value);
-        std::string KeyWithoutLastSection;
-        if (trimmedLine[trimmedLine.size() - 1] == '\'')
+    std::string value;
+    std::string key;
+
+    size_t spacePos = trimmedLine.find(" ");
+    if (spacePos == std::string::npos) {
+        key = cutTillSemicolon(trimmedLine);
+        value = "none";
+    } else {
+        VecStr tokens = customSplit(trimmedLine, ' ');
+        if (tokens.size() >= 2)
         {
-            handleLogFormat(trimmedLine, value, tokens, it);
+            key = tokens[0];
+            value = tokens[1];
+
+            std::string cutSemicolon;
+            value = cutTillSemicolon(value);
+            std::string KeyWithoutLastSection;
+            if (trimmedLine[trimmedLine.size() - 1] == '\'')
+                handleLogFormat(trimmedLine, value, tokens, it);
+            else
+                for (size_t i = 2; i < tokens.size(); ++i)
+                    value += " " + cutTillSemicolon(tokens[i]);
         }
-        else
-        {
-            for (size_t i = 2; i < tokens.size(); ++i)
-            {
-                cutSemicolon = cutTillSemicolon(tokens[i]);
-                value += " " + cutSemicolon;
-            }
-        }
-        KeyWithoutLastSection = this->getKeyWithoutLastSection();
-        this->fillMap(value, key, currentSection, KeyWithoutLastSection);
     }
+
+    fillMap(value, key, currentSection, getKeyWithoutLastSection());
 }
 
 void ConfigDB::execParser(char *argv[])
@@ -229,8 +229,10 @@ void ConfigDB::execParser(char *argv[])
             currentSection = this->handleKeySection(start, end, trimmedLine);
         else if (endSection != std::string::npos)
             this->eraseLastSection();
-        else
+        else {
+
             splitDirectiveAndValue(currentSection, it, trimmedLine);
+        }
     }
     splitDB(_keyValues);
 }

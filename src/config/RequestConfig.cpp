@@ -2,7 +2,6 @@
 
 RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
 {
-    // std::cout << "[REQ BODY] " << request_.getBody() << std::endl;
 }
 
 RequestConfig::~RequestConfig()
@@ -37,11 +36,8 @@ const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValu
     return emptyVector;
 }
 
-
-
 bool RequestConfig::directiveExists(std::string directive, std::string location)
 {
-    std::cout << "TARGET: " << target_ << std::endl;
     for (size_t i = 0; i < targetServer_.size(); ++i)
     {
         const MapStr &keyMap = targetServer_[i].first;
@@ -50,7 +46,7 @@ bool RequestConfig::directiveExists(std::string directive, std::string location)
 
         (void)directive;
 
-        if (dirIt != keyMap.end() && locIt != keyMap.end()) 
+        if (dirIt != keyMap.end() && locIt != keyMap.end())
         {
             std::string dir = dirIt->second;
             std::string loc = locIt->second;
@@ -64,10 +60,6 @@ bool RequestConfig::directiveExists(std::string directive, std::string location)
     }
     return false; // Directive not found in the specified location
 }
-
-
-
-
 
 const VecStr &RequestConfig::checkRootDB(std::string directive)
 {
@@ -533,18 +525,12 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-    // std::cout << "Target: " << target_ << "\n";
-    // std::cout << "Directive Exists: " << directiveExists( "allow_methods", target_) << "\n";
-    // std::cout << "Directive Exists: " << directiveExists( "limit_except", target_) << "\n";
-    bool methodFlag = directiveExists( "allow_methods", target_) || directiveExists( "limit_except", target_);
-    std::cout << "MethodFlag: " << methodFlag << "\n";
-    // if ()
-    //     return true;
-    if (methodFlag && (allowed_methods_.empty() || method.empty()))
-        return false;
-    if (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end())
+    bool methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
+
+    if (!methodFlag)
         return true;
-    return false;
+
+    return (allowed_methods_[0] == "none" || method.empty()) ? false : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
 }
 
 void RequestConfig::printConfigSetUp()
