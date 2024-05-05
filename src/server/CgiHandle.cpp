@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/29 23:34:27 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/05 22:06:14 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,7 +167,7 @@ std::string CgiHandle::getIp(){
 
 void CgiHandle::setPath(){
 	std::string path(getenv("PWD"));
-	path += this->_config->getUri();
+	path += "/" + this->_config->getRoot() + this->_config->getUri();
 	this->_path = strdup(path.c_str());
 }
 
