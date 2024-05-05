@@ -7,6 +7,8 @@
 - [x] authorization works
 - [ ] test client body limit
 - [x] fix best match
-- [ ] remove errno
+- [x] remove errno
 - [x] fix custom error pages bug
 - [x] fix allowed methods logic
+- [x] return directive redirection
+- [ ] output the right status code
