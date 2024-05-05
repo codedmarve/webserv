@@ -2,7 +2,7 @@
 
 int HttpResponse::buildErrorPage(int status_code)
 {
-    if (checkCustomErrorPage(status_code) == 0)
+    if (checkCustomErrorPage(status_code) == 0) 
         return 0;
 
     body_ = buildDefaultErrorPage(status_code);
@@ -49,11 +49,9 @@ int HttpResponse::checkCustomErrorPage(int status_code)
     const std::string &customErrorPage = config_.getErrorPages()[status_code];
     if (!customErrorPage.empty())
     {
-    std::cout << "Root: " << config_.getRoot() << std::endl;
         std::string target = removeDupSlashes(customErrorPage);
         std::string cur_target = removeDupSlashes("/" + config_.getTarget());
 
-        // If the custom error page is different from the current target, redirect
         if (target != cur_target)
             return (redirectToErrorPage(target, status_code), 0);
     }

@@ -174,9 +174,9 @@ RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
     std::map<std::string, int>::iterator it = locationsMap_.begin();
     while (it != locationsMap_.end())
     {
-        std::cout << "Modifiers: " << it->second << std::endl;
-        std::cout << "Uri: " << it->first << std::endl;
-        std::cout << "Target: " << request_target << std::endl;
+        // std::cout << "Modifiers: " << it->second << std::endl;
+        // std::cout << "Uri: " << it->first << std::endl;
+        // std::cout << "Target: " << request_target << std::endl;
 
         if (it->second != CASE_SENSITIVE && it->second != CASE_INSENSITIVE)
         {
