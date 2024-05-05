@@ -12,3 +12,4 @@
 - [x] fix allowed methods logic
 - [x] return directive redirection
 - [ ] output the right status code
+- [ ] handle cgi extennsions also in the location
