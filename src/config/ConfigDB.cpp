@@ -156,7 +156,7 @@ void ConfigDB::printKeyValue()
 
 void ConfigDB::fillMap(std::string value, std::string key, std::string currentSection, std::string KeyWithoutLastSection)
 {
-    VecStr splitedValue = customSplit(value, ' ');
+    VecStr splitedValue = split(value, ' ');
     VecStr::iterator spltValIt = splitedValue.begin();
 
     while (spltValIt != splitedValue.end())
@@ -188,7 +188,7 @@ void ConfigDB::splitDirectiveAndValue(std::string currentSection, VecStr::const_
         key = cutTillSemicolon(trimmedLine);
         value = "none";
     } else {
-        VecStr tokens = customSplit(trimmedLine, ' ');
+        VecStr tokens = split(trimmedLine, ' ');
         if (tokens.size() >= 2)
         {
             key = tokens[0];
@@ -216,7 +216,7 @@ void ConfigDB::execParser(char *argv[])
     int end = 0;
 
     configData = this->readFile(argv);
-    VecStr lines = customSplit(configData, '\n');
+    VecStr lines = split(configData, '\n');
     for (VecStr::const_iterator it = lines.begin(); it != lines.end(); ++it)
     {
         std::string trimmedLine = *it;

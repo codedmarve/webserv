@@ -114,6 +114,15 @@ std::string formatHttpDate(time_t timeValue);
 std::string get_http_date();
 std::string md5(const std::string& input);
 std::string generateETagForFile(File& file);
+bool isMethodCharValid(char ch);
+bool isAlpha(char c);
+bool isDigit(char c);
+bool isAlphaNum(char c);
+bool isUnreserved(char c);
+bool isSubDelim(char c);
+bool isHexDigit(char c);
+std::string trim(const std::string& str);
+unsigned int hexToDecimal(const std::string& hex);
 
 template<typename KeyType, typename ValueType>
 void printMap(const std::map<KeyType, ValueType> &m);

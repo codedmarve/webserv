@@ -12,17 +12,6 @@
 
 #include "../../inc/AllHeaders.hpp"
 
-std::vector<std::string> customSplit(const std::string &s, char delim) {
-    std::vector<std::string> port_list;
-    std::stringstream iss(s);
-    std::string port;
-    while (std::getline(iss, port, delim)) {
-        if(!port.empty() && port[0] != delim)
-            port_list.push_back(port);
-    }
-    return port_list;
-}
-
 std::string getIndexVariableKey(std::string key,std::map<std::string, std::vector<std::string> > keyValues)
 {
     typedef std::map<std::string, std::vector<std::string> >::const_iterator MapIterator;
@@ -39,61 +28,6 @@ std::string getIndexVariableKey(std::string key,std::map<std::string, std::vecto
     return finalKey.str();
 }
 
-// Function to trim whitespaces from end
-void trimWordFromEnd(int &start, int &end, std::string line) {
-    (void)start;
-    end = line.size() - 1;
-    while(isspace(line[end]) || line[end] == '{')
-        end--;
-}
-
-
-// Checks closed curly braces or not
-int checkCurly(std::string line) {
-    int i = 0;
-    int openCurly = 0;
-    int closedCurly = 0;
-
-    while(line[i]) {
-        if (line[i] == '{')
-            ++openCurly;
-        else if (line[i] == '}')
-            ++closedCurly;
-        ++i;
-    }
-    if (openCurly == closedCurly)
-        return 0;
-    return 1;
-}
-
-void ft_errors(std::string arg, int i)
-{
-    if(i == 1)
-        std::cerr << "Usage: " << arg << " <config_file>" << std::endl;
-    if(i == 2)
-        std::cerr << "Error opening file: " << arg << std::endl;
-    if(i == 3)
-        std::cerr << "Quotes are not closed." << std::endl;
-    exit(1);
-}
-
-std::vector<std::string> split(const std::string &s, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(s);
-    while (std::getline(tokenStream, token, delimiter)) {
-        tokens.push_back(token);
-    }
-    return tokens;
-}
-
-std::string cutTillSemicolon(std::string str)
-{
-    size_t i = str.find_first_of(';');
-    if(i != std::string::npos)
-        str = str.substr(0, i);
-    return str;
-}
 
 void    handleLogFormat(std::string line, std::string &value, std::vector<std::string> tokens, std::vector<std::string>::const_iterator &it)
 {
@@ -123,7 +57,6 @@ void    handleLogFormat(std::string line, std::string &value, std::vector<std::s
         it++;
     }
 }
-
 
 void printAllDBData(GroupedDBMap db) {
     GroupedDBMap::const_iterator it;

@@ -1,4 +1,109 @@
-#include "../../inc/AllHeaders.hpp"
+#include "../inc/AllHeaders.hpp"
+
+bool isMethodCharValid(char ch) {
+    // According to RFC 7229, valid characters for method are:
+    return (ch == '!' || ch == '#' || ch == '$' || ch == '%' || ch == '&' || ch == '\'' ||
+            ch == '*' || ch == '+' || ch == '-' || ch == '.' || ch == '^' || ch == '_' ||
+            ch == '`' || ch == '|' || ch == '~' || std::isdigit(ch) || std::isalpha(ch));
+}
+
+// Function to trim whitespaces from end
+void trimWordFromEnd(int &start, int &end, std::string line) {
+    (void)start;
+    end = line.size() - 1;
+    while(isspace(line[end]) || line[end] == '{')
+        end--;
+}
+
+// Checks closed curly braces or not
+int checkCurly(std::string line) {
+    int i = 0;
+    int openCurly = 0;
+    int closedCurly = 0;
+
+    while(line[i]) {
+        if (line[i] == '{')
+            ++openCurly;
+        else if (line[i] == '}')
+            ++closedCurly;
+        ++i;
+    }
+    if (openCurly == closedCurly)
+        return 0;
+    return 1;
+}
+
+std::string cutTillSemicolon(std::string str)
+{
+    size_t i = str.find_first_of(';');
+    if(i != std::string::npos)
+        str = str.substr(0, i);
+    return str;
+}
+
+void ft_errors(std::string arg, int i)
+{
+    if(i == 1)
+        std::cerr << "Usage: " << arg << " <config_file>" << std::endl;
+    if(i == 2)
+        std::cerr << "Error opening file: " << arg << std::endl;
+    if(i == 3)
+        std::cerr << "Quotes are not closed." << std::endl;
+    exit(1);
+}
+
+std::vector<std::string> split(const std::string &s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
+    while (std::getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+bool isAlpha(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
+bool isDigit(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+bool isAlphaNum(char c) {
+    return isAlpha(c) || isDigit(c);
+}
+
+bool isUnreserved(char c) {
+    return isAlphaNum(c) || c == '-' || c == '.' || c == '_' || c == '~';
+}
+
+bool isSubDelim(char c) {
+    return c == '!' || c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*' || c == '+' || c == ',' || c == ';' || c == '=';
+}
+
+bool isHexDigit(char c) {
+    return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
+}
+
+std::string trim(const std::string& str) {
+    size_t start = str.find_first_not_of(" \t\r\n");
+    size_t end = str.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos || end == std::string::npos) {
+        return "";
+    }
+    return str.substr(start, end - start + 1);
+}
+
+unsigned int hexToDecimal(const std::string& hex) {
+    std::stringstream ss;
+    ss << std::hex << hex;
+    unsigned int decimal;
+    if (!(ss >> decimal)) {
+        throw std::invalid_argument("Invalid hex value");
+    }
+    return decimal;
+}
 
 std::map<char, int> initializeB64Index() {
     std::map<char, int> index;

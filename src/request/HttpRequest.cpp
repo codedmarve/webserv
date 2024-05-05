@@ -135,3 +135,31 @@ time_t HttpRequest::get_last_timer_in_sec() {
   return last_tv_.tv_sec;
 }
 
+void HttpRequest::print_uri_extracts() {
+    std::cout << "uri: " << uri_ << "\n" << std::endl;
+    std::cout << "scheme: " << scheme_ << std::endl;
+    std::cout << "authority: " << authority_ << std::endl;
+    std::cout << "path: " << path_ << std::endl;
+    std::cout << "query: " << query_ << std::endl;
+    std::cout << "fragment: " << frag_ << std::endl;
+}
+
+void HttpRequest::printRequest(HttpRequest parser) {
+    ;
+    try {
+        // parser.parseRequest(request);
+        std::cout << "Method: " << parser.getMethod() << std::endl;
+        std::cout << "Target: " << parser.getURI() << std::endl;
+        std::cout << "Protocol: " << parser.getProtocol() << std::endl;
+        std::cout << "Headers:" << std::endl;
+        const std::map<std::string, std::string>& headers = parser.getHeaders();
+        std::map<std::string, std::string>::const_iterator it;
+        for (it = headers.begin(); it != headers.end(); ++it) {
+            std::cout << it->first << ": " << it->second << std::endl;
+        }
+        std::cout << "Body: " << parser.getBody() << std::endl;
+        std::cout << "-------------------------------\n";
+    } catch (const std::exception& e) {
+        std::cerr << "Error parsing request: " << e.what() << std::endl;
+    }
+}
