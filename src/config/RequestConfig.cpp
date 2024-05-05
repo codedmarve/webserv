@@ -228,11 +228,24 @@ void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
     }
 }
 
+void RequestConfig::returnRedirection() {
+    std::map<int, std::string> m = getRedirectionMap();
+    if (getRedirectionMap().size())
+    {
+        std::map<int, std::string>::const_iterator it = m.begin();
+        for (it = m.begin(); it != m.end(); ++it)
+            request_.setTarget(m[it->first]);
+    }
+
+}
+
 void RequestConfig::setUp(size_t targetServerIdx)
 {
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
 
+    setRedirectMap(cascadeFilter("return", request_.getTarget()));
+    returnRedirection();
     setLocationsMap(targetServer_);
     setTarget(request_.getTarget());
     setUri(request_.getURI());
@@ -245,7 +258,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("auth", target_));
     setCgi(cascadeFilter("cgi", target_));
     setCgiBin(cascadeFilter("cgi-bin", target_));
-    setRedirectMap(cascadeFilter("return", target_));
 
     printMap(getRedirectionMap());
 
@@ -344,55 +356,7 @@ void RequestConfig::setCgiBin(const VecStr &cgi)
     cgi_bin_ = (cgi_bin_.empty()) ? "" : cgi[0];
 }
 
-// void RequestConfig::setErrorPages(const VecStr &errors)
-// {
-//     std::map<int, std::string> resultMap;
-//     std::string errorCodes;
-
-//     if (!errors.empty())
-//     {
-//         for (size_t i = 0; i < errors.size(); ++i)
-//         {
-//             std::istringstream iss(errors[i]);
-//             int errorCode;
-//             if (iss >> errorCode)
-//             {
-//                 // Its errorCode. concatenate it
-//                 if (!errorCodes.empty())
-//                     errorCodes += " ";
-//                 errorCodes += errors[i];
-//             }
-//             else
-//             { // It's errorPage
-//                 if (!errorCodes.empty())
-//                 {
-//                     // Split the concatenated errorCodes
-//                     std::istringstream codeStream(errorCodes);
-//                     int code;
-//                     while (codeStream >> code)
-//                     {
-//                         resultMap[code] = errors[i];
-//                     }
-//                     errorCodes.clear();
-//                 }
-//             }
-//         }
-
-//         // Assign the last errorPage to remaining errorCodes
-//         if (!errorCodes.empty())
-//         {
-//             std::istringstream codeStream(errorCodes);
-//             int code;
-//             while (codeStream >> code)
-//             {
-//                 resultMap[code] = errors.back();
-//             }
-//         }
-//     }
-//     error_codes_ = resultMap;
-// }
-
-void RequestConfig::assignErrorCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap)
+void RequestConfig::assignErrorCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap)
 {
     std::istringstream codeStream(errorCodes);
     int code;
@@ -421,7 +385,7 @@ void RequestConfig::setErrorPages(const VecStr &errors)
                 errorCodes += errors[i];
             }
             else
-            { 
+            {
                 if (!errorCodes.empty())
                 {
                     assignErrorCodes(errorCodes, errors[i], resultMap);
@@ -439,7 +403,7 @@ void RequestConfig::setErrorPages(const VecStr &errors)
     error_codes_ = resultMap;
 }
 
-void RequestConfig::assignRedirCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap)
+void RequestConfig::assignRedirCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap)
 {
     std::istringstream codeStream(errorCodes);
     int code;
@@ -468,7 +432,7 @@ void RequestConfig::setRedirectMap(const VecStr &redirectMap)
                 redirCodes += redirectMap[i];
             }
             else
-            { 
+            {
                 if (!redirCodes.empty())
                 {
                     assignRedirCodes(redirCodes, redirectMap[i], resultMap);

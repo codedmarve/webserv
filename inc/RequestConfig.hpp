@@ -50,7 +50,7 @@ public:
   void setUpload(const VecStr &upload);
   void setCgi(const VecStr &cgi);
   void setCgiBin(const VecStr &cgiBin);
-  void setLocationsMap(const std::vector<KeyMapValue>& values);
+  void setLocationsMap(const std::vector<KeyMapValue> &values);
   void setRedirectMap(const VecStr &redirects);
 
   std::string &getTarget();
@@ -81,8 +81,9 @@ public:
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
   bool directiveExists(std::string directive, std::string location);
-  void assignErrorCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap);
-  void assignRedirCodes(const std::string& errorCodes, const std::string& errorPage, std::map<int, std::string>& resultMap);
+  void assignErrorCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
+  void assignRedirCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
+  void returnRedirection();
 
   void printConfigSetUp();
 

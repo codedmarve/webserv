@@ -79,7 +79,6 @@ private:
     void extractPathQueryFragment(size_t pathStart);
     void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
     std::string decodeURIComponent(const std::string& str);
-    void setTarget(std::string target);
 
 
 public:
@@ -100,7 +99,9 @@ public:
     std::string getTarget() const;
     size_t getContentLength();
 
+    void setTarget(std::string target);
     void printRequest(HttpRequest parser);
+
 
     bool timeout();
     time_t get_start_timer_in_sec();
