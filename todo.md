@@ -7,7 +7,6 @@
 - [x] authorization works
 - [ ] test client body limit
 - [x] fix best match
-- [ ] throw error if the drectives doesn't end in a colon
 - [ ] remove errno
 - [x] fix custom error pages bug
 - [x] fix allowed methods logic
