@@ -247,7 +247,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
     setLocationsMap(targetServer_);
-    setTarget(request_.getTarget());
+    setTarget(request_.getPath());
     setUri(request_.getURI());
     setRoot(cascadeFilter("root", target_));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", target_));

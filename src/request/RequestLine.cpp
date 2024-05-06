@@ -50,6 +50,9 @@ int HttpRequest::parseRequestLine() {
 
     buffer_section_ = HEADERS;
     req_buffer_.erase(0, endOfFirstLine + 2);
+
+    uri_ = getPath();
+    setTarget(uri_);
     
     return 200;
 }
