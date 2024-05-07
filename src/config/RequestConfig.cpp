@@ -247,17 +247,44 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
     setLocationsMap(targetServer_);
-    setTarget(request_.getTarget());
-    setUri(request_.getURI());
-    setRoot(cascadeFilter("root", target_));
-    setClientMaxBodySize(cascadeFilter("client_max_body_size", target_));
-    setAutoIndex(cascadeFilter("autoindex", target_));
-    setIndexes(cascadeFilter("index", target_));
-    setErrorPages(cascadeFilter("error_page", target_));
-    setMethods(cascadeFilter("allow_methods", target_));
-    setAuth(cascadeFilter("auth", target_));
-    setCgi(cascadeFilter("cgi", target_));
-    setCgiBin(cascadeFilter("cgi-bin", target_));
+    // setTarget(request_.getTarget());
+    // setUri(request_.getURI());
+
+
+    std::string target = request_.getTarget();
+	std::string longestMatch = "";
+
+	std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
+	while (locationsMap != getLocationsMap().end())
+	{
+		if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
+		{
+			longestMatch = locationsMap->first;
+		}
+		locationsMap++;
+	}
+    std::string newTarget;
+	if (!longestMatch.empty())
+	{
+        newTarget = target.substr(0, longestMatch.length());
+		target.erase(0, longestMatch.length());
+		setTarget("/"+target);
+		setUri("/"+target);
+	} else {
+        newTarget = request_.getTarget();
+        setTarget(request_.getTarget());
+        setUri(request_.getURI());
+    }
+    
+    setRoot(cascadeFilter("root", newTarget));
+    setClientMaxBodySize(cascadeFilter("client_max_body_size", newTarget));
+    setAutoIndex(cascadeFilter("autoindex", newTarget));
+    setIndexes(cascadeFilter("index", newTarget));
+    setErrorPages(cascadeFilter("error_page", newTarget));
+    setMethods(cascadeFilter("allow_methods", newTarget));
+    setAuth(cascadeFilter("auth", newTarget));
+    setCgi(cascadeFilter("cgi", newTarget));
+    setCgiBin(cascadeFilter("cgi-bin", newTarget));
 
     printMap(getRedirectionMap());
 
