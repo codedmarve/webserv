@@ -201,7 +201,6 @@ bool File::exists(const std::string &path)
 bool File::is_directory()
 {
     struct stat statbuf;
-
     if (!checkFileExists(path_))
         return false;
 

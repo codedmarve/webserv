@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/05 22:06:14 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/05 22:44:42 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ void CgiHandle::initEnv(){
 	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
 	// this->_env["REMOTE_ADDR"] = getIp();
 	this->_env["QUERY_STRING"] = this->_config->getQuery();
+	std::cout << "QUERY_STRING: " << this->_config->getQuery() << std::endl;
 	ss << this->_config->getPort();
 	std::string port = ss.str();
 	this->_env["REMOTE_PORT"] = port;
