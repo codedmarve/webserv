@@ -81,9 +81,11 @@ public:
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
   bool directiveExists(std::string directive, std::string location);
-  void assignErrorCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
-  void assignRedirCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
   void returnRedirection();
+  void setBestMatch(std::string &newTarget);
+
+  void setMap(const VecStr &vec, std::map<int, std::string> &resultMap, std::string &codes);
+  void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
 
   void printConfigSetUp();
 
