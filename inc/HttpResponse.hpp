@@ -78,8 +78,9 @@ public:
 
     void HandleCgi();
     void setCgiPipe(CgiHandle &cgi);
-    int toCgi(CgiHandle &cgi, std::string &req_body);
-    int fromCgi(CgiHandle &cgi);
+    void toCgi(CgiHandle &cgi, std::string &req_body);
+    void fromCgi(CgiHandle &cgi);
+    void handleCgiHeaders(std::string &body);
 
 
 
@@ -102,6 +103,9 @@ private:
     std::pair<std::string, int> findLocation(std::string target);
     std::map<std::string, std::string> headers_;   
 
+    std::string cgiHeaders_;
+    bool cgiHeadersParsed_;
+    bool cgiRead;
     std::string buildMethodList();
     bool checkAuth();
 };

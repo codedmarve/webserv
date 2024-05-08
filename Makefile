@@ -2,7 +2,7 @@ NAME = webserv
 
 # COMPILER
 CC = c++
-CFLAGS = -Werror -Wall -Wextra -std=c++98 -fsanitize=address
+CFLAGS = -Werror -Wall -Wextra -std=c++98 #-fsanitize=address
 RM = rm -rf
 
 # DIRECTORIES
