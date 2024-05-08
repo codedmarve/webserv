@@ -2,10 +2,12 @@
 
 RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client) : request_(request), client_(client), host_port_(host_port), db_(db)
 {
+    redir_code_ = 0;
 }
 
 RequestConfig::~RequestConfig()
 {
+    redir_code_ = 0;
     cgi_.clear();
     error_codes_.clear();
 }
@@ -212,6 +214,16 @@ RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
     return requestConfig;
 }
 
+int &RequestConfig::getRedirCode()
+{
+    return redir_code_;
+}
+
+void RequestConfig::setRedirCode(int code)
+{
+    redir_code_ = code;
+}
+
 void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
 {
     int modifier = NONE;
@@ -233,8 +245,11 @@ void RequestConfig::returnRedirection() {
     if (getRedirectionMap().size())
     {
         std::map<int, std::string>::const_iterator it = m.begin();
-        for (it = m.begin(); it != m.end(); ++it)
+        for (it = m.begin(); it != m.end(); ++it) {
             request_.setTarget(m[it->first]);
+            setRedirCode(it->first);
+            std::cout << "$ - Redirecting to: " << m[it->first] << std::endl;
+        }
     }
 
 }

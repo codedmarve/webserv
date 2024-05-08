@@ -375,6 +375,15 @@ std::string HttpResponse::redirect_target()
 void HttpResponse::createResponse()
 {
 	headers_["Server"] = "webserv/1.1";
+	if (config_.getRedirCode())
+	{
+		redirect_code_ = config_.getRedirCode();
+
+		if (redirect_code_ == 301) {
+			std::map<int, std::string> m = config_.getRedirectionMap();
+			headers_["Location"] = m[redirect_code_];
+		}
+	}
 
 	if (config_.getMethod() == "HEAD")
 	{
@@ -390,6 +399,7 @@ void HttpResponse::createResponse()
 	std::string status_line = "HTTP/1.1 " + ftos(status_code_) + " " + status_code_phrase + "\r\n";
 
 	headers_["Date"] = get_http_date();
+	
 
 	std::string header_block;
 	for (std::map<std::string, std::string>::iterator it = headers_.begin(); it != headers_.end(); it++)
