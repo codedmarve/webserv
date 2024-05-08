@@ -117,7 +117,7 @@ std::string RequestConfig::locationExtractor(const std::string &locationStr)
     return locationStr.substr(j);
 }
 
-LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
+LocationModifier RequestConfig::setModifier(const std::string &locationStr)
 {
     LocationModifier modifierType_ = NONE;
     std::string modifiers;
@@ -219,7 +219,7 @@ void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
     {
         const MapStr &keyMap = values[i].first;
         std::string loc = keyMap.find("location")->second;
-        modifier = checkModifier(loc);
+        modifier = setModifier(loc);
 
         if (!loc.empty() && locationsMap_.find(loc) == locationsMap_.end())
         {
@@ -228,7 +228,8 @@ void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
     }
 }
 
-void RequestConfig::returnRedirection() {
+void RequestConfig::returnRedirection()
+{
     std::map<int, std::string> m = getRedirectionMap();
     if (getRedirectionMap().size())
     {
@@ -236,32 +237,61 @@ void RequestConfig::returnRedirection() {
         for (it = m.begin(); it != m.end(); ++it)
             request_.setTarget(m[it->first]);
     }
-
 }
 
-void RequestConfig::setBestMatch(std::string &newTarget) {
+void RequestConfig::setBestMatch(std::string &newTarget)
+{
     std::string target = request_.getTarget();
-	std::string longestMatch = "";
+    std::string longestMatch = "";
 
-	std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
-	while (locationsMap != getLocationsMap().end())
-	{
-		if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
-			longestMatch = locationsMap->first;
-		locationsMap++;
-	}
-	if (!longestMatch.empty())
-	{
+    std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
+    while (locationsMap != getLocationsMap().end())
+    {
+        if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
+            longestMatch = locationsMap->first;
+        locationsMap++;
+    }
+    if (!longestMatch.empty())
+    {
         newTarget = target.substr(0, longestMatch.length());
-		target.erase(0, longestMatch.length());
-		setTarget("/" + target);
-		setUri("/" + target);
-	} else {
+        target.erase(0, longestMatch.length());
+        setTarget("/" + target);
+        setUri("/" + target);
+    }
+    else
+    {
         newTarget = request_.getTarget();
         setTarget(request_.getTarget());
         setUri(request_.getURI());
     }
 }
+
+
+std::map<std::string, int>::const_iterator findCaseInsensitive(const std::map<std::string, int>& myMap, const std::string& key) {
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it) {
+        if (it->first.size() == key.size() && std::equal(it->first.begin(), it->first.end(), key.begin(), ::tolower))
+            return it;
+    }
+    return myMap.end();
+}
+
+
+bool findExactMatch(const std::map<std::string, int>& myMap, const std::string& key) {
+    return myMap.find(key) != myMap.end();
+}
+
+bool findLongestSubstrMatch(const std::map<std::string, int>& myMap, const std::string& substr) {
+    size_t longestMatch = 0;
+
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it) {
+        size_t found = it->first.find(substr);
+        if (found != std::string::npos && found + substr.size() > longestMatch)
+            longestMatch = found + substr.size();
+    }
+    return longestMatch > 0;
+}
+
+
 
 
 void RequestConfig::setUp(size_t targetServerIdx)
@@ -270,9 +300,16 @@ void RequestConfig::setUp(size_t targetServerIdx)
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
 
+    setLocationsMap(targetServer_);
+    bool found = false;
+
+    found = findCaseInsensitive(locationsMap_, request_.getTarget());
+    if (findExactMatch(locationsMap_, request_.getTarget())) {
+    } 
+
+
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
-    setLocationsMap(targetServer_);
     setBestMatch(newTarget);
     setRoot(cascadeFilter("root", newTarget));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", newTarget));
@@ -438,7 +475,6 @@ void RequestConfig::setRedirectMap(const VecStr &redirectMap)
     setMap(redirectMap, resultMap, redirCodes);
     redirectMap_ = resultMap;
 }
-
 
 /**
  * GETTERS

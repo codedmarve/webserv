@@ -105,7 +105,7 @@ std::string getValue(const std::map<std::string, std::vector<std::string> > &key
 void printAllDBData(GroupedDBMap db);
 void printData(const std::vector<KeyMapValue> &values);
 std::vector<KeyMapValue> getDataByIdx(GroupedDBMap db, int index);
-bool checkModifier(std::string &str);
+bool setModifier(std::string &str);
 const std::string b64decode(const void *data, const size_t &len);
 std::string b64decode(const std::string &str64);
 std::string ftos(size_t num);

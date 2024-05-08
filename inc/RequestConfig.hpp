@@ -31,7 +31,7 @@ public:
   const VecStr &filterDataByDirectives(const std::vector<KeyMapValue> &values, std::string directive, std::string location);
   const VecStr &cascadeFilter(std::string directive, std::string location);
   const VecStr &checkRootDB(std::string directive);
-  LocationModifier checkModifier(const std::string &modifiers);
+  LocationModifier setModifier(const std::string &modifiers);
   bool isMethodAccepted(std::string &method);
   void redirectLocation(std::string target);
   std::string locationExtractor(const std::string &locationStr);
@@ -95,7 +95,7 @@ private:
   Client &client_;
   Listen &host_port_;
   DB &db_;
-  // LocationModifier modifierType_;
+  LocationModifier modifierType_;
   std::string target_;
   std::string root_;
   std::string uri_;
