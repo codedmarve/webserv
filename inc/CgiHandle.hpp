@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:32 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/09 00:05:06 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/09 01:33:49 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class CgiHandle{
 		int getExitStatus();
 		std::string getExecPath();
 		int getContentLength();
+		int getPid();
 		void setPath();
 		void setArgv();
 		void deductContentLength(int length);

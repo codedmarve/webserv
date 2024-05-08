@@ -457,10 +457,11 @@ void HttpResponse::HandleCgi()
 	CgiHandle cgi(&config_, file_->getMimeExt());
 	cgi.execCgi();
 	printf("CGI exit status: %d\n", cgi.getExitStatus());
-	if ((status_code_ = cgi.getExitStatus()) == 256 || (status_code_ = cgi.getExitStatus()) == 500)
+	// std::cout << "I am here" << std::endl;
+	pid_t exit_status = waitpid(cgi.getPid(), &status_code_, WNOHANG);
+	if ((status_code_ = cgi.getExitStatus()) == 500 || exit_status == 500)
 	{
-		if (cgi.getExitStatus() == 256)
-			status_code_ = 500;
+		status_code_ = 500;
 		close(cgi.getPipeOut());
 		close(cgi.getPipeIn());
 		return ;
@@ -472,8 +473,9 @@ void HttpResponse::HandleCgi()
 		std::cout << "STATUS: " << status_code_ << std::endl;
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
-		std::cout << "I am here" << std::endl;
 	}
+	// waitpid(cgi.getPid(), &status_code_, 0);
+	std::cout << "STATUS: " << status_code_ << std::endl;
 	// std::string body;
 	// int bytesRead = 0;
 	// char buffer[4096];
@@ -519,17 +521,39 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 {
 	int bytesRead;
 	char buffer[4096];
-	if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
+	fd_set readfds;
+	FD_ZERO(&readfds);
+	FD_SET(cgi.getPipeOut(), &readfds);
+
+	struct timeval tv;
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+	if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) > 0)
 	{
-		body_.append(buffer, bytesRead);
-		if (body_.find("\r\n\r\n") != std::string::npos && !cgiHeadersParsed_)
-			handleCgiHeaders(body_);
-		cgiRead = true;
+		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
+		{
+			body_.append(buffer, bytesRead);
+			if (body_.find("\r\n\r\n") != std::string::npos && !cgiHeadersParsed_)
+				handleCgiHeaders(body_);
+			cgiRead = true;
+		}
+		else if (bytesRead == -1 || bytesRead == 0)
+		{
+			std::cout << "bytesRead: " << bytesRead << std::endl;
+			close (cgi.getPipeOut());
+			status_code_ = (cgiRead) ? 200 : 500;
+			return ;
+		}
 	}
-	else if (bytesRead == -1 || bytesRead == 0)
+	else if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) == -1)
 	{
-		close (cgi.getPipeOut());
-		status_code_ = (cgiRead) ? 200 : 500;
+		std::cerr << "Error reading CGI response" << std::endl;
+		status_code_ = 500;
+	}
+	else
+	{
+		close(cgi.getPipeOut());
+		status_code_ = 200;
 	}
 }
 

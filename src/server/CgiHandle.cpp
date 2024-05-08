@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/09 00:31:24 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/09 01:34:11 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,6 @@ void CgiHandle::initEnv(){
 	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
 	// this->_env["REMOTE_ADDR"] = getIp();
 	this->_env["QUERY_STRING"] = this->_config->getQuery();
-	std::cout << "QUERY_STRING: " << this->_config->getQuery() << std::endl;
 	ss << this->_config->getPort();
 	std::string port = ss.str();
 	this->_env["REMOTE_PORT"] = port;
@@ -127,13 +126,12 @@ void CgiHandle::execCgi(){
 			|| (_exit_status = execve(this->_argv[0], this->_argv, this->_envp)) == -1)
 		{
 			std::cerr << "Error: execve failed" << std::endl;
-			this->_exit_status = 500;
 			closePipe();
-			exit(1);
+			exit(500);
 		}
 		closePipe();
 	}
-	waitpid(this->_cgi_pid, &this->_exit_status, 0);
+	// waitpid(this->_cgi_pid, &this->_exit_status, 0);
 }
 
 int CgiHandle::setPipe(){
@@ -203,6 +201,10 @@ int CgiHandle::getContentLength(){
 	return this->content_length;
 }
 
+int CgiHandle::getPid(){
+	return this->_cgi_pid;
+}
+
 void CgiHandle::deductContentLength(int length){
 	this->content_length -= length;
 }
@@ -210,7 +212,9 @@ void CgiHandle::deductContentLength(int length){
 std::string CgiHandle::checkShebang(){
 	std::ifstream file(this->_path);
 	if (!file.is_open())
-		return 0;
+	{
+		return "";
+	}
 	std::string line;
 	std::getline(file, line);
 	if (line.find("#!") == std::string::npos)
