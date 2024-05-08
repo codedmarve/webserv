@@ -248,7 +248,6 @@ void RequestConfig::returnRedirection() {
         for (it = m.begin(); it != m.end(); ++it) {
             request_.setTarget(m[it->first]);
             setRedirCode(it->first);
-            std::cout << "$ - Redirecting to: " << m[it->first] << std::endl;
         }
     }
 
