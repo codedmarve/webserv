@@ -76,14 +76,16 @@ public:
   size_t getContentLength();
   std::string &getAuth();
   std::string &getUpload();
-  std::map<std::string, std::string> &getCgi();
+  std::vector<std::string> &getCgi();
   std::string &getCgiBin();
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
   bool directiveExists(std::string directive, std::string location);
-  void assignErrorCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
-  void assignRedirCodes(const std::string &errorCodes, const std::string &errorPage, std::map<int, std::string> &resultMap);
   void returnRedirection();
+  void setBestMatch(std::string &newTarget);
+
+  void setMap(const VecStr &vec, std::map<int, std::string> &resultMap, std::string &codes);
+  void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
 
   void printConfigSetUp();
 
@@ -106,7 +108,7 @@ private:
   size_t serverId;
   std::string auth_;
   std::string upload_;
-  std::map<std::string, std::string> cgi_;
+  std::vector<std::string> cgi_;
   std::string cgi_bin_;
   std::map<std::string, int> locationsMap_;
 };

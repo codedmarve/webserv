@@ -442,9 +442,14 @@ int HttpResponse::sendResponse(int fd)
 	return 1;
 }
 
+// bool HttpResponse::isCgi(std::string ext) {
+// 	std::map<std::string, std::string> &cgi = config_.getCgi();
+// 	return cgi.find(ext) != cgi.end();
+// }
+
 bool HttpResponse::isCgi(std::string ext) {
-	std::map<std::string, std::string> &cgi = config_.getCgi();
-	return cgi.find(ext) != cgi.end();
+    VecStr &cgi = config_.getCgi();
+    return std::find(cgi.begin(), cgi.end(), ext) != cgi.end();
 }
 
 void HttpResponse::HandleCgi()
