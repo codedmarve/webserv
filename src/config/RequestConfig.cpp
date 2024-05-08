@@ -273,9 +273,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
     setLocationsMap(targetServer_);
-
     setBestMatch(newTarget);
-    
     setRoot(cascadeFilter("root", newTarget));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", newTarget));
     setAutoIndex(cascadeFilter("autoindex", newTarget));
@@ -285,8 +283,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("auth", newTarget));
     setCgi(cascadeFilter("cgi", newTarget));
     setCgiBin(cascadeFilter("cgi-bin", newTarget));
-
-    printMap(getRedirectionMap());
 
     // RequestConfig *location = NULL;
     int status = request_.getStatus();
@@ -362,20 +358,21 @@ void RequestConfig::setMethods(const VecStr &methods)
 
 void RequestConfig::setCgi(const VecStr &cgi)
 {
-    cgi_.clear();
+    // cgi_.clear();
 
-    if (cgi.size() % 2 != 0)
-        std::cerr << "Warning: Cgi value is empty\n";
+    // if (cgi.size() % 2 != 0)
+    //     std::cerr << "Warning: Cgi value is empty\n";
 
-    for (size_t i = 0; i < cgi.size(); i += 2)
-    {
-        const std::string &key = cgi[i];
-        std::string value;
+    // for (size_t i = 0; i < cgi.size(); i += 2)
+    // {
+    //     const std::string &key = cgi[i];
+    //     std::string value;
 
-        if (i + 1 < cgi.size())
-            value = cgi[i + 1];
-        cgi_[key] = value;
-    }
+    //     if (i + 1 < cgi.size())
+    //         value = cgi[i + 1];
+    //     cgi_[key] = value;
+    // }
+    cgi_ = cgi;
 }
 
 void RequestConfig::setCgiBin(const VecStr &cgi)
@@ -566,7 +563,7 @@ std::string &RequestConfig::getUpload()
     return upload_;
 }
 
-std::map<std::string, std::string> &RequestConfig::getCgi()
+std::vector<std::string> &RequestConfig::getCgi()
 {
     return cgi_;
 }
@@ -614,15 +611,11 @@ void RequestConfig::printConfigSetUp()
     printMap(getHeaders());
     std::cout << std::endl;
     std::cout << "\nCGI\n";
-    printMap(cgi_);
+    // printVec(cgi_);
     std::cout << std::endl;
     std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
 
     std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
     std::cout << "\n[content-length] " << getContentLength() << "\n"
               << std::endl;
-
-    // printAllDBData(db_.serversDB);
-    // printData(targetServer);
-    // printVec(cascadeFilter("default_type", target_), "setup");
 }

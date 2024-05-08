@@ -76,7 +76,7 @@ public:
   size_t getContentLength();
   std::string &getAuth();
   std::string &getUpload();
-  std::map<std::string, std::string> &getCgi();
+  std::vector<std::string> &getCgi();
   std::string &getCgiBin();
   std::map<std::string, int> &getLocationsMap();
   RequestConfig *getRequestLocation(std::string request_target);
@@ -108,7 +108,7 @@ private:
   size_t serverId;
   std::string auth_;
   std::string upload_;
-  std::map<std::string, std::string> cgi_;
+  std::vector<std::string> cgi_;
   std::string cgi_bin_;
   std::map<std::string, int> locationsMap_;
 };
