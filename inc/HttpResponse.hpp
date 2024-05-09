@@ -81,6 +81,7 @@ public:
     void toCgi(CgiHandle &cgi, std::string &req_body);
     void fromCgi(CgiHandle &cgi);
     void handleCgiHeaders(std::string &body);
+    void parseCgiHeaders();
 
 
 
@@ -101,7 +102,7 @@ private:
     std::string charset_;
     std::map<std::string, HttpResponse::type> methods_;
     std::pair<std::string, int> findLocation(std::string target);
-    std::map<std::string, std::string> headers_;   
+    std::map<std::string, std::string> headers_;
 
     std::string cgiHeaders_;
     bool cgiHeadersParsed_;

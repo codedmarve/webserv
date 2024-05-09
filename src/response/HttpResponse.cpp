@@ -474,7 +474,9 @@ void HttpResponse::HandleCgi()
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
 	}
-	// waitpid(cgi.getPid(), &status_code_, 0);
+	waitpid(cgi.getPid(), &exit_status, 0);
+	if (exit_status == 256)
+		status_code_ = 500;
 	std::cout << "STATUS: " << status_code_ << std::endl;
 	// std::string body;
 	// int bytesRead = 0;
@@ -568,6 +570,11 @@ void HttpResponse::setCgiPipe(CgiHandle &cgi)
 	}
 }
 
+void HttpResponse::parseCgiHeaders()
+{
+	headers_["Accept-Language"] = "fr";
+}
+
 void HttpResponse::handleCgiHeaders(std::string &body_)
 {
 	std::string::size_type pos = body_.find("\r\n\r\n");
@@ -576,6 +583,7 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 		cgiHeaders_ = body_.substr(0, pos);
 		body_ = body_.substr(pos + 4);
 		cgiHeadersParsed_ = true;
+		parseCgiHeaders();
 	}
 	else
 	{
