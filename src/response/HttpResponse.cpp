@@ -93,13 +93,13 @@ void HttpResponse::buildDebugger(std::string method)
 
 std::pair<std::string, int> HttpResponse::findLocation(std::string target)
 {
-  std::map<std::string, int> locationsMap = config_.getLocationsMap();
-  for (std::map<std::string, int>::iterator it = locationsMap.begin(); it != locationsMap.end(); ++it)
-  {
-    if (target == it->first)
-      return *it;
-  }
-  return std::make_pair("", 0);
+	std::map<std::string, int> locationsMap = config_.getLocationsMap();
+	for (std::map<std::string, int>::iterator it = locationsMap.begin(); it != locationsMap.end(); ++it)
+	{
+		if (target == it->first)
+			return *it;
+	}
+	return std::make_pair("", 0);
 }
 
 void HttpResponse::build()
@@ -107,38 +107,36 @@ void HttpResponse::build()
 	std::string &method = config_.getMethod();
 	file_ = new File();
 
+	if (findLocation(config_.getTarget()).first != "")
+	{
+		config_.setTarget("/");
+		config_.setUri("/");
+	}
 
-    if (findLocation(config_.getTarget()).first != "")
-    {
-      config_.setTarget("/");
-      config_.setUri("/");
-    }
-
-  file_->set_path(config_.getRoot() + "/" + config_.getTarget());
+	file_->set_path(config_.getRoot() + "/" + config_.getTarget());
 
 	// buildDebugger(method);
 
-//   std::cout << "Auth: " << config_.getAuth() << std::endl;
-//   std::cout << "checkAuth: " << checkAuth() << std::endl;
+	//   std::cout << "Auth: " << config_.getAuth() << std::endl;
+	//   std::cout << "checkAuth: " << checkAuth() << std::endl;
 
-  bool isAuthorized =config_.getAuth() != "off" && !checkAuth();
+	bool isAuthorized = config_.getAuth() != "off" && !checkAuth();
 
-  if (error_code_ > 200)
-    status_code_ = error_code_;
-  else if (!config_.isMethodAccepted(method))
-  {
-    status_code_ = 405;
-    headers_["Allow"] = buildMethodList();
-  }
-  else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
-  {
-    status_code_ = 413;
-  }
-  else if (isAuthorized)
-    status_code_ = 401;
-  else
-    status_code_ = handleMethods();
-  
+	if (error_code_ > 200)
+		status_code_ = error_code_;
+	else if (!config_.isMethodAccepted(method))
+	{
+		status_code_ = 405;
+		headers_["Allow"] = buildMethodList();
+	}
+	else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
+	{
+		status_code_ = 413;
+	}
+	else if (isAuthorized)
+		status_code_ = 401;
+	else
+		status_code_ = handleMethods();
 
 	if (status_code_ >= 300 && !body_.length())
 		status_code_ = buildErrorPage(status_code_);
@@ -150,7 +148,7 @@ void HttpResponse::build()
 
 int HttpResponse::handleMethods()
 {
-  std::string &method = config_.getMethod();
+	std::string &method = config_.getMethod();
 
 	if (method == "GET" || method == "HEAD")
 	{
@@ -177,11 +175,12 @@ int HttpResponse::handleMethods()
 	// so this isCgi() function will check if the file extension is in the cgi map
 	// and return true or false accordingly
 	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
-	if (isCgi(file_->getMimeExt())) {
+	if (isCgi(file_->getMimeExt()))
+	{
 		HandleCgi();
 		return status_code_;
 	}
-	
+
 	if (method == "PUT" || method == "POST")
 	{
 		handlePutPostRequest();
@@ -190,45 +189,23 @@ int HttpResponse::handleMethods()
 	return (this->*(HttpResponse::methods_[method]))();
 }
 
-
-
 int HttpResponse::handleDirectoryRequest()
 {
 	std::vector<std::string> indexes = config_.getIndexes();
 	std::string index = file_->find_index(indexes);
 	std::string newPath;
 
-  if (!index.empty())
-  {
-    redirect_ = true;
-    newPath = "/" + config_.getTarget();
-    newPath += "/" + index;
-    redirect_target_ = removeDupSlashes(newPath);
+	if (!index.empty())
+	{
+		redirect_ = true;
+		newPath = "/" + config_.getTarget();
+		newPath += "/" + index;
+		redirect_target_ = removeDupSlashes(newPath);
 
-    return 200;
-  }
-  // if (!config_.getAutoIndex() && indexes.size() == 0)
-  // {
-  //   std::cout << "DEBUG 1\n";
-  //   return 404;
-  // } else if (config_.getAutoIndex())
-  // {
-  //   return (config_.setAutoIndex(true), 0);
-  // }
+		return 200;
+	}
 
-  if (!config_.getAutoIndex() && !file_->exists(file_->getFilePath()))
-  {
-    // std::cout << "DEBUG 2\n";
-    return 404;
-  }
-  else if (!config_.getAutoIndex())
-  {
-    // std::cout << "DEBUG 4\n";
-    if (file_->exists(file_->getFilePath()))
-      return (config_.setAutoIndex(true), 0);
-    return 404;
-  }
-  return (0);
+	return (config_.getAutoIndex()) ? 0 : 404;
 }
 
 int HttpResponse::handleFileRequest()
@@ -443,9 +420,10 @@ int HttpResponse::sendResponse(int fd)
 // 	return cgi.find(ext) != cgi.end();
 // }
 
-bool HttpResponse::isCgi(std::string ext) {
-    VecStr &cgi = config_.getCgi();
-    return std::find(cgi.begin(), cgi.end(), ext) != cgi.end();
+bool HttpResponse::isCgi(std::string ext)
+{
+	VecStr &cgi = config_.getCgi();
+	return std::find(cgi.begin(), cgi.end(), ext) != cgi.end();
 }
 
 void HttpResponse::HandleCgi()
@@ -453,22 +431,22 @@ void HttpResponse::HandleCgi()
 	CgiHandle cgi(&config_, file_->getMimeExt());
 	cgi.execCgi();
 	if ((status_code_ = cgi.getExitStatus()) == 500)
-		return ;
+		return;
 	// setCgiPipe(cgi);
 	std::string req_body = config_.getBody();
 	while (status_code_ != 500 && status_code_ != 200)
 	{
 		std::cout << "STATUS: " << status_code_ << std::endl;
 		toCgi(cgi, req_body);
-		fromCgi(cgi); 
+		fromCgi(cgi);
 	}
 	// std::string body;
 	// int bytesRead = 0;
 	// char buffer[4096];
 	// while ((bytesRead = read(cgi.getPipeOut(), buffer, 1024)) > 0)
 	// {
-		// bytesRead = read(cgi.getPipeOut(), buffer, 4000);
-		// body_.append(buffer, bytesRead);
+	// bytesRead = read(cgi.getPipeOut(), buffer, 4000);
+	// body_.append(buffer, bytesRead);
 	// // }
 	// if (bytesRead == -1)
 	// {
@@ -482,12 +460,13 @@ void HttpResponse::HandleCgi()
 
 int HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)
 {
-	
+
 	if (req_body.length() > 0)
 	{
 		std::string body = req_body;
 		int bytesWritten = write(cgi.getPipeIn(), req_body.c_str(), req_body.length());
-		if (bytesWritten >= 0){
+		if (bytesWritten >= 0)
+		{
 			req_body = req_body.substr(bytesWritten);
 			if (req_body.length() == 0)
 				close(cgi.getPipeIn());
@@ -499,7 +478,8 @@ int HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)
 			return -1;
 		}
 	}
-	else {
+	else
+	{
 		close(cgi.getPipeIn());
 	}
 	return 0;
@@ -517,14 +497,14 @@ int HttpResponse::fromCgi(CgiHandle &cgi)
 	}
 	else if (bytesRead == -1)
 	{
-		close (cgi.getPipeOut());
+		close(cgi.getPipeOut());
 		status_code_ = 500;
 		return -1;
 	}
 	if (bytesRead == 0 || bytesRead < 4096)
 	{
 		// std::cout << "CGI DONE" << std::endl;
-		close (cgi.getPipeOut());
+		close(cgi.getPipeOut());
 		status_code_ = 200;
 	}
 	return 0;
@@ -537,6 +517,6 @@ void HttpResponse::setCgiPipe(CgiHandle &cgi)
 	{
 		std::cerr << "fcntl error" << std::endl;
 		status_code_ = 500;
-		return ;
+		return;
 	}
 }
