@@ -148,9 +148,18 @@ void File::closeFile()
 
 void File::appendFile(const std::string &body)
 {
-    int flags = O_CREAT | O_WRONLY | O_APPEND;
-    fd_ = open(path_.c_str(), flags, 0644);
-
+    int flags = O_CREAT | O_WRONLY | O_TRUNC;
+    std::string dirPath = "post_folder";
+    std::string newPath = dirPath + "/" + path_;
+    if (!exists(dirPath))
+    {
+        if (mkdir(dirPath.c_str(), 0755) != 0)
+        {
+            std::cerr << "Error creating directory: " << strerror(errno) << std::endl;
+            return;
+        }
+    }
+    fd_ = open(newPath.c_str(), flags, 0644);
     if (fd_ < 0)
     {
         std::cerr << "Error opening file for append: " << strerror(errno) << std::endl;
