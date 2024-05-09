@@ -26,7 +26,6 @@ const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValu
             if (locationIt != keyMap.end())
             {
                 locationExtract = locationExtractor(locationIt->second);
-                std::cout << "Location Extracted: " << locationExtract << std::endl;
                 if (locationExtract == location)
                     return valueVector;
             }
@@ -156,10 +155,10 @@ LocationModifier RequestConfig::setModifier(const std::string &locationStr)
         modifierType_ = LONGEST;
     else if (hasTilde && hasAsterisk)
         modifierType_ = CASE_INSENSITIVE;
-    else if (hasEquals)
-        modifierType_ = EXACT;
     else if (hasTilde)
         modifierType_ = CASE_SENSITIVE;
+    else if (hasEquals)
+        modifierType_ = EXACT;
 
     return modifierType_;
 }
@@ -267,36 +266,84 @@ void RequestConfig::setBestMatch(std::string &newTarget)
     }
 }
 
-
-std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int>& myMap, const std::string& key) {
+std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int> &myMap, const std::string &key)
+{
     std::string lowerKey;
     std::transform(key.begin(), key.end(), std::back_inserter(lowerKey), ::tolower);
-    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it) {
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it)
+    {
         std::string lowerFirst;
         std::transform(it->first.begin(), it->first.end(), std::back_inserter(lowerFirst), ::tolower);
         if (lowerFirst == lowerKey)
             return *it;
     }
-    return std::pair<std::string, int>("", 0);  // Return an empty pair if not found
+    return std::pair<std::string, int>("", 0);
 }
 
-
-bool findExactMatch(const std::map<std::string, int>& myMap, const std::string& key) {
+bool findExactMatch(const std::map<std::string, int> &myMap, const std::string &key)
+{
     return myMap.find(key) != myMap.end();
 }
 
-bool findLongestSubstrMatch(const std::map<std::string, int>& myMap, const std::string& substr) {
-    size_t longestMatch = 0;
 
-    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it) {
-        size_t found = it->first.find(substr);
-        if (found != std::string::npos && found + substr.size() > longestMatch)
-            longestMatch = found + substr.size();
+std::string findLongestSubstr(const std::map<std::string, int> &myMap, const std::string &key)
+{
+    std::string longestMatch = "";
+    size_t longestMatchSize = 0;
+
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it)
+    {
+        if (key.compare(0, it->first.size(), it->first) == 0 && it->first.size() > longestMatchSize)
+        {
+            longestMatch = it->first;
+            longestMatchSize = it->first.size();
+        }
     }
-    return longestMatch > 0;
+    return longestMatch;
 }
 
+void RequestConfig::setLociMatched(int status)
+{
+    isLociMatched_ = status;
+}
 
+int RequestConfig::getLociMatched()
+{
+    return isLociMatched_;
+}
+
+std::string extractLongestMatch(const std::string& mainStr, const std::string& substr) {
+    std::string longestMatch;
+    size_t longestLength = 0;
+
+    size_t pos = mainStr.find(substr);
+    while (pos != std::string::npos) {
+        if (substr.size() > longestLength) {
+            longestMatch = mainStr.substr(pos, substr.size());
+            longestLength = substr.size();
+        }
+        pos = mainStr.find(substr, pos + 1);
+    }
+
+    return longestMatch;
+}
+
+void RequestConfig::setTargetSensitivity() {
+    std::pair<std::string, int> found_kv;
+
+    found_kv = findCaseInsensitive(locationsMap_, request_.getTarget());
+    if (!found_kv.first.empty())
+    {
+        if (found_kv.second == EXACT || found_kv.second == CASE_SENSITIVE || found_kv.second == NONE)
+        {
+
+            if (!findExactMatch(locationsMap_, request_.getTarget()))
+                setLociMatched(404);
+        }
+    } else {
+        request_.setTarget(findLongestSubstr(locationsMap_, request_.getTarget()));
+    }
+}
 
 
 void RequestConfig::setUp(size_t targetServerIdx)
@@ -306,28 +353,9 @@ void RequestConfig::setUp(size_t targetServerIdx)
     serverId = targetServerIdx;
 
     setLocationsMap(targetServer_);
-    std::pair<std::string, int> found_kv;
+    
 
-    std::cout << "Target: " << request_.getTarget() << std::endl;
-
-    found_kv = findCaseInsensitive(locationsMap_, request_.getTarget());
-    if (!found_kv.first.empty()) {
-        std::cout << "Found: " << found_kv.first << " " << found_kv.second << std::endl;
-
-    }
-    if (found_kv.second == EXACT || found_kv.second == CASE_SENSITIVE) {
-        std::cout << "Exact match found\n";
-        if (!findExactMatch(locationsMap_, request_.getTarget()))
-            std::cout << "No exact match found\n";
-    } else if (found_kv.second == LONGEST) {
-        if (!findLongestSubstrMatch(locationsMap_, request_.getTarget()))
-            std::cout << "No longest match found\n";
-    } else if (found_kv.second == CASE_INSENSITIVE || found_kv.second == NONE) {
-            std::cout << "Case insensitive match found\n";
-    }
-    for (std::map<std::string, int>::const_iterator it = locationsMap_.begin(); it != locationsMap_.end(); ++it) {
-        std::cout << it->first << " " << it->second << std::endl;
-    }
+    setTargetSensitivity();
 
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();

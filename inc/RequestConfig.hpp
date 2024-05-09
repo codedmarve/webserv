@@ -83,6 +83,9 @@ public:
   bool directiveExists(std::string directive, std::string location);
   void returnRedirection();
   void setBestMatch(std::string &newTarget);
+  void setLociMatched(int val);
+  int getLociMatched();
+  void setTargetSensitivity();
 
   void setMap(const VecStr &vec, std::map<int, std::string> &resultMap, std::string &codes);
   void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
@@ -111,6 +114,7 @@ private:
   std::vector<std::string> cgi_;
   std::string cgi_bin_;
   std::map<std::string, int> locationsMap_;
+  int isLociMatched_;
 };
 
 #endif

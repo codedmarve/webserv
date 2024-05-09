@@ -30,6 +30,10 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	charset_ = "";
 	initMethods();
 	std::cout << "{HttpResponse BODY: " << config_.getBody() << "}" << std::endl;
+	if (config_.getLociMatched() == 404)
+	{
+		status_code_ = 404;
+	}
 }
 
 HttpResponse::~HttpResponse() {}
@@ -104,9 +108,12 @@ std::pair<std::string, int> HttpResponse::findLocation(std::string target)
 
 void HttpResponse::build()
 {
+	if (config_.getLociMatched() == 404)
+		error_code_ = 404;
 	std::string &method = config_.getMethod();
 	file_ = new File();
 
+	std::cout <<"Error code: " << error_code_ << std::endl;
 
     if (findLocation(config_.getTarget()).first != "")
     {
@@ -123,8 +130,10 @@ void HttpResponse::build()
 
   bool isAuthorized =config_.getAuth() != "off" && !checkAuth();
 
-  if (error_code_ > 200)
+  if (error_code_ > 200) {
+
     status_code_ = error_code_;
+  }
   else if (!config_.isMethodAccepted(method))
   {
     status_code_ = 405;
