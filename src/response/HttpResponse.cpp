@@ -113,7 +113,9 @@ void HttpResponse::build()
 	std::string &method = config_.getMethod();
 	file_ = new File();
 
-	std::cout <<"Error code: " << error_code_ << std::endl;
+	std::cout << "Target: " << config_.getTarget() << std::endl;
+	std::cout << "Root: " << config_.getRoot() << std::endl;
+	std::cout << "URI: " << config_.getUri() << std::endl;
 
     if (findLocation(config_.getTarget()).first != "")
     {

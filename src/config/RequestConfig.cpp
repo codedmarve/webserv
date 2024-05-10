@@ -327,7 +327,7 @@ void RequestConfig::setUp(size_t targetServerIdx)
 
     setLocationsMap(targetServer_);
     
-
+std::cout << "Target: " << request_.getTarget() << std::endl;
     setTargetSensitivity();
 
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
