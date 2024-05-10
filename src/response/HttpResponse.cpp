@@ -459,22 +459,22 @@ void HttpResponse::HandleCgi()
 	printf("CGI exit status: %d\n", cgi.getExitStatus());
 	// std::cout << "I am here" << std::endl;
 	pid_t exit_status = waitpid(cgi.getPid(), &status_code_, WNOHANG);
-	if ((status_code_ = cgi.getExitStatus()) == 500 || exit_status == 500)
+	if ((status_code_ = cgi.getExitStatus()) == 500 || exit_status != 0)
 	{
 		status_code_ = 500;
-		close(cgi.getPipeOut());
-		close(cgi.getPipeIn());
+		closeParentCgiPipe(cgi);
 		return ;
 	}
 	setCgiPipe(cgi);
 	std::string req_body = config_.getBody();
-	while (status_code_ != 500 && status_code_ != 200)
+	while (status_code_ == 0)
 	{
 		std::cout << "STATUS: " << status_code_ << std::endl;
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
 	}
 	waitpid(cgi.getPid(), &exit_status, 0);
+	closeParentCgiPipe(cgi);
 	if (exit_status == 256)
 		status_code_ = 500;
 	std::cout << "STATUS: " << status_code_ << std::endl;
@@ -514,9 +514,6 @@ void HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)
 			status_code_ = 500;
 		}
 	}
-	else {
-		close(cgi.getPipeIn());
-	}
 }
 
 void HttpResponse::fromCgi(CgiHandle &cgi)
@@ -542,7 +539,6 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		else if (bytesRead == -1 || bytesRead == 0)
 		{
 			std::cout << "bytesRead: " << bytesRead << std::endl;
-			close (cgi.getPipeOut());
 			status_code_ = (cgiRead) ? 200 : 500;
 			return ;
 		}
@@ -553,10 +549,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		status_code_ = 500;
 	}
 	else
-	{
-		close(cgi.getPipeOut());
 		status_code_ = 200;
-	}
 }
 
 void HttpResponse::setCgiPipe(CgiHandle &cgi)
@@ -572,7 +565,35 @@ void HttpResponse::setCgiPipe(CgiHandle &cgi)
 
 void HttpResponse::parseCgiHeaders()
 {
-	headers_["Accept-Language"] = "fr";
+	std::vector<std::string> headerLines = split(cgiHeaders_, '\n');
+	std::string key;
+	std::string value;
+	size_t 		pos;
+	std::string header;
+	for (size_t i = 0; i < headerLines.size(); i++)
+	{
+		header = headerLines[i];
+		pos = header.find(":");
+		if (pos != std::string::npos && pos <= header.length() - 2)
+		{
+			key = header.substr(0, header.find(":"));
+			value = header.substr(header.find(":") + 2);
+			headers_[key] = value;
+		}
+		else if (header.find("HTTP/1.1") != std::string::npos)
+		{
+			pos = header.find(" ");
+			if (pos != std::string::npos && pos <= header.length() - 2)
+			{
+				std::string status = header.substr(header.find(" ") + 1, 3);
+				status_code_ = atoi(status.c_str());
+			}
+		}
+	}
+	for (std::map<std::string, std::string>::iterator it = headers_.begin(); it != headers_.end(); it++)
+	{
+		std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
+	}
 }
 
 void HttpResponse::handleCgiHeaders(std::string &body_)
@@ -581,7 +602,10 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 	if (pos != std::string::npos)
 	{
 		cgiHeaders_ = body_.substr(0, pos);
-		body_ = body_.substr(pos + 4);
+		if (body_.find("\r\n\r\n\n") != std::string::npos)
+			body_ = body_.substr(pos + 5);
+		else
+			body_ = body_.substr(pos + 4);
 		cgiHeadersParsed_ = true;
 		parseCgiHeaders();
 	}
@@ -598,4 +622,12 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 	// 	std::string value = header.substr(header.find(":") + 2);
 	// 	headers_[key] = value;
 	// }
+}
+
+void HttpResponse::closeParentCgiPipe(CgiHandle &cgi)
+{
+	if (cgi.getPipeIn() != -1)
+		close(cgi.getPipeIn());
+	if (cgi.getPipeOut() != -1)
+		close(cgi.getPipeOut());
 }

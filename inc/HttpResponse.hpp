@@ -82,6 +82,7 @@ public:
     void fromCgi(CgiHandle &cgi);
     void handleCgiHeaders(std::string &body);
     void parseCgiHeaders();
+    void closeParentCgiPipe(CgiHandle &cgi);
 
 
 

@@ -4,7 +4,7 @@ import cgitb
 import json
 
 cgitb.enable()
-
+print("HTTP/1.1 200 OK")
 print("Content-Type: application/json;charset=utf-8\r\n\r\n")
 print()
 
