@@ -121,11 +121,6 @@ void HttpResponse::build()
 
 	file_->set_path(config_.getRoot() + "/" + config_.getTarget());
 
-	// buildDebugger(method);
-
-	//   std::cout << "Auth: " << config_.getAuth() << std::endl;
-	//   std::cout << "checkAuth: " << checkAuth() << std::endl;
-
 	bool isAuthorized = config_.getAuth() != "off" && !checkAuth();
 
   if (error_code_ > 200) {
@@ -176,14 +171,6 @@ int HttpResponse::handleMethods()
 				return ret;
 		}
 	}
-	// std::cout << "isCGI: " << isCgi(file_->getMimeExt()) << "\n";
-	/// @note added this to handle cgi
-	// Hi Alex, here is what to expect
-	// if you look into the config file you will see how cgi is configured
-	// cgi [ext] [filename]
-	// so this isCgi() function will check if the file extension is in the cgi map
-	// and return true or false accordingly
-	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
 	if (isCgi(file_->getMimeExt()))
 	{
 		HandleCgi();
@@ -423,11 +410,6 @@ int HttpResponse::sendResponse(int fd)
 
 	return 1;
 }
-
-// bool HttpResponse::isCgi(std::string ext) {
-// 	std::map<std::string, std::string> &cgi = config_.getCgi();
-// 	return cgi.find(ext) != cgi.end();
-// }
 
 bool HttpResponse::isCgi(std::string ext)
 {

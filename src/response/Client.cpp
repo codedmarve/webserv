@@ -12,18 +12,8 @@ Client::~Client()
 
 void Client::setupConfig()
 {
-  // (void)targetServerIdx;
-
-  // request_ = &req_;
-  // std::cout << "****** STATUS: " << request_->getBody() <<std::endl;
-  // printAllDBData(db.serversDB);
-  // printData(getDataByIdx(db.serversDB, requestedServerIdx));
-  // (void)db;
-
-  /// @note AGGREGATED ALL CONFIGURATIONS HERE
   config_ = new RequestConfig(*request_, host_port_, db_, *this);
   config_->setUp(serverId_);
-  // CgiHandle cgi(config_);
 }
 std::string Client::getResponseString()
 {
@@ -67,10 +57,8 @@ void Client::setupResponse()
     }
   }
   if (request_)
-  {
-    // delete request_;
     request_ = NULL;
-  }
+
 }
 
 HttpRequest *Client::getRequest(bool val) {

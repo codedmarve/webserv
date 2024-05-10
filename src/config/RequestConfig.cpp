@@ -170,14 +170,10 @@ LocationModifier RequestConfig::setModifier(const std::string &locationStr)
 RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
 {
     RequestConfig *requestConfig = NULL;
-    // std::map<std::string,int regex_locations;
+
     std::map<std::string, int>::iterator it = locationsMap_.begin();
     while (it != locationsMap_.end())
     {
-        // std::cout << "Modifiers: " << it->second << std::endl;
-        // std::cout << "Uri: " << it->first << std::endl;
-        // std::cout << "Target: " << request_target << std::endl;
-
         if (it->second != CASE_SENSITIVE && it->second != CASE_INSENSITIVE)
         {
             if (it->second == 1 && it->first == request_target)
@@ -190,25 +186,9 @@ RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
                     requestConfig = &(*this);
             }
         }
-        // else
-        // reg_locations.push_back(&(*it));
-
         it++;
     }
-    if (requestConfig)
-        std::cout << "RequestConfig: " << requestConfig->uri_ << std::endl;
-    //   if (location && location->modifier_ == 4)
-    // return location;
 
-    // if (location && !location->locations_.empty())
-    // {
-    //     for (std::vector<ServerConfig>::iterator it = location->locations_.begin(); it != location->locations_.end(); it++)
-    //     {
-    //     if (it->modifier_ == 2 || it->modifier_ == 3)
-    //         reg_locations.insert(reg_locations.begin(), &(*it));
-    //     }
-    // }
-    (void)request_target;
     return requestConfig;
 }
 
@@ -342,24 +322,10 @@ std::cout << "Target: " << request_.getTarget() << std::endl;
     setAuth(cascadeFilter("auth", newTarget));
     setCgi(cascadeFilter("cgi", newTarget));
     setCgiBin(cascadeFilter("cgi-bin", newTarget));
-
-    // RequestConfig *location = NULL;
-    int status = request_.getStatus();
-    if (status != 200 && status != 100)
-    {
-        // location = getRequestLocation(request_.getTarget());
-    }
-    std::cout << std::endl;
 }
 
 void RequestConfig::redirectLocation(std::string target)
 {
-    // RequestConfig *location = NULL;
-    int status = request_.getStatus();
-    if (status != 200 && status != 100)
-    {
-        // location = getRequestLocation(target);
-    }
     target_ = target;
 }
 
@@ -417,20 +383,6 @@ void RequestConfig::setMethods(const VecStr &methods)
 
 void RequestConfig::setCgi(const VecStr &cgi)
 {
-    // cgi_.clear();
-
-    // if (cgi.size() % 2 != 0)
-    //     std::cerr << "Warning: Cgi value is empty\n";
-
-    // for (size_t i = 0; i < cgi.size(); i += 2)
-    // {
-    //     const std::string &key = cgi[i];
-    //     std::string value;
-
-    //     if (i + 1 < cgi.size())
-    //         value = cgi[i + 1];
-    //     cgi_[key] = value;
-    // }
     cgi_ = cgi;
 }
 
@@ -669,7 +621,7 @@ void RequestConfig::printConfigSetUp()
     printMap(getHeaders());
     std::cout << std::endl;
     std::cout << "\nCGI\n";
-    // printVec(cgi_);
+    printVec(cgi_, "SETUP");
     std::cout << std::endl;
     std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
 

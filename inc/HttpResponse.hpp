@@ -51,9 +51,6 @@ public:
     void printMethodMap();
     void setErrorPageHeaders(int status_code);
     int checkCustomErrorPage(int status_code);
-    // std::string response_log(LogLevel level);
-    // std::string getCurrentDateTime();
-    // void logError(const std::string& message);
 
     std::pair<std::string, double> extractLangAndQ(const std::string& langAndQ);
     std::string findBestLanguage(const std::vector<std::string>& matches, const std::vector<std::pair<std::string, double> >& langQPairs);
