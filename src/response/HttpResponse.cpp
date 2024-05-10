@@ -30,6 +30,10 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	charset_ = "";
 	initMethods();
 	std::cout << "{HttpResponse BODY: " << config_.getBody() << "}" << std::endl;
+	if (config_.getLociMatched() == 404)
+	{
+		status_code_ = 404;
+	}
 }
 
 HttpResponse::~HttpResponse() {}
@@ -104,6 +108,8 @@ std::pair<std::string, int> HttpResponse::findLocation(std::string target)
 
 void HttpResponse::build()
 {
+	if (config_.getLociMatched() == 404)
+		error_code_ = 404;
 	std::string &method = config_.getMethod();
 	file_ = new File();
 
@@ -122,21 +128,24 @@ void HttpResponse::build()
 
 	bool isAuthorized = config_.getAuth() != "off" && !checkAuth();
 
-	if (error_code_ > 200)
-		status_code_ = error_code_;
-	else if (!config_.isMethodAccepted(method))
-	{
-		status_code_ = 405;
-		headers_["Allow"] = buildMethodList();
-	}
-	else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
-	{
-		status_code_ = 413;
-	}
-	else if (isAuthorized)
-		status_code_ = 401;
-	else
-		status_code_ = handleMethods();
+  if (error_code_ > 200) {
+
+    status_code_ = error_code_;
+  }
+  else if (!config_.isMethodAccepted(method))
+  {
+    status_code_ = 405;
+    headers_["Allow"] = buildMethodList();
+  }
+  else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
+  {
+    status_code_ = 413;
+  }
+  else if (isAuthorized)
+    status_code_ = 401;
+  else
+    status_code_ = handleMethods();
+  
 
 	if (status_code_ >= 300 && !body_.length())
 		status_code_ = buildErrorPage(status_code_);
