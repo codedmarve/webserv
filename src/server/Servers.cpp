@@ -195,7 +195,6 @@ void Servers::handleIncomingConnection(int server_fd){
 	int reqStatus = -1;
 	while (!finish){	
 		finish = getRequest(new_socket, request);
-	std::cout << "REQUEST: " << request << std::endl;
 		// std::cout << "Count: " << count++ << std::endl;
 		// send (new_socket, request.c_str(), request.size(), 0);
 		/**

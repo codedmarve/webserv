@@ -280,13 +280,8 @@ std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int>
     return std::pair<std::string, int>("", 0);
 }
 
-bool findExactMatch(const std::map<std::string, int> &myMap, const std::string &key)
-{
-    return myMap.find(key) != myMap.end();
-}
 
-
-std::string findLongestSubstr(const std::map<std::string, int> &myMap, const std::string &key)
+std::string findLongestMatch(const std::map<std::string, int> &myMap, const std::string &key)
 {
     std::string longestMatch = "";
     size_t longestMatchSize = 0;
@@ -312,37 +307,15 @@ int RequestConfig::getLociMatched()
     return isLociMatched_;
 }
 
-std::string extractLongestMatch(const std::string& mainStr, const std::string& substr) {
-    std::string longestMatch;
-    size_t longestLength = 0;
-
-    size_t pos = mainStr.find(substr);
-    while (pos != std::string::npos) {
-        if (substr.size() > longestLength) {
-            longestMatch = mainStr.substr(pos, substr.size());
-            longestLength = substr.size();
-        }
-        pos = mainStr.find(substr, pos + 1);
-    }
-
-    return longestMatch;
-}
-
 void RequestConfig::setTargetSensitivity() {
     std::pair<std::string, int> found_kv;
+    std::string longestMatch = findLongestMatch(locationsMap_, request_.getTarget());
+    if (longestMatch != "/")
+        request_.setTarget(longestMatch);
 
     found_kv = findCaseInsensitive(locationsMap_, request_.getTarget());
-    if (!found_kv.first.empty())
-    {
-        if (found_kv.second == EXACT || found_kv.second == CASE_SENSITIVE || found_kv.second == NONE)
-        {
-
-            if (!findExactMatch(locationsMap_, request_.getTarget()))
-                setLociMatched(404);
-        }
-    } else {
-        request_.setTarget(findLongestSubstr(locationsMap_, request_.getTarget()));
-    }
+    if (!found_kv.first.empty() && (found_kv.second  == CASE_INSENSITIVE || found_kv.second == NONE))
+            request_.setTarget(found_kv.first);
 }
 
 
