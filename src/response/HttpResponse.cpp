@@ -182,6 +182,7 @@ int HttpResponse::handleMethods()
 	// and return true or false accordingly
 	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
 	if (isCgi(file_->getMimeExt())) {
+		std::cout << "I think I am a cgi!\n";
 		HandleCgi();
 		return status_code_;
 	}
