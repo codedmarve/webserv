@@ -8,7 +8,6 @@
 HttpRequest::HttpRequest() {
     body_offset_ = 0;
     chunk_size_ = 0;
-    req_buffer_ = "";
     buffer_section_ = REQUEST_LINE;
     protocol_ = "HTTP/1.1";
     isChunked_ = false;
@@ -24,7 +23,7 @@ int HttpRequest::parseRequest(std::string &buffer) {
     std::string requestLine;
 
     gettimeofday(&last_tv_, NULL);
-    req_buffer_ += buffer;
+    req_buffer_.append(buffer);
     buffer.clear();
     
     if (buffer_section_ == REQUEST_LINE) {
