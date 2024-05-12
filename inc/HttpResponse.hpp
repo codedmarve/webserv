@@ -78,8 +78,11 @@ public:
 
     void HandleCgi();
     void setCgiPipe(CgiHandle &cgi);
-    int toCgi(CgiHandle &cgi, std::string &req_body);
-    int fromCgi(CgiHandle &cgi);
+    void toCgi(CgiHandle &cgi, std::string &req_body);
+    void fromCgi(CgiHandle &cgi);
+    void handleCgiHeaders(std::string &body);
+    void parseCgiHeaders();
+    void closeParentCgiPipe(CgiHandle &cgi);
 
 
 
@@ -100,8 +103,11 @@ private:
     std::string charset_;
     std::map<std::string, HttpResponse::type> methods_;
     std::pair<std::string, int> findLocation(std::string target);
-    std::map<std::string, std::string> headers_;   
+    std::map<std::string, std::string> headers_;
 
+    std::string cgiHeaders_;
+    bool cgiHeadersParsed_;
+    bool cgiRead;
     std::string buildMethodList();
     bool checkAuth();
 };

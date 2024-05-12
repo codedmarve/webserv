@@ -45,7 +45,6 @@ int HttpResponse::POST()
     body_ = config_.getBody();
 
     pthread_mutex_lock(&g_write);
-
     if (!file_->exists()) {
         file_->createFile(body_);
         status_code = 201;

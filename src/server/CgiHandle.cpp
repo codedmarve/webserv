@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/05 22:06:14 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/09 01:34:11 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,8 @@
 // : _cgi_path(NULL), _cgi_pid(-1), _exit_status(0){}
 
 CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext)
-: _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0), _argv(NULL), _envp(NULL), _path(NULL), pipe_in(), pipe_out(){
+: _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0),
+	_argv(NULL), _envp(NULL), _path(NULL), pipe_in(), pipe_out(), content_length(0){
 	this->initEnv();
 }
 
@@ -60,6 +61,7 @@ void CgiHandle::initEnv(){
 		ss << this->_config->getHeader("content-length");
 		std::string content_length = ss.str();
 		this->_env["CONTENT_LENGTH"] = content_length;
+		this->content_length = atoi(content_length.c_str());
 		ss.clear();
 	}
 	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
@@ -120,21 +122,16 @@ void CgiHandle::execCgi(){
 	}
 	else if (_cgi_pid == 0)
 	{
-		if (dup2(this->pipe_in[0], STDIN_FILENO) == -1 || dup2(this->pipe_out[1], STDOUT_FILENO) == -1)
+		if (dup2(this->pipe_in[0], STDIN_FILENO) == -1 || dup2(this->pipe_out[1], STDOUT_FILENO) == -1
+			|| (_exit_status = execve(this->_argv[0], this->_argv, this->_envp)) == -1)
 		{
-			std::cerr << "Error: dup2 failed" << std::endl;
-			this->_exit_status = 500;
-			return ;
+			std::cerr << "Error: execve failed" << std::endl;
+			closePipe();
+			exit(500);
 		}
 		closePipe();
-		if ((_exit_status = execve(this->_argv[0], this->_argv, this->_envp)) == -1)
-		{
-			std::cerr << "Error: execve failed " << errno << std::endl;
-			this->_exit_status = 500;
-			return ;
-		}
 	}
-	waitpid(this->_cgi_pid, &this->_exit_status, 0);
+	// waitpid(this->_cgi_pid, &this->_exit_status, 0);
 }
 
 int CgiHandle::setPipe(){
@@ -172,6 +169,8 @@ void CgiHandle::setPath(){
 }
 
 std::string CgiHandle::getExecPath(){
+	if (checkShebang().size() > 0)
+		return checkShebang();
 	if (this->_cgi_ext == ".py")
 		return "/usr/bin/python3";
 	else if (this->_cgi_ext == ".sh")
@@ -197,4 +196,31 @@ int CgiHandle::getPipeOut(){
 
 int CgiHandle::getExitStatus(){
 	return this->_exit_status;
+}
+int CgiHandle::getContentLength(){
+	return this->content_length;
+}
+
+int CgiHandle::getPid(){
+	return this->_cgi_pid;
+}
+
+void CgiHandle::deductContentLength(int length){
+	this->content_length -= length;
+}
+
+std::string CgiHandle::checkShebang(){
+	std::ifstream file(this->_path);
+	if (!file.is_open())
+	{
+		return "";
+	}
+	std::string line;
+	std::getline(file, line);
+	if (line.find("#!") == std::string::npos)
+		return "";
+	else{
+		std::stringstream ss(line);
+		return(line.substr(line.find("#!") + 2));
+	}
 }

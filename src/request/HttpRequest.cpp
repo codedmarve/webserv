@@ -46,7 +46,6 @@ int HttpRequest::parseRequest(std::string &buffer) {
     } else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 100)) {
         buffer_section_ = ERROR;
     }
-
     return httpStatus;
 }
 

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:32 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/29 02:22:39 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/09 01:33:49 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ class CgiHandle{
 		char 		*_path;
 		int			pipe_in[2];
 		int			pipe_out[2];
+		int			content_length;
 		
 	public:
 		CgiHandle();
@@ -47,8 +48,12 @@ class CgiHandle{
 		int getPipeOut();
 		int getExitStatus();
 		std::string getExecPath();
+		int getContentLength();
+		int getPid();
 		void setPath();
 		void setArgv();
+		void deductContentLength(int length);
+		std::string	checkShebang();
 };
 
 #endif
