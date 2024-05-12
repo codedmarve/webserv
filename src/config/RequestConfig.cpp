@@ -542,7 +542,7 @@ std::vector<std::string> &RequestConfig::getMethods()
     return allowed_methods_;
 }
 
-std::string &RequestConfig::getBody()
+const std::string &RequestConfig::getBody() const
 {
     return request_.getBody();
 }

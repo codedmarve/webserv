@@ -94,7 +94,7 @@ void File::parseExtNegotiation()
                      : file;
 }
 
-void File::createFile(std::string &body)
+void File::createFile(const std::string &body)
 {
     ssize_t bytes_written = write(fd_, body.c_str(), body.length());
     if (bytes_written <= 0)

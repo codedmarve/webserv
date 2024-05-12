@@ -79,7 +79,7 @@ std::map<std::string, std::string> HttpRequest::getHeaders() const {
     return headers_;
 }
 
-std::string &HttpRequest::getBody() {
+const std::string &HttpRequest::getBody() const {
     return body_;
 }
 
