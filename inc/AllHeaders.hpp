@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AllHeaders.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/04/29 01:39:17 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/12 17:54:01 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,9 +58,7 @@
 #include "HttpStatusCode.hpp"
 #include "RequestConfig.hpp"
 #include "utils.hpp"
-#include "ServerConfig.hpp"
 #include "Client.hpp"
-#include "InputArgs.hpp"
 #include "ErrorCodes.hpp"
 
 
