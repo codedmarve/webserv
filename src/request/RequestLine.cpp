@@ -142,9 +142,10 @@ std::string HttpRequest::decodeURIComponent(const std::string &str)
                 {
                     int value;
                     std::istringstream hexStream(str.substr(i + 1, 2));
-                    hexStream >> std::hex >> value;      // Convert hex characters to integer value
-                    decoded += static_cast<char>(value); // Append decoded character
-                    i += 2;                              // Move to next character
+                    hexStream >> std::hex >> value; // Convert hex characters to integer value
+                    char decodedChar = static_cast<char>(value);
+                    decoded.append(&decodedChar, 1); // Append decoded character
+                    i += 2;                          // Move to next character
                 }
                 else
                     decoded += str[i];

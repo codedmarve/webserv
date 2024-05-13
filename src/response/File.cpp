@@ -252,13 +252,13 @@ std::string File::listDir(std::string &target)
     std::string body;
     std::vector<directory_listing> listing = getDirListings(path_);
 
-    body += genHtmlHeader("Index of " + target);
-    body += "<h1>Index of " + target + "</h1><hr><pre>";
-    body += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px; font-size: 1rem; font-weight:bold;\">";
-    body += "<span>Directory</span>";
-    body += "<span>Date</span>";
-    body += "<span>Size</span>";
-    body += "</div><hr>\r\n";
+    body.append(genHtmlHeader("Index of " + target));
+    body.append("<h1>Index of " + target + "</h1><hr><pre>");
+    body.append("<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px; font-size: 1rem; font-weight:bold;\">");
+    body.append("<span>Directory</span>");
+    body.append("<span>Date</span>");
+    body.append("<span>Size</span>");
+    body.append("</div><hr>\r\n");
 
     for (size_t i = 0; i < listing.size(); ++i)
     {
@@ -266,11 +266,11 @@ std::string File::listDir(std::string &target)
         // std::cout << "Is dir: " << listing[i].is_dir_ << std::endl;
         // std::cout << "target: " << target << std::endl;
 
-        body += formatListing(listing[i], target);
+        body.append(formatListing(listing[i], target));
     }
 
-    body += "</pre><hr>";
-    body += genHtmlFooter();
+    body.append("</pre><hr>");
+    body.append(genHtmlFooter());
 
     return body;
 }
@@ -280,11 +280,11 @@ std::string File::formatListing(const directory_listing &listing, const std::str
     std::string formatted;
 
     std::string link = removeDupSlashes(basePath + "/" + listing.name_);
-    formatted += "<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">";
-    formatted += "<a style=\"font-weight:bold;\" href=\"" + link + "\">" + listing.name_ + "</a>";
-    formatted += "<span>" + listing.date_ + "</span>";
-    formatted += "<span>" + (listing.is_dir_ ? "-" : ftos(listing.size_)) + "</span>";
-    formatted += "</div>\r\n";
+    formatted.append("<div style=\"display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; padding: 0px 20px;\">");
+    formatted.append("<a style=\"font-weight:bold;\" href=\"" + link + "\">" + listing.name_ + "</a>");
+    formatted.append("<span>" + listing.date_ + "</span>");
+    formatted.append("<span>" + (listing.is_dir_ ? "-" : ftos(listing.size_)) + "</span>");
+    formatted.append("</div>\r\n");
 
     return formatted;
 }
@@ -348,22 +348,24 @@ directory_listing File::createListing(const std::string &fileName, const std::st
 std::string File::genHtmlHeader(const std::string &title)
 {
     std::string header;
-    header += "<!DOCTYPE html>\r\n";
-    header += "<html>\r\n";
-    header += "<head>\r\n";
-    header += "<meta charset=\"UTF-8\">\r\n";
-    header += "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n";
-    header += "<title>" + title + "</title>\r\n";
-    header += "</head>\r\n";
-    header += "<body>\r\n";
+
+    header.append("<!DOCTYPE html>\r\n");
+    header.append("<html>\r\n");
+    header.append("<head>\r\n");
+    header.append("<meta charset=\"UTF-8\">\r\n");
+    header.append("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\r\n");
+    header.append("<title>" + title + "</title>\r\n");
+    header.append("</head>\r\n");
+    header.append("<body>\r\n");
+
     return header;
 }
 
 std::string File::genHtmlFooter()
 {
     std::string footer;
-    footer += "</body>\r\n";
-    footer += "</html>\r\n";
+    footer.append("</body>\r\n");
+    footer.append("</html>\r\n");
     return footer;
 }
 
