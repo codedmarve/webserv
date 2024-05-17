@@ -66,17 +66,15 @@ int HttpRequest::parseChunkSize(const std::string &hex)
     std::istringstream hexStream(hex);
     unsigned long tempChunkSize = 0;
     hexStream >> std::hex >> tempChunkSize;
-
-    // Check if conversion was successful
+    
     if (hexStream.fail() || hexStream.bad())
         return 400; // Bad Request: Invalid chunk size format
 
     // Ensure tempChunkSize is within the range of size_t
     if (tempChunkSize > static_cast<unsigned long>(std::numeric_limits<size_t>::max()))
-        return 400; // Bad Request: Chunk size exceeds size_t limit
-
+        return 400;
     chunk_size_ = static_cast<size_t>(tempChunkSize);
-    return 0; // Success
+    return 0;
 }
 
 int HttpRequest::parseChunkTrailer()
@@ -94,19 +92,14 @@ int HttpRequest::parseChunkTrailer()
         {
             break;
         }
-
-        // Find the position of the separator (e.g., colon ':')
         size_t separatorPos = line.find(':');
         if (separatorPos != std::string::npos)
         {
             std::string key = line.substr(0, separatorPos);
             std::string value = line.substr(separatorPos + 1);
 
-            // Trim leading and trailing whitespace
             key = trim(key);
             value = trim(value);
-
-            // Store the header key-value pair
             headers_[key] = value;
         }
         else
@@ -114,9 +107,7 @@ int HttpRequest::parseChunkTrailer()
             // If no separator found, it's an invalid format
             return 400; // Bad Request: Invalid header format
         }
-        /// @note i might need to uncomment depending on our final implementation
-        // req_buffer_.erase(0, end + 2);
     }
 
-    return 100; // OK: Chunk trailer parsed successfully
+    return 100;
 }

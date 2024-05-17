@@ -37,13 +37,6 @@ void File::parseExt()
 
         if (mime_ext_.length() > 15)
             mime_ext_ = mime_ext_.substr(0, 15);
-
-        // Check for non-alphanumeric characters and replace them with "_"
-        // for (std::string::iterator it = mime_ext_.begin(); it != mime_ext_.end(); ++it)
-        // {
-        //     if (!isalnum(*it))
-        //         *it = '_';
-        // }
     }
 
     // Extract the file name without extension
@@ -508,17 +501,14 @@ std::string File::getContent()
     std::streamsize fileSize = fileStream.tellg();
     fileStream.seekg(0, std::ios::beg);
 
-    // Create a buffer to hold the entire file contents
     std::vector<char> buffer(fileSize);
 
-    // Read the entire file into the buffer
+  
     if (!fileStream.read(buffer.data(), fileSize))
     {
-        std::cerr << "Error reading file: " << path_ << std::endl;
+        std::cerr << "Error reading file into buffer: " << path_ << std::endl;
         return "";
     }
-
-    // Construct a string from the buffer
     std::string content(buffer.begin(), buffer.end());
 
     return content;

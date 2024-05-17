@@ -20,7 +20,7 @@ private:
     size_t length_;
     size_t chunk_size_;
     bool isChunked_;
-    int body_offset_; // track curr reqbody pos, then += next chunk
+    int body_offset_;
     struct timeval start_tv_;
     struct timeval last_tv_;
 

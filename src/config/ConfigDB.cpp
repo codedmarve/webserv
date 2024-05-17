@@ -26,7 +26,7 @@ void ConfigDB::pushInBase(std::string env_name)
 
 void ConfigDB::eraseLastSection()
 {
-    if (!this->_variablePath.empty()) // Probably we don't need that condition
+    if (!this->_variablePath.empty())
         this->_variablePath.pop_back();
 }
 

@@ -117,7 +117,7 @@ std::string RequestConfig::locationExtractor(const std::string &locationStr)
     return locationStr.substr(j);
 }
 
-LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
+LocationModifier RequestConfig::setModifier(const std::string &locationStr)
 {
     LocationModifier modifierType_ = NONE;
     std::string modifiers;
@@ -155,10 +155,10 @@ LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
         modifierType_ = LONGEST;
     else if (hasTilde && hasAsterisk)
         modifierType_ = CASE_INSENSITIVE;
-    else if (hasEquals)
-        modifierType_ = EXACT;
     else if (hasTilde)
         modifierType_ = CASE_SENSITIVE;
+    else if (hasEquals)
+        modifierType_ = EXACT;
 
     return modifierType_;
 }
@@ -170,14 +170,10 @@ LocationModifier RequestConfig::checkModifier(const std::string &locationStr)
 RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
 {
     RequestConfig *requestConfig = NULL;
-    // std::map<std::string,int regex_locations;
+
     std::map<std::string, int>::iterator it = locationsMap_.begin();
     while (it != locationsMap_.end())
     {
-        // std::cout << "Modifiers: " << it->second << std::endl;
-        // std::cout << "Uri: " << it->first << std::endl;
-        // std::cout << "Target: " << request_target << std::endl;
-
         if (it->second != CASE_SENSITIVE && it->second != CASE_INSENSITIVE)
         {
             if (it->second == 1 && it->first == request_target)
@@ -190,25 +186,9 @@ RequestConfig *RequestConfig::getRequestLocation(std::string request_target)
                     requestConfig = &(*this);
             }
         }
-        // else
-        // reg_locations.push_back(&(*it));
-
         it++;
     }
-    if (requestConfig)
-        std::cout << "RequestConfig: " << requestConfig->uri_ << std::endl;
-    //   if (location && location->modifier_ == 4)
-    // return location;
 
-    // if (location && !location->locations_.empty())
-    // {
-    //     for (std::vector<ServerConfig>::iterator it = location->locations_.begin(); it != location->locations_.end(); it++)
-    //     {
-    //     if (it->modifier_ == 2 || it->modifier_ == 3)
-    //         reg_locations.insert(reg_locations.begin(), &(*it));
-    //     }
-    // }
-    (void)request_target;
     return requestConfig;
 }
 
@@ -219,16 +199,17 @@ void RequestConfig::setLocationsMap(const std::vector<KeyMapValue> &values)
     {
         const MapStr &keyMap = values[i].first;
         std::string loc = keyMap.find("location")->second;
-        modifier = checkModifier(loc);
+        modifier = setModifier(loc);
 
         if (!loc.empty() && locationsMap_.find(loc) == locationsMap_.end())
         {
-            locationsMap_[loc] = modifier;
+            locationsMap_[locationExtractor(loc)] = modifier;
         }
     }
 }
 
-void RequestConfig::returnRedirection() {
+void RequestConfig::returnRedirection()
+{
     std::map<int, std::string> m = getRedirectionMap();
     if (getRedirectionMap().size())
     {
@@ -236,31 +217,85 @@ void RequestConfig::returnRedirection() {
         for (it = m.begin(); it != m.end(); ++it)
             request_.setTarget(m[it->first]);
     }
-
 }
 
-void RequestConfig::setBestMatch(std::string &newTarget) {
+void RequestConfig::setBestMatch(std::string &newTarget)
+{
     std::string target = request_.getTarget();
-	std::string longestMatch = "";
+    std::string longestMatch = "";
 
-	std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
-	while (locationsMap != getLocationsMap().end())
-	{
-		if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
-			longestMatch = locationsMap->first;
-		locationsMap++;
-	}
-	if (!longestMatch.empty())
-	{
+    std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
+    while (locationsMap != getLocationsMap().end())
+    {
+        if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
+            longestMatch = locationsMap->first;
+        locationsMap++;
+    }
+    if (!longestMatch.empty())
+    {
         newTarget = target.substr(0, longestMatch.length());
-		target.erase(0, longestMatch.length());
-		setTarget("/" + target);
-		setUri("/" + target);
-	} else {
+        target.erase(0, longestMatch.length());
+        setTarget("/" + target);
+        setUri("/" + target);
+    }
+    else
+    {
         newTarget = request_.getTarget();
         setTarget(request_.getTarget());
         setUri(request_.getURI());
     }
+}
+
+std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int> &myMap, const std::string &key)
+{
+    std::string lowerKey;
+    std::transform(key.begin(), key.end(), std::back_inserter(lowerKey), ::tolower);
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it)
+    {
+        std::string lowerFirst;
+        std::transform(it->first.begin(), it->first.end(), std::back_inserter(lowerFirst), ::tolower);
+        if (lowerFirst == lowerKey)
+            return *it;
+    }
+    return std::pair<std::string, int>("", 0);
+}
+
+
+std::string findLongestMatch(const std::map<std::string, int> &myMap, const std::string &key)
+{
+    std::string longestMatch = "";
+    size_t longestMatchSize = 0;
+
+    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it)
+    {
+        if (key.compare(0, it->first.size(), it->first) == 0 && it->first.size() > longestMatchSize)
+        {
+            longestMatch = it->first;
+            longestMatchSize = it->first.size();
+        }
+    }
+    return longestMatch;
+}
+
+void RequestConfig::setLociMatched(int status)
+{
+    isLociMatched_ = status;
+}
+
+int RequestConfig::getLociMatched()
+{
+    return isLociMatched_;
+}
+
+void RequestConfig::setTargetSensitivity() {
+    std::pair<std::string, int> found_kv;
+    std::string longestMatch = findLongestMatch(locationsMap_, request_.getTarget());
+    if (longestMatch != "/")
+        request_.setTarget(longestMatch);
+
+    found_kv = findCaseInsensitive(locationsMap_, request_.getTarget());
+    if (!found_kv.first.empty() && (found_kv.second  == CASE_INSENSITIVE || found_kv.second == NONE))
+            request_.setTarget(found_kv.first);
 }
 
 
@@ -270,9 +305,13 @@ void RequestConfig::setUp(size_t targetServerIdx)
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
 
+    setLocationsMap(targetServer_);
+    
+std::cout << "Target: " << request_.getTarget() << std::endl;
+    setTargetSensitivity();
+
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
-    setLocationsMap(targetServer_);
     setBestMatch(newTarget);
     setRoot(cascadeFilter("root", newTarget));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", newTarget));
@@ -283,24 +322,10 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setAuth(cascadeFilter("auth", newTarget));
     setCgi(cascadeFilter("cgi", newTarget));
     setCgiBin(cascadeFilter("cgi-bin", newTarget));
-
-    // RequestConfig *location = NULL;
-    int status = request_.getStatus();
-    if (status != 200 && status != 100)
-    {
-        // location = getRequestLocation(request_.getTarget());
-    }
-    std::cout << std::endl;
 }
 
 void RequestConfig::redirectLocation(std::string target)
 {
-    // RequestConfig *location = NULL;
-    int status = request_.getStatus();
-    if (status != 200 && status != 100)
-    {
-        // location = getRequestLocation(target);
-    }
     target_ = target;
 }
 
@@ -424,7 +449,6 @@ void RequestConfig::setRedirectMap(const VecStr &redirectMap)
     setMap(redirectMap, resultMap, redirCodes);
     redirectMap_ = resultMap;
 }
-
 
 /**
  * GETTERS
@@ -597,7 +621,7 @@ void RequestConfig::printConfigSetUp()
     printMap(getHeaders());
     std::cout << std::endl;
     std::cout << "\nCGI\n";
-    // printVec(cgi_);
+    printVec(cgi_, "SETUP");
     std::cout << std::endl;
     std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
 

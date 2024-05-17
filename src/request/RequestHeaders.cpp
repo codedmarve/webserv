@@ -53,8 +53,6 @@ bool HttpRequest::isValidHeaderFormat(const std::string& header) {
 
 
 bool HttpRequest::isValidHeaderChar(unsigned char c) {
-    // Valid characters: Visible ASCII characters and obs-text(obsolete-text) (128-255) => Check ASCII table 
-    // return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFF);
     return (c >= 0x21 && c <= 0x7E) || ((c & 0x80) != 0 && c != 0x7F);
 }
 
@@ -65,7 +63,6 @@ int HttpRequest::checkSpecialHeaders() {
             std::cerr << "Invalid 'Host' header value." << std::endl;
             return 400;
         }
-        /// @todo validate host using our validate uri method and make "@" valid
     }
 
     if (headers_.count("transfer-encoding")) {
@@ -93,7 +90,7 @@ int HttpRequest::checkSpecialHeaders() {
         }
         buffer_section_ = BODY;
     } else {
-        return 100; // should be 400 but I need a unique value
+        return 100;
     }
 
 
@@ -103,7 +100,7 @@ int HttpRequest::checkSpecialHeaders() {
         std::string value = headers_["method"];
         if (value != "POST" && value != "PUT") {
             std::cerr << "Unsupported HTTP method: " << value << std::endl;
-            return 100; // should be 405 but I need a unique value
+            return 100;
         }
     }
 
