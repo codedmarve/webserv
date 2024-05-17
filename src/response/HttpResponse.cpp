@@ -401,8 +401,9 @@ int HttpResponse::sendResponse(int fd)
 	if (!body_.empty())
 	{
 		headers_["Content-Length"] = ftos(body_.length());
-		fullResponse += "\r\n\r\n";
-		fullResponse += body_;
+		fullResponse.append("\r\n\r\n");
+		fullResponse.append(body_);
+
 	}
 
 	int ret = send(fd, fullResponse.c_str() + total_sent_, fullResponse.length() - total_sent_, 0);

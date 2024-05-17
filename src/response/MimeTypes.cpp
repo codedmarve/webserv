@@ -9,11 +9,15 @@ MimeTypes::MimeTypes() {
     mimeMap[".css"] = "text/css";
     mimeMap[".js"] = "application/javascript";
     mimeMap[".json"] = "application/json";
+    mimeMap["application/json"] = ".json";
     mimeMap[".xml"] = "application/xml";
+    mimeMap["application/xml"] = ".xml";
     mimeMap[".txt"] = "text/plain";
+    mimeMap["text/plain"] = ".txt";
 
     // Images
     mimeMap[".jpg"] = "image/jpeg";
+    mimeMap["image/jpg"] = ".jpeg";
     mimeMap[".jpeg"] = "image/jpeg";
     mimeMap[".png"] = "image/png";
     mimeMap[".gif"] = "image/gif";
