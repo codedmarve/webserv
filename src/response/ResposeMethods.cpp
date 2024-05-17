@@ -2,12 +2,12 @@
 
 pthread_mutex_t g_write;
 
-
 int HttpResponse::GET()
 {
     pthread_mutex_lock(&g_write);
 
-    if (!file_) {
+    if (!file_)
+    {
         std::cerr << "File not found" << std::endl;
         pthread_mutex_unlock(&g_write);
         return 500;
@@ -45,20 +45,24 @@ int HttpResponse::POST()
     body_ = config_.getBody();
 
     pthread_mutex_lock(&g_write);
-    if (!file_->exists()) {
+    if (!file_->exists())
+    {
         file_->createFile(body_);
         status_code = 201;
-    } else {
+    }
+    else
+    {
         MimeTypes mimeTypes;
-        std::map <std::string, std::string> mimeMap = mimeTypes.getMap();
-        for (std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it) {
-            if (it->second == config_.getHeader("content-type")) {
+        std::map<std::string, std::string> mimeMap = mimeTypes.getMap();
+        for (std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
+        {
+            if (it->second == config_.getHeader("content-type"))
+            {
                 file_->appendFile(body_, it->first);
-        status_code = 200;
+                status_code = 200;
                 break;
             }
-        } 
-
+        }
     }
     pthread_mutex_unlock(&g_write);
 
@@ -70,23 +74,28 @@ int HttpResponse::POST()
     return status_code;
 }
 
-
-int HttpResponse::PUT() {
+int HttpResponse::PUT()
+{
     pthread_mutex_lock(&g_write);
 
     int status_code = 204;
 
-    if (!file_) {
+    if (!file_)
+    {
         std::cerr << "File not found" << std::endl;
         pthread_mutex_unlock(&g_write);
         return 500;
     }
 
-    if (file_->exists()) {
+    if (file_->exists())
+    {
         file_->createFile(config_.getBody());
-    } else {
+    }
+    else
+    {
         file_->createFile(config_.getBody());
-        if (!file_->exists()) {
+        if (!file_->exists())
+        {
             std::cerr << "Failed to create file" << std::endl;
             pthread_mutex_unlock(&g_write);
             return 500;
@@ -98,57 +107,55 @@ int HttpResponse::PUT() {
     return status_code;
 }
 
-
-int HttpResponse::DELETE() {
+int HttpResponse::DELETE()
+{
     pthread_mutex_lock(&g_write);
 
     int status_code = 200;
 
-    if (!file_) {
+    if (!file_)
+    {
         std::cerr << "File not found" << std::endl;
         status_code = 500;
-    } else {
-        if (!file_->exists()) {
+    }
+    else
+    {
+        if (!file_->exists())
+        {
             std::cerr << "File does not exist" << std::endl;
             status_code = 404;
-        } else {
-            if (file_->deleteFile()) {
+        }
+        else
+        {
+            if (file_->deleteFile())
+            {
                 headers_["Content-Length"] = "0";
                 status_code = 200;
-            } else {
+            }
+            else
+            {
                 status_code = 500;
             }
         }
     }
 
     pthread_mutex_unlock(&g_write);
-
-    if (status_code == 200) {
-        body_ = "<!DOCTYPE html>\n\
+    std::string header = "<!DOCTYPE html>\n\
                  <html>\n\
-                 <body>\n\
-                   <h1>File deleted</h1>\n\
-                 </body>\n\
+                 <body>\n";
+
+    std::string footer = "</body>\n\
                  </html>";
-        headers_["Content-Type"] = "text/html";
-        headers_["Content-Length"] = ftos(body_.length());
-    } else {
+    body_.append(header);
+    if (status_code == 200)
+        body_.append("<h1>File deleted</h1>\n");
+    else
         body_ = (status_code == 404)
-            ? "<!DOCTYPE html>\n\
-               <html>\n\
-               <body>\n\
-                 <h1>File not found</h1>\n\
-               </body>\n\
-               </html>"
-            : "<!DOCTYPE html>\n\
-               <html>\n\
-               <body>\n\
-                 <h1>Internal Server Error</h1>\n\
-               </body>\n\
-               </html>";
-        headers_["Content-Type"] = "text/html";
-        headers_["Content-Length"] = ftos(body_.length());
-    }
+                    ? body_.append("<h1>File not found</h1>\n")
+                    : body_.append("<h1>Internal Server Error</h1>\n");
+    body_.append(footer);
+    headers_["Content-Type"] = "text/html";
+    headers_["Content-Length"] = ftos(body_.length());
 
     return status_code;
 }
