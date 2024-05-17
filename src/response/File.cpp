@@ -175,6 +175,38 @@ void File::appendFile(const std::string &body)
     closeFile();
 }
 
+void File::appendFile(const std::string &body,std::string mimeType)
+{
+    std::cout << "MimeType: " << getMimeType(mimeType) << std::endl;
+
+    int flags = O_CREAT | O_WRONLY | O_TRUNC;
+    std::string dirPath = "www";
+    std::string newPath = dirPath + "/" + path_ + getMimeType(mimeType);
+    if (!exists(dirPath))
+    {
+        if (mkdir(dirPath.c_str(), 0755) != 0)
+        {
+            std::cerr << "Error creating directory: " << strerror(errno) << std::endl;
+            return;
+        }
+    }
+    fd_ = open(newPath.c_str(), flags, 0644);
+    std::cout << newPath;
+    if (fd_ < 0)
+    {
+        std::cerr << "Error opening file for append: " << strerror(errno) << std::endl;
+        return;
+    }
+
+    ssize_t bytes_written = write(fd_, body.c_str(), body.length());
+    if (bytes_written <= 0)
+    {
+        std::cerr << "Error appending to file: " << strerror(errno) << std::endl;
+    }
+
+    closeFile();
+}
+
 bool File::deleteFile()
 {
     if (unlink(path_.c_str()) != 0)

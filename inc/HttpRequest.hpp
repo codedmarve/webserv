@@ -93,7 +93,6 @@ public:
     std::string &getQuery();
     std::string &getFragment();
     std::string &getProtocol();
-    // std::string &getBody();
     const std::string &getBody() const;
     std::string &getHeader(std::string key);
     std::map<std::string, std::string> getHeaders() const;

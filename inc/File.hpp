@@ -39,6 +39,7 @@ public:
     void closeFile();
     void createFile(const std::string &body);
     void appendFile(const std::string &body);
+    void appendFile(const std::string &body, std::string MimeTypes);
     bool deleteFile();
     void set_path(std::string path, bool negotiation = false);
     void findMatchingFiles(); // parse_match

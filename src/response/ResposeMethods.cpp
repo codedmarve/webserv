@@ -49,10 +49,12 @@ int HttpResponse::POST()
         file_->createFile(body_);
         status_code = 201;
     } else {
-        file_->appendFile(body_);
+        file_->appendFile(body_, config_.getHeader("content-type"));
         status_code = 200;
     }
 
+    // std::cout << "****Content-Type: " <<  << std::endl;
+  std::cout << "Content-type: " << config_.getHeader("content-type") << std::endl;
     pthread_mutex_unlock(&g_write);
 
     headers_["Content-Length"] = ftos(body_.length());
