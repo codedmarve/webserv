@@ -69,7 +69,7 @@ public:
   std::map<int, std::string> &getRedirectionMap();
   std::vector<std::string> &getMethods();
   std::string &getMethod();
-  std::string &getBody();
+  const std::string &getBody() const;
   std::map<std::string, std::string> getHeaders();
   std::string &getHeader(std::string key);
   std::string &getProtocol();

@@ -14,6 +14,7 @@ MimeTypes::MimeTypes() {
 
     // Images
     mimeMap[".jpg"] = "image/jpeg";
+    mimeMap["image/jpg"] = ".jpeg";
     mimeMap[".jpeg"] = "image/jpeg";
     mimeMap[".png"] = "image/png";
     mimeMap[".gif"] = "image/gif";
@@ -94,6 +95,10 @@ std::string MimeTypes::getType(const std::string& extension) {
     return (it != mimeMap.end())
         ? it->second
         : "application/octet-stream";
+}
+
+std::map<std::string, std::string> MimeTypes::getMap() {
+    return mimeMap;
 }
 
 MimeTypes::~MimeTypes() {

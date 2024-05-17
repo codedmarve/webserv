@@ -358,20 +358,6 @@ void RequestConfig::setMethods(const VecStr &methods)
 
 void RequestConfig::setCgi(const VecStr &cgi)
 {
-    // cgi_.clear();
-
-    // if (cgi.size() % 2 != 0)
-    //     std::cerr << "Warning: Cgi value is empty\n";
-
-    // for (size_t i = 0; i < cgi.size(); i += 2)
-    // {
-    //     const std::string &key = cgi[i];
-    //     std::string value;
-
-    //     if (i + 1 < cgi.size())
-    //         value = cgi[i + 1];
-    //     cgi_[key] = value;
-    // }
     cgi_ = cgi;
 }
 
@@ -542,7 +528,7 @@ std::vector<std::string> &RequestConfig::getMethods()
     return allowed_methods_;
 }
 
-std::string &RequestConfig::getBody()
+const std::string &RequestConfig::getBody() const
 {
     return request_.getBody();
 }
