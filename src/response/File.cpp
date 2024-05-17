@@ -175,13 +175,12 @@ void File::appendFile(const std::string &body)
     closeFile();
 }
 
-void File::appendFile(const std::string &body,std::string mimeType)
+void File::appendFile(const std::string &body,std::string ext)
 {
-    std::cout << "MimeType: " << getMimeType(mimeType) << std::endl;
-
     int flags = O_CREAT | O_WRONLY | O_TRUNC;
     std::string dirPath = "www";
-    std::string newPath = dirPath + "/" + path_ + getMimeType(mimeType);
+    std::string newPath = dirPath + "/postDB/" + path_ + ext;
+
     if (!exists(dirPath))
     {
         if (mkdir(dirPath.c_str(), 0755) != 0)

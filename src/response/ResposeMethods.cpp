@@ -49,12 +49,17 @@ int HttpResponse::POST()
         file_->createFile(body_);
         status_code = 201;
     } else {
-        file_->appendFile(body_, config_.getHeader("content-type"));
+        MimeTypes mimeTypes;
+        std::map <std::string, std::string> mimeMap = mimeTypes.getMap();
+        for (std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it) {
+            if (it->second == config_.getHeader("content-type")) {
+                file_->appendFile(body_, it->first);
         status_code = 200;
-    }
+                break;
+            }
+        } 
 
-    // std::cout << "****Content-Type: " <<  << std::endl;
-  std::cout << "Content-type: " << config_.getHeader("content-type") << std::endl;
+    }
     pthread_mutex_unlock(&g_write);
 
     headers_["Content-Length"] = ftos(body_.length());

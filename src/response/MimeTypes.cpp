@@ -9,11 +9,8 @@ MimeTypes::MimeTypes() {
     mimeMap[".css"] = "text/css";
     mimeMap[".js"] = "application/javascript";
     mimeMap[".json"] = "application/json";
-    mimeMap["application/json"] = ".json";
     mimeMap[".xml"] = "application/xml";
-    mimeMap["application/xml"] = ".xml";
     mimeMap[".txt"] = "text/plain";
-    mimeMap["text/plain"] = ".txt";
 
     // Images
     mimeMap[".jpg"] = "image/jpeg";
@@ -98,6 +95,10 @@ std::string MimeTypes::getType(const std::string& extension) {
     return (it != mimeMap.end())
         ? it->second
         : "application/octet-stream";
+}
+
+std::map<std::string, std::string> MimeTypes::getMap() {
+    return mimeMap;
 }
 
 MimeTypes::~MimeTypes() {

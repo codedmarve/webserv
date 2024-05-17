@@ -12,6 +12,7 @@ public:
     ~MimeTypes();
 
     std::string getType(const std::string& extension);
+    std::map<std::string, std::string> getMap();
 };
 
 #endif

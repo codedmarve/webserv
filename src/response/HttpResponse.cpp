@@ -31,7 +31,6 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	cgiHeadersParsed_ = false;
 	cgiRead = false;
 	initMethods();
-	std::cout << "{HttpResponse BODY: " << config_.getBody() << "}" << std::endl;
 }
 
 HttpResponse::~HttpResponse() {}
@@ -179,6 +178,7 @@ int HttpResponse::handleMethods()
 	// so this isCgi() function will check if the file extension is in the cgi map
 	// and return true or false accordingly
 	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
+	std::cout << "******MIME EXT: " << file_->getMimeExt() << std::endl;
 	if (isCgi(file_->getMimeExt())) {
 		std::cout << "I think I am a cgi!\n";
 		HandleCgi();

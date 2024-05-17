@@ -224,7 +224,7 @@ void Servers::handleIncomingConnection(int server_fd){
 		// 	std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
 		// 	return;
 		// }
-	} 
+	}
 	// std::vector<std::string> domains = _domain_to_server[server_fd];
 	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
 	// 	std::cout << "Server domains: " << *it << std::endl;
@@ -440,7 +440,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			client.setupResponse();
 			response = client.getResponseString();
 		}
-		// std::cout << "Response: " << response << std::endl;
+		
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
