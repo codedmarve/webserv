@@ -67,6 +67,7 @@ private:
     void extractPathQueryFragment(size_t pathStart);
     void parseSchemeAndAuthority(size_t schemeEnd, size_t& pathStart);
     std::string decodeURIComponent(const std::string& str);
+    std::string uri_suffix_;
 
 
 public:
@@ -86,10 +87,11 @@ public:
     std::map<std::string, std::string> getHeaders() const;
     std::string getTarget() const;
     size_t getContentLength();
+    std::string getUriSuffix();
+    void setUriSuffix(std::string& uri);
 
     void setTarget(std::string target);
     void printRequest(HttpRequest parser);
-
 
     bool timeout();
     time_t get_start_timer_in_sec();

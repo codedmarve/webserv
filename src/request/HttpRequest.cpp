@@ -29,10 +29,12 @@ int HttpRequest::parseRequest(std::string &buffer)
     httpStatus = parseHeaders();
   if (buffer_section_ == SPECIAL_HEADERS)
     httpStatus = checkSpecialHeaders();
+
   if (buffer_section_ == BODY)
     httpStatus = parseBody();
   else if (buffer_section_ == CHUNK)
     httpStatus = parseChunkedBody();
+
   if (buffer_section_ == COMPLETE || httpStatus == 100)
     buffer_section_ = COMPLETE;
   else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 100))

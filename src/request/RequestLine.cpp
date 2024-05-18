@@ -365,8 +365,26 @@ bool HttpRequest::isValidFragment(const std::string &fragment)
     return true;
 }
 
+void HttpRequest::setUriSuffix(std::string& uri) {
+    std::string::size_type dotPos = uri.find('.');
+    if (dotPos != std::string::npos) {
+        std::string::size_type nextSlashPos = uri.find('/', dotPos);
+        if (nextSlashPos != std::string::npos) {
+            uri_suffix_ = uri.substr(nextSlashPos + 1);
+            uri = uri.substr(0, nextSlashPos);
+            setTarget(uri);
+        }
+    }
+}
+
+std::string HttpRequest::getUriSuffix() {
+    return uri_suffix_;
+}
+
+
 int HttpRequest::validateURI()
 {
+    setUriSuffix(uri_);
     if (uri_.empty())
         return false;
     int hasAuthority = extractURIComponents();
