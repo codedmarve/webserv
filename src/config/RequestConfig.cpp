@@ -219,33 +219,6 @@ void RequestConfig::returnRedirection()
     }
 }
 
-void RequestConfig::setBestMatch(std::string &newTarget)
-{
-    std::string target = request_.getTarget();
-    std::string longestMatch = "";
-
-    std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
-    while (locationsMap != getLocationsMap().end())
-    {
-        if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
-            longestMatch = locationsMap->first;
-        locationsMap++;
-    }
-    if (!longestMatch.empty())
-    {
-        newTarget = target.substr(0, longestMatch.length());
-        target.erase(0, longestMatch.length());
-        setTarget("/" + target);
-        setUri("/" + target);
-    }
-    else
-    {
-        newTarget = request_.getTarget();
-        setTarget(request_.getTarget());
-        setUri(request_.getURI());
-    }
-}
-
 std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int> &myMap, const std::string &key)
 {
     std::string lowerKey;
@@ -261,19 +234,18 @@ std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int>
 }
 
 
-std::string findLongestMatch(const std::map<std::string, int> &myMap, const std::string &key)
+std::string RequestConfig::findLongestMatch()
 {
-    std::string longestMatch = "";
-    size_t longestMatchSize = 0;
+    std::string target = request_.getTarget();
+	std::string longestMatch = "";
 
-    for (std::map<std::string, int>::const_iterator it = myMap.begin(); it != myMap.end(); ++it)
-    {
-        if (key.compare(0, it->first.size(), it->first) == 0 && it->first.size() > longestMatchSize)
-        {
-            longestMatch = it->first;
-            longestMatchSize = it->first.size();
-        }
-    }
+	std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
+	while (locationsMap != getLocationsMap().end())
+	{
+		if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
+			longestMatch = locationsMap->first;
+		locationsMap++;
+	}
     return longestMatch;
 }
 
@@ -287,15 +259,23 @@ int RequestConfig::getLociMatched()
     return isLociMatched_;
 }
 
-void RequestConfig::setTargetSensitivity() {
-    std::pair<std::string, int> found_kv;
-    std::string longestMatch = findLongestMatch(locationsMap_, request_.getTarget());
-    if (longestMatch != "/")
-        request_.setTarget(longestMatch);
 
-    found_kv = findCaseInsensitive(locationsMap_, request_.getTarget());
-    if (!found_kv.first.empty() && (found_kv.second  == CASE_INSENSITIVE || found_kv.second == NONE))
-            request_.setTarget(found_kv.first);
+
+void RequestConfig::setBestMatch(std::string &newTarget) {
+    std::string target = request_.getTarget();
+	std::string longestMatch = findLongestMatch();
+
+	if (!longestMatch.empty())
+	{
+        newTarget = target.substr(0, longestMatch.length());
+		target.erase(0, longestMatch.length());
+		setTarget("/" + target);
+		setUri("/" + target);
+	} else {
+        newTarget = request_.getTarget();
+        setTarget(request_.getTarget());
+        setUri(request_.getURI());
+    }
 }
 
 
@@ -305,13 +285,9 @@ void RequestConfig::setUp(size_t targetServerIdx)
     targetServer_ = getDataByIdx(db_.serversDB, targetServerIdx);
     serverId = targetServerIdx;
 
-    setLocationsMap(targetServer_);
-    
-std::cout << "Target: " << request_.getTarget() << std::endl;
-    setTargetSensitivity();
-
     setRedirectMap(cascadeFilter("return", request_.getTarget()));
     returnRedirection();
+    setLocationsMap(targetServer_);
     setBestMatch(newTarget);
     setRoot(cascadeFilter("root", newTarget));
     setClientMaxBodySize(cascadeFilter("client_max_body_size", newTarget));

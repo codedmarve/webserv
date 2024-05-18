@@ -35,6 +35,7 @@ public:
   bool isMethodAccepted(std::string &method);
   void redirectLocation(std::string target);
   std::string locationExtractor(const std::string &locationStr);
+  std::string findLongestMatch();
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
