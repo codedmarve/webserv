@@ -142,7 +142,7 @@ void File::closeFile()
 void File::appendFile(const std::string &body)
 {
     int flags = O_CREAT | O_WRONLY | O_TRUNC;
-    std::string dirPath = "post_folder";
+    std::string dirPath = "www";
     std::string newPath = dirPath + "/" + path_;
     if (!exists(dirPath))
     {
