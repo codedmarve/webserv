@@ -414,7 +414,7 @@ void HttpResponse::HandleCgi()
 	std::string req_body = config_.getBody();
 	while (status_code_ == 0)
 	{
-		std::cout << "STATUS: " << status_code_ << std::endl;
+		// std::cout << "STATUS: " << status_code_ << std::endl;
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
 	}
