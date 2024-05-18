@@ -172,7 +172,7 @@ void File::appendFile(const std::string &body,std::string ext)
 {
     int flags = O_CREAT | O_WRONLY | O_TRUNC;
     std::string dirPath = "www";
-    std::string newPath = dirPath + "/postDB/" + path_ + ext;
+    std::string newPath = dirPath + "/serverDB/" + path_ + ext;
 
     if (!exists(dirPath))
     {
@@ -183,7 +183,6 @@ void File::appendFile(const std::string &body,std::string ext)
         }
     }
     fd_ = open(newPath.c_str(), flags, 0644);
-    std::cout << newPath;
     if (fd_ < 0)
     {
         std::cerr << "Error opening file for append: " << strerror(errno) << std::endl;
@@ -286,10 +285,6 @@ std::string File::listDir(std::string &target)
 
     for (size_t i = 0; i < listing.size(); ++i)
     {
-        // std::cout << "Listing: " << listing[i].name_ << std::endl;
-        // std::cout << "Is dir: " << listing[i].is_dir_ << std::endl;
-        // std::cout << "target: " << target << std::endl;
-
         body.append(formatListing(listing[i], target));
     }
 
@@ -333,8 +328,6 @@ std::vector<directory_listing> File::getDirListings(const std::string &dirPath)
     while ((entry = readdir(dir)) != NULL)
     {
         std::string fileName = entry->d_name;
-        // if (fileName == "." || fileName == "..")
-        //     continue; // Skip current and parent directories
 
         directory_listing listing = createListing(fileName, dirPath);
         listings.push_back(listing);
@@ -462,12 +455,9 @@ void File::findMatchingFiles()
     dir = opendir(path.c_str());
     if (dir)
     {
-        /// @note: Debugging purposes
         while ((ent = readdir(dir)))
         {
             std::string name(ent->d_name);
-            /// @note Debugging purposes
-            // std::cout << "Name: " << name << std::endl;
             if (name == file_name_full_)
                 matches_.push_back(name);
             else if (name.find(file_name_) != std::string::npos &&

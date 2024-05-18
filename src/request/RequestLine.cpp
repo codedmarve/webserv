@@ -260,9 +260,7 @@ int HttpRequest::isValidAuthority(const std::string &authority)
         for (size_t i = 0; i < port.length(); ++i)
         {
             if (!isDigit(port[i]))
-            {
                 return 403;
-            }
         }
         int portValue = atoi(port.c_str());
         if (portValue < 0 || portValue > 65535)
@@ -372,7 +370,6 @@ int HttpRequest::validateURI()
     if (uri_.empty())
         return false;
     int hasAuthority = extractURIComponents();
-    // print_uri_extracts();
 
     if (!isValidScheme(scheme_))
         return 400;
@@ -394,26 +391,20 @@ bool HttpRequest::isValidIPv6(const std::string &ipv6)
     for (size_t i = 0; i < ipv6.length(); ++i)
     {
         if (ipv6[i] == ':')
-        {
             numColons++;
-        }
     }
 
     // If there are more than 7 colons or it contains "::" without being the only "::",
     // it's not a valid IPv6 address
     if (numColons > 7 || ipv6.find("::") != std::string::npos || (numColons == 7 && ipv6[ipv6.length() - 1] == ':'))
-    {
         return false;
-    }
 
     // Split the string into groups separated by ":"
     std::vector<std::string> groups;
     std::string group;
     std::istringstream iss(ipv6);
     while (std::getline(iss, group, ':'))
-    {
         groups.push_back(group);
-    }
 
     // Check each group
     for (size_t i = 0; i < groups.size(); ++i)
@@ -421,18 +412,14 @@ bool HttpRequest::isValidIPv6(const std::string &ipv6)
         const std::string &g = groups[i];
         // Each group should be 1-4 hexadecimal characters
         if (g.empty() || g.length() > 4)
-        {
             return false;
-        }
 
         // Check if all characters are hexadecimal
         for (size_t j = 0; j < g.length(); ++j)
         {
             char c = g[j];
             if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
-            {
                 return false;
-            }
         }
     }
 
@@ -448,9 +435,7 @@ int HttpRequest::isValidProtocol(const std::string &protocol)
     // Check version format
     std::string version = protocol.substr(5);
     if (version.size() < 3 || version[0] != '1' || version[1] != '.')
-        return 505; // Not Supported
-
-    // Check if the rest of the version are digits
+        return 505;
     for (size_t i = 2; i < version.size(); i++)
     {
         if (!isdigit(version[i]))

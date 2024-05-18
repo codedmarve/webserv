@@ -30,8 +30,6 @@ class Servers {
 		std::map<int, std::vector<std::string> > server_index;
 		std::map<int, int> server_fd_to_index;
 	public:
-		//Temporal member variable until the config file is completed
-		// std::map<std::string, std::vector<std::string> > _server_ports;
 		
 		//Constructors
 		Servers(ConfigDB &configDB);

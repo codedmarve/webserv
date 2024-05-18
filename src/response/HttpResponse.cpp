@@ -1,24 +1,5 @@
 #include "../../inc/HttpResponse.hpp"
 
-/// @brief
-// How response is built:
-// HTTP/1.1 200 OK
-// Date: Wed, 13 Apr 2024 12:00:00 GMT
-// Server: webserv/1.0
-// Content-Type: text/html
-// Content-Length: 1234
-
-// <!DOCTYPE html>
-// <html>
-// <head>
-//     <title>Example Page</title>
-// </head>
-// <body>
-//     <h1>Hello, World!</h1>
-//     <p>This is an example page.</p>
-// </body>
-// </html>
-
 HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(config), error_code_(error_code)
 {
 	status_code_ = 0;
@@ -170,15 +151,7 @@ int HttpResponse::handleMethods()
 				return ret;
 		}
 	}
-	// std::cout << "isCGI: " << isCgi(file_->getMimeExt()) << "\n";
-	/// @note added this to handle cgi
-	// Hi Alex, here is what to expect
-	// if you look into the config file you will see how cgi is configured
-	// cgi [ext] [filename]
-	// so this isCgi() function will check if the file extension is in the cgi map
-	// and return true or false accordingly
-	// for example if you have a file called test.py is called this will check what its mapped against in the cgi map
-	std::cout << "******MIME EXT: " << file_->getMimeExt() << std::endl;
+
 	if (isCgi(file_->getMimeExt())) {
 		std::cout << "I think I am a cgi!\n";
 		HandleCgi();
@@ -186,9 +159,7 @@ int HttpResponse::handleMethods()
 	}
 
 	if (method == "PUT" || method == "POST")
-	{
 		handlePutPostRequest();
-	}
 
 	return (this->*(HttpResponse::methods_[method]))();
 }
@@ -452,22 +423,6 @@ void HttpResponse::HandleCgi()
 	if (exit_status == 256)
 		status_code_ = 500;
 	std::cout << "STATUS: " << status_code_ << std::endl;
-	// std::string body;
-	// int bytesRead = 0;
-	// char buffer[4096];
-	// while ((bytesRead = read(cgi.getPipeOut(), buffer, 1024)) > 0)
-	// {
-	// bytesRead = read(cgi.getPipeOut(), buffer, 4000);
-	// body_.append(buffer, bytesRead);
-	// // }
-	// if (bytesRead == -1)
-	// {
-	// 	std::cerr << "read : " << strerror(errno) << std::endl;
-	// 	status_code_ = 500;
-	// 	return;
-	// }
-	// body_ = body;
-	// std::cout << "BODY: " << body_ << std::endl;
 }
 
 void HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)

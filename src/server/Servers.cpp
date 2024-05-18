@@ -195,46 +195,13 @@ void Servers::handleIncomingConnection(int server_fd){
 	int reqStatus = -1;
 	while (!finish){	
 		finish = getRequest(new_socket, request);
-		// std::cout << "Count: " << count++ << std::endl;
-		// send (new_socket, request.c_str(), request.size(), 0);
-		/**
-		 * /// @note reqStatus
-		 * 200 indicates that parsing is ongoing and there is no error
-		 * 100 indicates parsing is complete and successful
-		 * any other number indicates an http req error or incomplete parsing state
-		*/
 		reqStatus = parser.parseRequest(request);
 		if (reqStatus != 200) {
 			finish = true;
 		}
 		if (!handleResponse(reqStatus, server_fd, new_socket, parser))
 			return;
-		// std::string response;
-		// if (reqStatus != 200)
-		// {
-		// 	Listen host_port = getTargetIpAndPort(_ip_to_server[server_fd]);
-
-		// 	DB db = {configDB_.getServers(), configDB_.getRootConfig()};
-		// 	Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
-		// 	client.setupResponse();
-		// 	response = client.getResponseString();
-		// }
-		// ssize_t bytes = write(new_socket, response.c_str(), response.size());
-		// if (bytes == -1) {
-		// 	std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
-		// 	return;
-		// }
 	}
-	// std::vector<std::string> domains = _domain_to_server[server_fd];
-	// for (std::vector<std::string>::iterator it = domains.begin(); it != domains.end(); it++)
-	// 	std::cout << "Server domains: " << *it << std::endl;
-	
-	
-	// parser.printRequest(parser);
-	
-	// std::string response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
-	// std::cout << "I am here now!!" << std::endl;
-    // Close the socket
     if (close(new_socket) == -1)
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
 }

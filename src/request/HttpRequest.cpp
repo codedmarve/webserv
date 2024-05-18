@@ -1,10 +1,5 @@
 #include "../../inc/HttpRequest.hpp"
 
-/// @note
-// 200 indicates that parsing is ongoing and there is no error
-// 100 indicates parsing is complete and successful
-// any other number indicates an http req error or incomplete parsing state
-
 HttpRequest::HttpRequest()
 {
   body_offset_ = 0;
@@ -29,33 +24,19 @@ int HttpRequest::parseRequest(std::string &buffer)
   buffer.clear();
 
   if (buffer_section_ == REQUEST_LINE)
-  {
     httpStatus = parseRequestLine();
-  }
   if (buffer_section_ == HEADERS)
-  {
     httpStatus = parseHeaders();
-  }
   if (buffer_section_ == SPECIAL_HEADERS)
-  {
     httpStatus = checkSpecialHeaders();
-  }
   if (buffer_section_ == BODY)
-  {
     httpStatus = parseBody();
-  }
   else if (buffer_section_ == CHUNK)
-  {
     httpStatus = parseChunkedBody();
-  }
   if (buffer_section_ == COMPLETE || httpStatus == 100)
-  {
     buffer_section_ = COMPLETE;
-  }
   else if (buffer_section_ == ERROR || (httpStatus != 200 && httpStatus != 100))
-  {
     buffer_section_ = ERROR;
-  }
 
   return httpStatus;
 }
@@ -177,7 +158,6 @@ void HttpRequest::printRequest(HttpRequest parser)
 {
   try
   {
-    // parser.parseRequest(request);
     std::cout << "Method: " << parser.getMethod() << std::endl;
     std::cout << "Target: " << parser.getURI() << std::endl;
     std::cout << "Protocol: " << parser.getProtocol() << std::endl;

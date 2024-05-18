@@ -428,9 +428,7 @@ void RequestConfig::setMap(const VecStr &vec, std::map<int, std::string> &result
 
         // Assign the last page to remaining codes
         if (!codes.empty())
-        {
             assignCodes(codes, vec.back(), resultMap);
-        }
     }
 }
 

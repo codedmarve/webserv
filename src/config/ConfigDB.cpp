@@ -78,9 +78,7 @@ std::string ConfigDB::readFile(char **argv)
 
         // If the line ends with a space, concatenate with the next line
         if (!line.empty() && line[line.size() - 1] == ' ')
-        {
             lastLine += line.substr(0, line.size() - 1) + " ";
-        }
         else
         {
             if (!lastLine.empty())
@@ -90,15 +88,11 @@ std::string ConfigDB::readFile(char **argv)
                 lastLine.clear();
             }
             else
-            {
                 configData += line + "\n";
-            }
         }
     }
     if (!lastLine.empty())
-    {
         configData += lastLine;
-    }
     if (checkCurly(configData))
         ft_errors("curly ", 3);
     return configData;
@@ -113,13 +107,10 @@ std::string ConfigDB::handleKeySection(int &start, int &end, std::string &line)
     std::replace(currentSection.begin(), currentSection.end(), ' ', '_');
     this->pushInBase(currentSection);
     if (sectionCounts.find(currentSection) == sectionCounts.end())
-    {
         sectionCounts[currentSection] = 0;
-    }
     else
-    {
         sectionCounts[currentSection]++;
-    }
+    
     std::vector<std::string>::iterator it = this->_variablePath.begin();
     bool server = false;
     while (it != this->_variablePath.end())
@@ -147,9 +138,7 @@ void ConfigDB::printKeyValue()
                   << "\nValue(s): " << std::endl;
         const VecStr &values = it1->second;
         for (VecStr::const_iterator it2 = values.begin(); it2 != values.end(); ++it2)
-        {
             std::cout << "  " << *it2 << std::endl;
-        }
         std::cout << "\n";
     }
 }

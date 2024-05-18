@@ -9,10 +9,7 @@ int HttpRequest::parseBody()
         req_buffer_.erase(0, length_);
         body_offset_ += req_buffer_.length();
 
-        if (body_.length() == length_)
-            return 100;
-        else
-            return 400;
+        return (body_.length() == length_) ? 100 : 400;
     }
     return 200;
 }

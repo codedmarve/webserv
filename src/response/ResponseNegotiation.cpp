@@ -65,39 +65,6 @@ std::string HttpResponse::findBestLanguage(const std::vector<std::string> &match
   return bestLanguage;
 }
 
-// bool HttpResponse::localization(std::vector<std::string> &matches)
-// {
-//   std::string all = config_.getHeader("Accept-Language");
-
-//   std::vector<std::pair<std::string, double> > langQPairs;
-//   std::size_t pos = 0;
-//   while (pos < all.length())
-//   {
-//     std::size_t nextComma = all.find(',', pos);
-//     std::string langAndQ = all.substr(pos, (nextComma == std::string::npos) ? std::string::npos : nextComma - pos);
-//     langQPairs.push_back(extractLangAndQ(langAndQ));
-
-//     if (nextComma == std::string::npos)
-//       break;
-//     else
-//       pos = nextComma + 1;
-//   }
-
-//   std::string bestLanguage = findBestLanguage(matches, langQPairs);
-
-//   if (bestLanguage.empty())
-//     bestLanguage = "en"; // Default to English
-
-//   if (!bestLanguage.empty())
-//   {
-//     matches.clear();
-//     matches.push_back(bestLanguage);
-//     headers_["Content-Language"] = bestLanguage;
-//     return true;
-//   }
-
-//   return false;
-// }
 int ftstoi(const std::string &str, std::size_t *pos = NULL, int base = 10) {
     static const std::string baseChars = "0123456789abcdef";
 
