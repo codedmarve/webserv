@@ -46,6 +46,6 @@ response = {
     "submission_directory": submission_directory if submission_directory else None
 }
 
-print("Content-Type: application/json;charset=utf-8")
+print("Content-Type: application/json;charset=utf-8\r\n\r\n")
 print()
 print(json.dumps(response, indent=4))

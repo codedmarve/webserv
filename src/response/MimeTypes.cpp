@@ -1,7 +1,8 @@
 // #include "../../inc/AllHeaders.hpp"
 #include "../../inc/MimeTypes.hpp"
 
-MimeTypes::MimeTypes() {
+MimeTypes::MimeTypes()
+{
     // Initialize the mapping of file extensions to MIME types
     // Common text formats
     mimeMap[".html"] = "text/html";
@@ -25,7 +26,7 @@ MimeTypes::MimeTypes() {
     // Audio and Video
     mimeMap[".mp3"] = "audio/mpeg";
     mimeMap[".mp4"] = "video/mp4";
-    mimeMap[".mpeg"] = "video/mpeg"/*  */;
+    mimeMap[".mpeg"] = "video/mpeg" /*  */;
     mimeMap[".ogg"] = "audio/ogg";
     mimeMap[".webm"] = "video/webm";
     mimeMap[".wav"] = "audio/wav";
@@ -90,28 +91,40 @@ MimeTypes::MimeTypes() {
     mimeMap[".cdy"] = "application/vnd.cinderella";
 }
 
-MimeTypes::MimeTypes(const MimeTypes &rhs)
-    : mimeMap(rhs.mimeMap) {
-}
+MimeTypes::MimeTypes(const MimeTypes &rhs) : mimeMap(rhs.mimeMap) {}
 
-MimeTypes &MimeTypes::operator=(const MimeTypes &rhs) {
-    if (this != &rhs) {
+MimeTypes &MimeTypes::operator=(const MimeTypes &rhs)
+{
+    if (this != &rhs)
         mimeMap = rhs.mimeMap;
-    }
+
     return *this;
 }
 
-std::string MimeTypes::getType(const std::string& extension) {
+std::string MimeTypes::getType(const std::string &extension)
+{
     std::map<std::string, std::string>::iterator it = mimeMap.find(extension);
     return (it != mimeMap.end())
-        ? it->second
-        : "application/octet-stream";
+               ? it->second
+               : "application/octet-stream";
 }
 
-std::map<std::string, std::string> MimeTypes::getMap() {
+std::string MimeTypes::getExt(const std::string &type)
+{
+    for (std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
+    {
+        if (it->second == type)
+            return it->first;
+    }
+    return "";
+}
+
+std::map<std::string, std::string> MimeTypes::getMap()
+{
     return mimeMap;
 }
 
-MimeTypes::~MimeTypes() {
+MimeTypes::~MimeTypes()
+{
     mimeMap.clear();
 }

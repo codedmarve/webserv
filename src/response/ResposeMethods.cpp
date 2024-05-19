@@ -53,15 +53,17 @@ int HttpResponse::POST()
     else
     {
         MimeTypes mimeTypes;
-        std::map<std::string, std::string> mimeMap = mimeTypes.getMap();
-        for (std::map<std::string, std::string>::iterator it = mimeMap.begin(); it != mimeMap.end(); ++it)
+        std::string ext = mimeTypes.getExt(config_.getHeader("content-type"));
+        
+        if (ext.empty())
         {
-            if (it->second == config_.getHeader("content-type"))
+            std::cerr << "Invalid content type" << std::endl;
+            status_code = 415;
+        }
+        else
             {
-                file_->appendFile(body_, it->first);
+            file_->appendFile(body_, ext);
                 status_code = 200;
-                break;
-            }
         }
     }
     pthread_mutex_unlock(&g_write);

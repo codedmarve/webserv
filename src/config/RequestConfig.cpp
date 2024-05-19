@@ -344,7 +344,8 @@ void RequestConfig::redirectLocation(std::string target)
 
 void RequestConfig::setTarget(const std::string &target)
 {
-    target_ = target;
+
+    target_ = removeDupSlashes(target);
 }
 
 void RequestConfig::setRoot(const VecStr root)
@@ -360,7 +361,7 @@ void RequestConfig::setAuth(const VecStr &auth)
 
 void RequestConfig::setUri(const std::string uri)
 {
-    uri_ = uri;
+    uri_ = removeDupSlashes(uri);
 }
 
 void RequestConfig::setClientMaxBodySize(const VecStr size)

@@ -26,7 +26,7 @@ else:
         message = f'Directory "{directory_to_delete}" does not exist or could not be deleted.'
 
 # Output the result
-print("Content-Type: text/html;charset=utf-8")
+print("Content-Type: text/html;charset=utf-8\r\n")
 print()
 print("<html><body>")
 print(f"<h1>{message}</h1>")
