@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 # Set the Content-Type header to indicate that the response is HTML
 echo "Content-Type: text/html"

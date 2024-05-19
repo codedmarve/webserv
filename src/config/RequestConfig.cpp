@@ -466,6 +466,10 @@ void RequestConfig::setRedirectMap(const VecStr &redirectMap)
  * GETTERS
  */
 
+std::string RequestConfig::getUriSuffix() {
+    return request_.getUriSuffix();
+}
+
 std::map<std::string, std::string> RequestConfig::getHeaders()
 {
     std::map<std::string, std::string>::const_iterator it;
