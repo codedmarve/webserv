@@ -73,6 +73,8 @@ private:
 public:
     HttpRequest();
     ~HttpRequest();
+    HttpRequest(const HttpRequest &rhs);
+    HttpRequest &operator=(const HttpRequest &rhs);
 
     int parseRequest(std::string &buffer);
 

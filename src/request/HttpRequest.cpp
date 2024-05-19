@@ -12,6 +12,60 @@ HttpRequest::HttpRequest()
 
 HttpRequest::~HttpRequest() {}
 
+HttpRequest::HttpRequest(const HttpRequest &rhs)
+    : method_(rhs.method_),
+      uri_(rhs.uri_),
+      scheme_(rhs.scheme_),
+      authority_(rhs.authority_),
+      path_(rhs.path_),
+      query_(rhs.query_),
+      frag_(rhs.frag_),
+      target_(rhs.target_),
+      protocol_(rhs.protocol_),
+      headers_(rhs.headers_),
+      body_(rhs.body_),
+      req_buffer_(rhs.req_buffer_),
+      length_(rhs.length_),
+      chunk_size_(rhs.chunk_size_),
+      isChunked_(rhs.isChunked_),
+      body_offset_(rhs.body_offset_),
+      start_tv_(rhs.start_tv_),
+      last_tv_(rhs.last_tv_),
+      buffer_section_(rhs.buffer_section_),
+      chunk_status_(rhs.chunk_status_),
+      uri_suffix_(rhs.uri_suffix_)
+{
+}
+
+HttpRequest &HttpRequest::operator=(const HttpRequest &rhs)
+{
+  if (this != &rhs)
+  {
+    method_ = rhs.method_;
+    uri_ = rhs.uri_;
+    scheme_ = rhs.scheme_;
+    authority_ = rhs.authority_;
+    path_ = rhs.path_;
+    query_ = rhs.query_;
+    frag_ = rhs.frag_;
+    target_ = rhs.target_;
+    protocol_ = rhs.protocol_;
+    headers_ = rhs.headers_;
+    body_ = rhs.body_;
+    req_buffer_ = rhs.req_buffer_;
+    length_ = rhs.length_;
+    chunk_size_ = rhs.chunk_size_;
+    isChunked_ = rhs.isChunked_;
+    body_offset_ = rhs.body_offset_;
+    start_tv_ = rhs.start_tv_;
+    last_tv_ = rhs.last_tv_;
+    buffer_section_ = rhs.buffer_section_;
+    chunk_status_ = rhs.chunk_status_;
+    uri_suffix_ = rhs.uri_suffix_;
+  }
+  return *this;
+}
+
 int HttpRequest::parseRequest(std::string &buffer)
 {
   size_t httpStatus = 0;
