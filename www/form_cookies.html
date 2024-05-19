@@ -1,0 +1,89 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Webserv</title>
+    <!-- Favicon-->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Simple line icons-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/simple-line-icons/2.5.5/css/simple-line-icons.min.css" rel="stylesheet" />
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="css/styles.css" rel="stylesheet" />
+    <style>
+      .framed-button {
+        border: 2px solid #000; /* Black border */
+        padding: 10px;
+        border-radius: 5px; /* Rounded corners */
+      }
+    </style>
+</head>
+<body>
+  <a class="menu-toggle rounded" href="#"><i class="fas fa-bars"></i></a>
+  <nav id="sidebar-wrapper">
+    <ul class="sidebar-nav">
+      <li class="sidebar-brand"><a href="#page-top">Webserv/1.1</a></li>
+      <li class="sidebar-nav-item"><a href="index.php">index.php</a></li>
+      <li class="sidebar-nav-item"><a href="/admin">/admin</a></li>
+      <li class="sidebar-nav-item"><a href="/data">/data</a></li>
+      <li class="sidebar-nav-item"><a href="/autoindex/">/autoindex</a></li>
+      <li class="sidebar-nav-item"><a href="form_cookies.html">Cookies</a></li>
+      <li class="sidebar-nav-item"><a href="#about">About</a></li>
+    </ul>
+  </nav>
+  <div class="container details mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container details mt-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Cookie I/O</h3>
+          </div>
+          <div class="card-body">
+            <form action="/cgi-bin/set_cookies.py" method="POST">
+              <div class="mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" required>
+              </div>
+              <div class="mb-3">
+                <label for="value" class="form-label">Value:</label>
+                <input type="text" class="form-control" id="value" name="value" placeholder="Enter a value" required>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary framed-button">Set Cookie</button>
+              </div>
+            </form>
+            <form action="/cgi-bin/get_cookies.py" method="GET">
+              <div class="mb-3">
+                <label for="cookieName" class="form-label">Cookie Name:</label>
+                <input type="text" class="form-control" id="cookieName" name="cookieName" placeholder="Enter the name of the cookie" required>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary framed-button">Get Cookie</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+  <!-- Bootstrap core JS-->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Core theme JS-->
+  <script src="js/scripts.js"></script>
+</body>
+</html>

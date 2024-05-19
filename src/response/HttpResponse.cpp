@@ -469,7 +469,7 @@ void HttpResponse::HandleCgi()
 	}
 	waitpid(cgi.getPid(), &exit_status, 0);
 	closeParentCgiPipe(cgi);
-	if (exit_status == 256)
+	if (exit_status == 256 || cgi.getExitStatus() == 500)
 		status_code_ = 500;
 	std::cout << "STATUS: " << status_code_ << std::endl;
 }
@@ -511,7 +511,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
 		{
 			body_.append(buffer, bytesRead);
-			if (body_.find("\r\n\r\n") != std::string::npos && !cgiHeadersParsed_)
+			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
 			cgiRead = true;
 		}
@@ -577,15 +577,24 @@ void HttpResponse::parseCgiHeaders()
 
 void HttpResponse::handleCgiHeaders(std::string &body_)
 {
-	std::string::size_type pos = body_.find("\r\n\r\n");
+	std::string::size_type pos;
+	if (body_.find("\r\n\r\n") != std::string::npos)
+		pos = body_.find("\r\n\r\n");
+	else if (body_.find("\r\n") != std::string::npos)
+		pos = body_.find("\r\n");
 	if (pos != std::string::npos)
 	{
 		cgiHeaders_ = body_.substr(0, pos);
-		if (body_.find("\r\n\r\n\n") != std::string::npos)
+		if ((pos = body_.find("\r\n\r\n\n")) != std::string::npos)
 			body_ = body_.substr(pos + 5);
-		else
+		else if ((pos = body_.find("\r\n\r\n")) != std::string::npos)
 			body_ = body_.substr(pos + 4);
+		else if ((pos = body_.find("\r\n\n")) != std::string::npos)
+			body_ = body_.substr(pos + 3);
+		else if ((pos = body_.find("\r\n")) != std::string::npos)
+			body_ = body_.substr(pos + 2);
 		cgiHeadersParsed_ = true;
+		std::cout << "I work with headers!\n";
 		parseCgiHeaders();
 	}
 	else

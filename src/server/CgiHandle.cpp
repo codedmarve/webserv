@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/09 01:34:11 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/20 00:41:40 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,9 @@ void CgiHandle::initEnv(){
 	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + port + "/cgi-bin" + this->_config->getUri();
 	this->_env["SERVER_PORT"] = port;
 	ss.clear();
+	// this->_env["PATH_INFO"] = this->_config->getUriSuffix();
+	this->_env["HTTP_COOKIE"] = this->_config->getHeader("cookie");
+	std::cout << "COOKIE: " << this->_env["HTTP_COOKIE"] << std::endl;
 	this->_env["REQUEST_URI"] = this->_config->getUri();
 	this->_env["SERVER_SOFTWARE"] = "AMANIX";
 	this->_env["PATH"] = std::string (getenv("PATH"));
@@ -127,7 +130,7 @@ void CgiHandle::execCgi(){
 		{
 			std::cerr << "Error: execve failed" << std::endl;
 			closePipe();
-			exit(500);
+			exit(1);
 		}
 		closePipe();
 	}
