@@ -79,6 +79,17 @@ ErrorCodes::ErrorCodes() {
     errorMap[EXDEV] = "Improper link";
 }
 
+ErrorCodes::ErrorCodes(const ErrorCodes &rhs) {
+    errorMap = rhs.errorMap;
+}
+
+ErrorCodes& ErrorCodes::operator=(const ErrorCodes &rhs) {
+    if (this != &rhs)
+        errorMap = rhs.errorMap;
+
+    return *this;
+}
+
 std::string ErrorCodes::getErrorMessage(int errorNumber) {
     std::map<int, std::string>::iterator it = errorMap.find(errorNumber);
     if (it != errorMap.end()) {

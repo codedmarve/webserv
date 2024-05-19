@@ -90,6 +90,17 @@ MimeTypes::MimeTypes() {
     mimeMap[".cdy"] = "application/vnd.cinderella";
 }
 
+MimeTypes::MimeTypes(const MimeTypes &rhs)
+    : mimeMap(rhs.mimeMap) {
+}
+
+MimeTypes &MimeTypes::operator=(const MimeTypes &rhs) {
+    if (this != &rhs) {
+        mimeMap = rhs.mimeMap;
+    }
+    return *this;
+}
+
 std::string MimeTypes::getType(const std::string& extension) {
     std::map<std::string, std::string>::iterator it = mimeMap.find(extension);
     return (it != mimeMap.end())

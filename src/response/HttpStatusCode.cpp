@@ -72,6 +72,17 @@ HttpStatusCodes::HttpStatusCodes() {
     codeMap[511] = "Network Authentication Required";
 }
 
+HttpStatusCodes::HttpStatusCodes(const HttpStatusCodes &rhs)
+    : codeMap(rhs.codeMap) {
+}
+
+HttpStatusCodes &HttpStatusCodes::operator=(const HttpStatusCodes &rhs) {
+    if (this != &rhs) {
+        codeMap = rhs.codeMap;
+    }
+    return *this;
+}
+
 std::string HttpStatusCodes::getStatusCode(int code) {
     std::map<int, std::string>::iterator it = codeMap.find(code);
     return (it != codeMap.end()) ? it->second : "Unknown";

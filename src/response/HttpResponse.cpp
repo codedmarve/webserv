@@ -14,8 +14,54 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	initMethods();
 }
 
-HttpResponse::~HttpResponse() {
+HttpResponse::~HttpResponse()
+{
 	cleanUp();
+}
+
+HttpResponse::HttpResponse(const HttpResponse &rhs)
+	: config_(rhs.config_), file_(rhs.file_), error_code_(rhs.error_code_),
+	  worker_id_(rhs.worker_id_), total_sent_(rhs.total_sent_),
+	  status_code_(rhs.status_code_), response_(rhs.response_),
+	  body_(rhs.body_), redirect_(rhs.redirect_),
+	  redirect_target_(rhs.redirect_target_),
+	  redirect_code_(rhs.redirect_code_), header_size_(rhs.header_size_),
+	  body_size_(rhs.body_size_), charset_(rhs.charset_),
+	  methods_(rhs.methods_), headers_(rhs.headers_),
+	  cgiHeaders_(rhs.cgiHeaders_), cgiHeadersParsed_(rhs.cgiHeadersParsed_),
+	  cgiRead(rhs.cgiRead)
+{
+		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
+}
+
+HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
+{
+	if (this != &rhs)
+	{
+		cleanUp();
+
+		config_ = rhs.config_;
+		error_code_ = rhs.error_code_;
+		worker_id_ = rhs.worker_id_;
+		total_sent_ = rhs.total_sent_;
+		status_code_ = rhs.status_code_;
+		response_ = rhs.response_;
+		body_ = rhs.body_;
+		redirect_ = rhs.redirect_;
+		redirect_target_ = rhs.redirect_target_;
+		redirect_code_ = rhs.redirect_code_;
+		header_size_ = rhs.header_size_;
+		body_size_ = rhs.body_size_;
+		charset_ = rhs.charset_;
+		methods_ = rhs.methods_;
+		headers_ = rhs.headers_;
+		cgiHeaders_ = rhs.cgiHeaders_;
+		cgiHeadersParsed_ = rhs.cgiHeadersParsed_;
+		cgiRead = rhs.cgiRead;
+
+		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
+	}
+	return *this;
 }
 
 void HttpResponse::cleanUp()
@@ -106,24 +152,24 @@ void HttpResponse::build()
 
 	bool isAuthorized = config_.getAuth() != "off" && !checkAuth();
 
-  if (error_code_ > 200) {
+	if (error_code_ > 200)
+	{
 
-    status_code_ = error_code_;
-  }
-  else if (!config_.isMethodAccepted(method))
-  {
-    status_code_ = 405;
-    headers_["Allow"] = buildMethodList();
-  }
-  else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
-  {
-    status_code_ = 413;
-  }
-  else if (isAuthorized)
-    status_code_ = 401;
-  else
-    status_code_ = handleMethods();
-  
+		status_code_ = error_code_;
+	}
+	else if (!config_.isMethodAccepted(method))
+	{
+		status_code_ = 405;
+		headers_["Allow"] = buildMethodList();
+	}
+	else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
+	{
+		status_code_ = 413;
+	}
+	else if (isAuthorized)
+		status_code_ = 401;
+	else
+		status_code_ = handleMethods();
 
 	if (status_code_ >= 300 && !body_.length())
 		status_code_ = buildErrorPage(status_code_);
@@ -155,7 +201,8 @@ int HttpResponse::handleMethods()
 		}
 	}
 
-	if (isCgi(file_->getMimeExt())) {
+	if (isCgi(file_->getMimeExt()))
+	{
 		std::cout << "I think I am a cgi!\n";
 		HandleCgi();
 		return status_code_;
@@ -377,7 +424,6 @@ int HttpResponse::sendResponse(int fd)
 		headers_["Content-Length"] = ftos(body_.length());
 		fullResponse.append("\r\n\r\n");
 		fullResponse.append(body_);
-
 	}
 
 	int ret = send(fd, fullResponse.c_str() + total_sent_, fullResponse.length() - total_sent_, 0);
@@ -411,7 +457,7 @@ void HttpResponse::HandleCgi()
 	{
 		status_code_ = 500;
 		closeParentCgiPipe(cgi);
-		return ;
+		return;
 	}
 	setCgiPipe(cgi);
 	std::string req_body = config_.getBody();
@@ -473,7 +519,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		{
 			std::cout << "bytesRead: " << bytesRead << std::endl;
 			status_code_ = (cgiRead) ? 200 : 500;
-			return ;
+			return;
 		}
 	}
 	else if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) == -1)
@@ -501,7 +547,7 @@ void HttpResponse::parseCgiHeaders()
 	std::vector<std::string> headerLines = split(cgiHeaders_, '\n');
 	std::string key;
 	std::string value;
-	size_t 		pos;
+	size_t pos;
 	std::string header;
 	for (size_t i = 0; i < headerLines.size(); i++)
 	{

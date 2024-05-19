@@ -19,6 +19,8 @@ class HttpResponse {
 public:
     HttpResponse(RequestConfig &config, int error_code = 100);
     ~HttpResponse();
+    HttpResponse(const HttpResponse &rhs);
+    HttpResponse &operator=(const HttpResponse &rhs);
 
     typedef int (HttpResponse::*type)();
     void initMethods();

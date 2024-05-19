@@ -11,6 +11,9 @@ public:
     ErrorCodes();
     ~ErrorCodes();
 
+    ErrorCodes (const ErrorCodes &rhs);
+    ErrorCodes &operator=(const ErrorCodes &rhs);
+
     std::string getErrorMessage(int errorNumber);
 };
 

@@ -11,6 +11,42 @@ RequestConfig::~RequestConfig()
     error_codes_.clear();
 }
 
+RequestConfig::RequestConfig(const RequestConfig &rhs)
+    : request_(rhs.request_), client_(rhs.client_), host_port_(rhs.host_port_), db_(rhs.db_),
+      modifierType_(rhs.modifierType_), target_(rhs.target_), root_(rhs.root_), uri_(rhs.uri_),
+      client_max_body_size_(rhs.client_max_body_size_), autoindex_(rhs.autoindex_),
+      indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
+      allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
+      upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
+      isLociMatched_(rhs.isLociMatched_) {
+}
+
+RequestConfig &RequestConfig::operator=(const RequestConfig &rhs) {
+    if (this != &rhs) {
+        request_ = rhs.request_;
+        client_ = rhs.client_;
+        host_port_ = rhs.host_port_;
+        modifierType_ = rhs.modifierType_;
+        target_ = rhs.target_;
+        root_ = rhs.root_;
+        uri_ = rhs.uri_;
+        client_max_body_size_ = rhs.client_max_body_size_;
+        autoindex_ = rhs.autoindex_;
+        indexes_ = rhs.indexes_;
+        error_codes_ = rhs.error_codes_;
+        redirectMap_ = rhs.redirectMap_;
+        allowed_methods_ = rhs.allowed_methods_;
+        serverId = rhs.serverId;
+        auth_ = rhs.auth_;
+        upload_ = rhs.upload_;
+        cgi_ = rhs.cgi_;
+        cgi_bin_ = rhs.cgi_bin_;
+        locationsMap_ = rhs.locationsMap_;
+        isLociMatched_ = rhs.isLociMatched_;
+    }
+    return *this;
+}
+
 const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValue> &targetServ, std::string directive, std::string location = "")
 {
     std::string locationExtract;

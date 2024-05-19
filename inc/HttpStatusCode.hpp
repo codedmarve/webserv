@@ -10,6 +10,10 @@ private:
 public:
     HttpStatusCodes();
     ~HttpStatusCodes();
+
+    HttpStatusCodes(const HttpStatusCodes &rhs);
+    HttpStatusCodes &operator=(const HttpStatusCodes &rhs);
+    
     std::string getStatusCode(int code);
 };
 

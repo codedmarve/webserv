@@ -25,6 +25,8 @@ public:
     File();
     File(std::string path);
     ~File();
+    File(const File &rhs);
+    File &operator=(const File &rhs);
 
     bool is_directory();
     bool is_file();

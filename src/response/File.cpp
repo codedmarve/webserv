@@ -12,6 +12,24 @@ File::~File()
     closeFile();
 }
 
+File::File(const File &rhs)
+    : fd_(rhs.fd_), mime_ext_(rhs.mime_ext_), file_name_(rhs.file_name_),
+      file_name_full_(rhs.file_name_full_), matches_(rhs.matches_), path_(rhs.path_) {
+
+}
+
+File &File::operator=(const File &rhs) {
+    if (this != &rhs) {
+        fd_ = rhs.fd_;
+        mime_ext_ = rhs.mime_ext_;
+        file_name_ = rhs.file_name_;
+        file_name_full_ = rhs.file_name_full_;
+        matches_ = rhs.matches_;
+        path_ = rhs.path_;
+    }
+    return *this;
+}
+
 void File::set_path(std::string path, bool negotiation)
 {
     path_ = removeDupSlashes(path);

@@ -28,6 +28,10 @@ class RequestConfig
 public:
   RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
+  RequestConfig(const RequestConfig &rhs);
+  RequestConfig &operator=(const RequestConfig &rhs);
+
+
   const VecStr &filterDataByDirectives(const std::vector<KeyMapValue> &values, std::string directive, std::string location);
   const VecStr &cascadeFilter(std::string directive, std::string location);
   const VecStr &checkRootDB(std::string directive);
