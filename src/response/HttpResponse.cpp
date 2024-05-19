@@ -14,7 +14,9 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	initMethods();
 }
 
-HttpResponse::~HttpResponse() {}
+HttpResponse::~HttpResponse() {
+	cleanUp();
+}
 
 void HttpResponse::cleanUp()
 {
@@ -29,6 +31,7 @@ void HttpResponse::cleanUp()
 	response_.clear();
 	body_.clear();
 	headers_.clear();
+
 	if (file_)
 	{
 		delete file_;

@@ -8,6 +8,7 @@ Client::Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServer
 Client::~Client()
 {
   delete config_;
+  delete response_;
 }
 
 void Client::setupConfig()
@@ -56,7 +57,7 @@ void Client::setupResponse()
       break;
     }
   }
-  if (request_)
+  if (request_) 
     request_ = NULL;
 
 }
