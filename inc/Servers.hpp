@@ -34,6 +34,8 @@ class Servers {
 		//Constructors
 		Servers(ConfigDB &configDB);
 		~Servers();
+		Servers(const Servers &rhs);
+		Servers &operator=(const Servers &rhs);
 
 		ConfigDB &configDB_;
 

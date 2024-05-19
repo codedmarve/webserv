@@ -19,6 +19,28 @@ ConfigDB::ConfigDB()
 
 ConfigDB::~ConfigDB() {}
 
+ConfigDB::ConfigDB(const ConfigDB &rhs)
+    : _variablePath(rhs._variablePath),
+      sectionCounts(rhs.sectionCounts),
+      _keyValues(rhs._keyValues),
+      groupedServers(rhs.groupedServers),
+      groupedRootData(rhs.groupedRootData),
+      counter(rhs.counter) {
+}
+
+ConfigDB &ConfigDB::operator=(const ConfigDB &rhs) {
+    if (this != &rhs) {
+        _variablePath = rhs._variablePath;
+        sectionCounts = rhs.sectionCounts;
+        _keyValues = rhs._keyValues;
+        groupedServers = rhs.groupedServers;
+        groupedRootData = rhs.groupedRootData;
+        counter = rhs.counter;
+    }
+    return *this;
+}
+
+
 void ConfigDB::pushInBase(std::string env_name)
 {
     this->_variablePath.push_back(env_name);

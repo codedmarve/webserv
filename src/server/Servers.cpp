@@ -24,7 +24,33 @@ Servers::Servers(ConfigDB &configDB) : _server_fds(), configDB_(configDB){
 Servers::~Servers() {
 	for (std::vector<int>::iterator it = _server_fds.begin(); it != _server_fds.end(); ++it)
 		close(*it);
-	close(_epoll_fds);
+		
+    _server_fds.clear();
+
+    if (_epoll_fds != -1) {
+        close(_epoll_fds);
+        _epoll_fds = -1;
+    }
+}
+
+Servers::Servers(const Servers &rhs)
+    : _server_fds(rhs._server_fds), _epoll_fds(rhs._epoll_fds),
+      _domain_to_server(rhs._domain_to_server), _ip_to_server(rhs._ip_to_server),
+      _keyValues(rhs._keyValues), server_index(rhs.server_index),
+      server_fd_to_index(rhs.server_fd_to_index), configDB_(rhs.configDB_) {}
+
+Servers &Servers::operator=(const Servers &rhs) {
+    if (this != &rhs) {
+        _server_fds = rhs._server_fds;
+        _epoll_fds = rhs._epoll_fds;
+        _domain_to_server = rhs._domain_to_server;
+        _ip_to_server = rhs._ip_to_server;
+        _keyValues = rhs._keyValues;
+        server_index = rhs.server_index;
+        server_fd_to_index = rhs.server_fd_to_index;
+        configDB_ = rhs.configDB_;
+    }
+    return *this;
 }
 
 // Create socket

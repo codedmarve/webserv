@@ -20,6 +20,9 @@ private:
 public:
     IpAddressResolver();
     ~IpAddressResolver();
+    IpAddressResolver(const IpAddressResolver &rhs);
+    IpAddressResolver &operator=(const IpAddressResolver &rhs);
+    
     int resolve (const char *hostname);
     void print() const;
 };

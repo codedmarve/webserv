@@ -25,6 +25,9 @@ class ConfigDB{
 
 		ConfigDB();
 		~ConfigDB();
+		ConfigDB(const ConfigDB &rhs);
+		ConfigDB &operator=(const ConfigDB &rhs);
+		
 		void		pushInBase(std::string env_name);
 		void		eraseLastSection();
 		void		fillMap(std::string value, std::string key, std::string currentSection ,std::string KeyWithoutLastSection);
