@@ -22,7 +22,9 @@ class Client
 public:
     Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServerIdx, int status);
     ~Client();
-
+    Client &operator=(const Client &rhs);
+    Client(const Client &rhs);
+    
     void setupConfig();
     void setupResponse();
     HttpRequest *getRequest(bool val = false);

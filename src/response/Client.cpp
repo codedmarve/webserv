@@ -7,8 +7,58 @@ Client::Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServer
 
 Client::~Client()
 {
+  delete request_;
   delete config_;
   delete response_;
+}
+
+Client::Client(const Client &rhs) : host_port_(rhs.host_port_), db_(rhs.db_), serverId_(rhs.serverId_), statusCode_(rhs.statusCode_)
+{
+    if (rhs.request_)
+        request_ = new HttpRequest(*rhs.request_);
+    else
+        request_ = NULL;
+
+    if (rhs.response_)
+        response_ = new HttpResponse(*rhs.response_);
+    else
+        response_ = NULL;
+
+    if (rhs.config_)
+        config_ = new RequestConfig(*rhs.config_);
+    else
+        config_ = NULL;
+}
+
+// Assignment operator overload
+Client &Client::operator=(const Client &rhs)
+{
+    if (this == &rhs)
+        return *this;
+
+    delete request_;
+    delete response_;
+    delete config_;
+
+    host_port_ = rhs.host_port_;
+    serverId_ = rhs.serverId_;
+    statusCode_ = rhs.statusCode_;
+
+    if (rhs.request_)
+        request_ = new HttpRequest(*rhs.request_);
+    else
+        request_ = NULL;
+
+    if (rhs.response_)
+        response_ = new HttpResponse(*rhs.response_);
+    else
+        response_ = NULL;
+    if (rhs.config_)
+        config_ = new RequestConfig(*rhs.config_);
+    else
+        config_ = NULL;
+
+    return *this;
 }
 
 void Client::setupConfig()
