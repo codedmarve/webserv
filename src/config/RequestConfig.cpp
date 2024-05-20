@@ -77,6 +77,9 @@ const VecStr &RequestConfig::filterDataByDirectives(const std::vector<KeyMapValu
 
 bool RequestConfig::directiveExists(std::string directive, std::string location)
 {
+    if (location.empty())
+        location = "/";
+
     for (size_t i = 0; i < targetServer_.size(); ++i)
     {
         const MapStr &keyMap = targetServer_[i].first;
@@ -620,8 +623,8 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-    bool methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
 
+    bool methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
     if (!methodFlag)
         return true;
 

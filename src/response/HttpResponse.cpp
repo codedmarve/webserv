@@ -154,7 +154,6 @@ void HttpResponse::build()
 
 	if (error_code_ > 200)
 	{
-
 		status_code_ = error_code_;
 	}
 	else if (!config_.isMethodAccepted(method))
