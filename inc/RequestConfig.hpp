@@ -57,9 +57,11 @@ public:
   void setCgiBin(const VecStr &cgiBin);
   void setLocationsMap(const std::vector<KeyMapValue> &values);
   void setRedirectMap(const VecStr &redirects);
+  void setRedirCode(int code);
 
   std::string getUriSuffix();
 
+  int &getRedirCode();
   std::string &getTarget();
   std::string &getRequestTarget();
   std::string &getQuery();
@@ -123,6 +125,7 @@ private:
   std::map<std::string, int> locationsMap_;
   int isLociMatched_;
   std::string uri_suffix_;
+  int redir_code_;
 };
 
 #endif
