@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/04/02 21:56:28 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/20 02:16:58 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ class HttpRequest;
 
 class Servers {
 	private:
-		std::vector<int> _server_fds;
 		int _epoll_fds;
+		std::vector<int> _server_fds;
 		std::map<int, std::vector<std::string> > _domain_to_server;
 		std::map<int, std::string> _ip_to_server;
 		std::map<std::string, std::vector<std::string> > _keyValues;
@@ -55,6 +55,7 @@ class Servers {
 		std::vector<std::string> getPorts();
 		std::map<std::string, std::vector<std::string> > getKeyValue() const;
 		bool getRequest(int client_fd, std::string &request);
+		int setNonBlocking(int fd);
 
 		//Temporal function until we have a completed config file
 		void handleIncomingConnection(int server_fd);

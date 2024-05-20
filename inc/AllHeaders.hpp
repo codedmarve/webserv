@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AllHeaders.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/12 17:54:01 by drey             ###   ########.fr       */
+/*   Updated: 2024/05/20 02:07:11 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <signal.h>
 
 
 #include "ConfigDB.hpp"

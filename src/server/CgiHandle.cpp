@@ -6,14 +6,11 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/20 00:41:40 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/20 01:30:47 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Test.hpp"
-
-// CgiHandle::CgiHandle()
-// : _cgi_path(NULL), _cgi_pid(-1), _exit_status(0){}
 
 CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext)
 : _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0),
@@ -73,7 +70,8 @@ void CgiHandle::initEnv(){
 	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + port + "/cgi-bin" + this->_config->getUri();
 	this->_env["SERVER_PORT"] = port;
 	ss.clear();
-	// this->_env["PATH_INFO"] = this->_config->getUriSuffix();
+	this->_env["PATH_INFO"] = "/" + this->_config->getUriSuffix();
+	std::cout << "PATH_INFO: " << this->_env["PATH_INFO"] << std::endl;
 	this->_env["HTTP_COOKIE"] = this->_config->getHeader("cookie");
 	std::cout << "COOKIE: " << this->_env["HTTP_COOKIE"] << std::endl;
 	this->_env["REQUEST_URI"] = this->_config->getUri();
@@ -84,9 +82,7 @@ void CgiHandle::initEnv(){
 	this->_env["PWD"] = std::string (getenv("PWD"));
 	this->_env["SCRIPT_NAME"] = this->_config->getUri();
 	this->_env["REDIRECT_STATUS"] = "200";
-	this->_env["SERVER_NAME"] = "localhost";//getHeader?
-	// this->_env["REMOTE_USER"] = "";
-	// this->_env["PATH_INFO"] = "";
+	this->_env["SERVER_NAME"] = "localhost";
 }
 
 void CgiHandle::createEnvArray(){
@@ -105,15 +101,11 @@ void CgiHandle::execCgi(){
 	this->setPath();
 	this->setArgv();
 	this->createEnvArray();
-	this->setPipe();
-	if (!this->_path || !this->_argv)// || !this->_envp)
+	if (!this->_path || !this->_argv || !this->_envp || this->setPipe() == -1)
 	{
 		std::cerr << "Error: execve argument creation failed" << std::endl;
 		this->_exit_status = 500;
-		return ;
-	}
-	if (this->setPipe() == -1){
-		this->_exit_status = 500;
+		closePipe();
 		return ;
 	}
 	this->_cgi_pid = fork();
@@ -121,6 +113,7 @@ void CgiHandle::execCgi(){
 	{
 		std::cerr << "Error: fork failed" << std::endl;
 		this->_exit_status = 500;
+		closePipe();
 		return ;
 	}
 	else if (_cgi_pid == 0)
@@ -134,13 +127,11 @@ void CgiHandle::execCgi(){
 		}
 		closePipe();
 	}
-	// waitpid(this->_cgi_pid, &this->_exit_status, 0);
 }
 
 int CgiHandle::setPipe(){
 	if (pipe(this->pipe_in) == -1 || pipe(this->pipe_out) == -1)
 	{
-		closePipe();
 		std::cerr << "Error: pipe failed" << std::endl;
 		return (-1);
 	}

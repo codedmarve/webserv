@@ -6,31 +6,29 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/05 21:48:18 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/20 02:00:23 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Servers.hpp"
 #include "../../inc/HttpRequest.hpp"
 
-//Servers constuctor
 Servers::Servers(ConfigDB &configDB) : _server_fds(), configDB_(configDB){
 	_keyValues = configDB_.getKeyValue();
 	createServers();
 	initEvents();
 }
 
-//Servers destructor
 Servers::~Servers() {
+	std::cout << "Destructor called for servers!" << std::endl;
 	for (std::vector<int>::iterator it = _server_fds.begin(); it != _server_fds.end(); ++it)
-		close(*it);
-		
+	{
+		if (*it != -1)
+			close(*it);
+	}
     _server_fds.clear();
-
-    if (_epoll_fds != -1) {
+    if (_epoll_fds != -1)
         close(_epoll_fds);
-        _epoll_fds = -1;
-    }
 }
 
 Servers::Servers(const Servers &rhs)
@@ -53,7 +51,6 @@ Servers &Servers::operator=(const Servers &rhs) {
     return *this;
 }
 
-// Create socket
 int Servers::createSocket(){
 	int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd == -1) {
@@ -64,7 +61,6 @@ int Servers::createSocket(){
 	return (1);
 }
 
-// Bind socket
 int Servers::bindSocket(std::string s_port){
 	if (_server_fds.back() == -1)
 	{
@@ -111,8 +107,6 @@ int Servers::bindSocket(std::string s_port){
 	return (1);
 }
 
-
-// Create epoll instance
 void	Servers::createEpoll(){
 	int epoll_fd = epoll_create1(0);
 	this->_epoll_fds = epoll_fd;
@@ -122,7 +116,6 @@ void	Servers::createEpoll(){
 	}
 }
 
-// Listen on socket
 int Servers::listenSocket(){
 	if (listen(_server_fds.back(), SOMAXCONN) == -1) {
 		std::cerr << "Listen failed" << std::endl;
@@ -131,14 +124,9 @@ int Servers::listenSocket(){
 	return (1);
 }
 
-// Combine file descriptors into epoll instance
 int Servers::combineFds(){
-	int flags = fcntl(_server_fds.back(), F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	if (flags == -1)
-	{
-		std::cerr << "Fcntl failed" << std::endl;
+	if (setNonBlocking(_server_fds.back()) == 0)
 		return (0);
-	}
 	struct epoll_event event;
 	std::memset(&event, 0, sizeof(event));
 	event.events = EPOLLIN;
@@ -150,7 +138,6 @@ int Servers::combineFds(){
 	return (1);
 }
 
-// Get file descriptors for servers
 void Servers::createServers(){
 	
 	std::cout << "Creating servers" << std::endl;
@@ -190,34 +177,18 @@ Listen getTargetIpAndPort(std::string requestedUrl) {
 	return Listen (x_ip, port_x);
 }
 
-// Handle incoming connection from clients
 void Servers::handleIncomingConnection(int server_fd){
 	struct sockaddr_in address;
-	// struct timeval timeout;
 	std::string request;
     socklen_t addrlen = sizeof(address);
-    char ip[INET_ADDRSTRLEN];
     int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
 	bool finish = false;
     if (new_socket == -1) {
         std::cerr << "Accept failed." << std::endl;
         return;
     }
-	if (inet_ntop(AF_INET, &(address.sin_addr), ip, INET_ADDRSTRLEN) == NULL) {
-    	std::cerr << "inet_ntop failed with error: " << strerror(errno) << std::endl;
-		close(new_socket);
-    	return;
-}
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
-	int flags = fcntl(new_socket, F_SETFL, FD_CLOEXEC, O_NONBLOCK);//COMMENT THE 0_NONBLOCK LINE IF THE BEHAVIOUR IS UNDEFINED.
-	if (flags == -1)
-	{
-		std::cerr << "Fcntl failed" << std::endl;
-		close(new_socket);
-		return;
-	}
 	HttpRequest parser;
-
 	int reqStatus = -1;
 	while (!finish){	
 		finish = getRequest(new_socket, request);
@@ -232,7 +203,6 @@ void Servers::handleIncomingConnection(int server_fd){
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
 }
 
-// Initialize events that will be handled by epoll
 void Servers::initEvents(){
 	while (true){
 		try{
@@ -256,7 +226,6 @@ void Servers::initEvents(){
 	}
 }
 
-// Getting ports from config file
 std::vector<std::string> Servers::getPorts(){
 	
 	std::map<std::string, std::vector<std::string> > config = getKeyValue();
@@ -440,4 +409,24 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			return 0;
 		}
 		return 1;
+}
+
+int Servers::setNonBlocking(int fd){
+	int flags = fcntl(fd, F_GETFL);
+	if (flags == -1)
+	{
+		std::cerr << "Fcntl failed" << std::endl;
+		return (0);
+	}
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
+	{
+		std::cerr << "Fcntl failed" << std::endl;
+		return (0);
+	}
+	if (fcntl(fd, F_SETFD, FD_CLOEXEC) == -1)
+    {
+        std::cerr << "Fcntl failed" << std::endl;
+        return (0);
+    }
+	return (1);
 }
