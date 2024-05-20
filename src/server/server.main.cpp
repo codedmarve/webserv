@@ -57,5 +57,5 @@ int serverMain(int argc, char **argv) {
 	// servers = new Servers(base);
 	// delete servers;
 	// servers = NULL;
-	// return 0;
+	return 0;
 }

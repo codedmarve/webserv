@@ -32,7 +32,7 @@ Servers::~Servers() {
 }
 
 Servers::Servers(const Servers &rhs)
-    : _server_fds(rhs._server_fds), _epoll_fds(rhs._epoll_fds),
+    : _epoll_fds(rhs._epoll_fds),_server_fds(rhs._server_fds), 
       _domain_to_server(rhs._domain_to_server), _ip_to_server(rhs._ip_to_server),
       _keyValues(rhs._keyValues), server_index(rhs.server_index),
       server_fd_to_index(rhs.server_fd_to_index), configDB_(rhs.configDB_) {}
