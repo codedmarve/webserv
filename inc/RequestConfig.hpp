@@ -40,6 +40,7 @@ public:
   void redirectLocation(std::string target);
   std::string locationExtractor(const std::string &locationStr);
   std::string findLongestMatch();
+  std::string findLongestMatch(std::string target);
 
   void setUp(size_t targetServerIdx);
   void setTarget(const std::string &target);
@@ -95,11 +96,13 @@ public:
   void setLociMatched(int val);
   int getLociMatched();
   void setTargetSensitivity();
+  bool isCgi(std::string path);
 
   void setMap(const VecStr &vec, std::map<int, std::string> &resultMap, std::string &codes);
   void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
 
   void printConfigSetUp();
+  std::string location_cache_;
 
 private:
   HttpRequest &request_;

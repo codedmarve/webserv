@@ -20,11 +20,14 @@ RequestConfig::RequestConfig(const RequestConfig &rhs)
       indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
       allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
       upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
-      isLociMatched_(rhs.isLociMatched_) {
+      isLociMatched_(rhs.isLociMatched_)
+{
 }
 
-RequestConfig &RequestConfig::operator=(const RequestConfig &rhs) {
-    if (this != &rhs) {
+RequestConfig &RequestConfig::operator=(const RequestConfig &rhs)
+{
+    if (this != &rhs)
+    {
         request_ = rhs.request_;
         client_ = rhs.client_;
         host_port_ = rhs.host_port_;
@@ -266,7 +269,8 @@ void RequestConfig::returnRedirection()
     if (getRedirectionMap().size())
     {
         std::map<int, std::string>::const_iterator it = m.begin();
-        for (it = m.begin(); it != m.end(); ++it) {
+        for (it = m.begin(); it != m.end(); ++it)
+        {
             request_.setTarget(m[it->first]);
             setRedirCode(it->first);
         }
@@ -287,7 +291,6 @@ std::pair<std::string, int> findCaseInsensitive(const std::map<std::string, int>
     return std::pair<std::string, int>("", 0);
 }
 
-
 std::string RequestConfig::findLongestMatch()
 {
     std::string target = request_.getTarget();
@@ -303,6 +306,20 @@ std::string RequestConfig::findLongestMatch()
     return longestMatch;
 }
 
+std::string RequestConfig::findLongestMatch(std::string target)
+{
+    std::string longestMatch = "";
+
+    std::map<std::string, int>::const_iterator locationsMap = getLocationsMap().begin();
+    while (locationsMap != getLocationsMap().end())
+    {
+        if (target.find(locationsMap->first) == 0 && locationsMap->first.length() > longestMatch.length())
+            longestMatch = locationsMap->first;
+        locationsMap++;
+    }
+    return longestMatch;
+}
+
 void RequestConfig::setLociMatched(int status)
 {
     isLociMatched_ = status;
@@ -313,25 +330,25 @@ int RequestConfig::getLociMatched()
     return isLociMatched_;
 }
 
-
-
-void RequestConfig::setBestMatch(std::string &newTarget) {
+void RequestConfig::setBestMatch(std::string &newTarget)
+{
     std::string target = request_.getTarget();
-	std::string longestMatch = findLongestMatch();
+    std::string longestMatch = findLongestMatch();
 
-	if (!longestMatch.empty())
-	{
+    if (!longestMatch.empty())
+    {
         newTarget = target.substr(0, longestMatch.length());
-		target.erase(0, longestMatch.length());
-		setTarget("/" + target);
-		setUri("/" + target);
-	} else {
+        target.erase(0, longestMatch.length());
+        setTarget("/" + target);
+        setUri("/" + target);
+    }
+    else
+    {
         newTarget = request_.getTarget();
         setTarget(request_.getTarget());
         setUri(request_.getURI());
     }
 }
-
 
 void RequestConfig::setUp(size_t targetServerIdx)
 {
@@ -390,6 +407,16 @@ void RequestConfig::setClientMaxBodySize(const VecStr size)
 void RequestConfig::setUpload(const VecStr &upload)
 {
     upload_ = upload[0];
+}
+
+bool RequestConfig::isCgi(std::string path)
+{
+    size_t lastDotPos = path.find_last_of(".");
+    std::string ext = "";
+    if (lastDotPos != std::string::npos && lastDotPos != 0)
+        ext = path.substr(lastDotPos);
+
+    return std::find(cgi_.begin(), cgi_.end(), ext) != cgi_.end();
 }
 
 void RequestConfig::setAutoIndex(const VecStr autoindex)
@@ -483,7 +510,8 @@ void RequestConfig::setRedirectMap(const VecStr &redirectMap)
  * GETTERS
  */
 
-std::string RequestConfig::getUriSuffix() {
+std::string RequestConfig::getUriSuffix()
+{
     return request_.getUriSuffix();
 }
 
@@ -623,8 +651,15 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
+    bool methodFlag = false;
+    if (isCgi(request_.getURI())) {
+        location_cache_ = findLongestMatch(request_.getURI());
+        setMethods(cascadeFilter("allow_methods", location_cache_));
+        methodFlag = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
+    } else {
+        methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
+    }
 
-    bool methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
     if (!methodFlag)
         return true;
 

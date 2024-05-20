@@ -181,7 +181,6 @@ void HttpResponse::build()
 int HttpResponse::handleMethods()
 {
 	std::string &method = config_.getMethod();
-
 	if (method == "GET" || method == "HEAD")
 	{
 		if (file_->is_directory())
