@@ -479,6 +479,7 @@ void HttpResponse::HandleCgi()
 	}
 	waitpid(cgi.getPid(), &exit_status, 0);
 	closeParentCgiPipe(cgi);
+	std::cout << "EXIT STATUS: " << exit_status << std::endl;
 	if (exit_status == 256 || cgi.getExitStatus() == 500)
 		status_code_ = 500;
 	std::cout << "STATUS: " << status_code_ << std::endl;
@@ -529,16 +530,12 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		{
 			std::cout << "bytesRead: " << bytesRead << std::endl;
 			status_code_ = (cgiRead) ? 200 : 500;
-			return;
 		}
 	}
 	else if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) == -1)
-	{
-		std::cerr << "Error reading CGI response" << std::endl;
 		status_code_ = 500;
-	}
 	else
-		status_code_ = 200;
+		status_code_ = (cgiRead) ? 200 :500;
 }
 
 void HttpResponse::setCgiPipe(CgiHandle &cgi)
