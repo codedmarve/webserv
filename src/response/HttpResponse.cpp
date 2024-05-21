@@ -477,17 +477,15 @@ void HttpResponse::HandleCgi()
 	{
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
-	// std::cout << "I stopped reading from cgi\n";
 	}
 	close(cgi.getPipeOut());
+	kill(cgi.getPid(), SIGKILL);
 	if (cgi.getExitStatus() != 500 || waitpid(pid, &exit_status, WNOHANG) == 0)
 		waitpid(pid, &exit_status, 0);
 	closeParentCgiPipe(cgi);
 	std::cout << "EXIT STATUS: " << exit_status << std::endl;
-	if (exit_status == 256 || cgi.getExitStatus() == 500 || exit_status == 9)
+	if (exit_status == 256 || cgi.getExitStatus() == 500)
 		status_code_ = 500;
-	if (config_.getHeader("content-type").empty())
-        headers_["Content-Type"] = "text/plain";
 	if (config_.getHeader("content-length").empty())
 	{
 		std::stringstream ss;
@@ -536,7 +534,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		{
 			body_.append(buffer, bytesRead);
 			cgi_bytes_read_ += bytesRead;
-			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
+			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos || body_.find("\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
 			cgiRead_ = true;
 		}
@@ -549,12 +547,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 	else if (select_value == -1)
 		status_code_ = 500;
 	else
-	{
-		if (kill(cgi.getPid(), SIGKILL) == -1)
-			status_code_ = 500;
-		else
-			status_code_ = (cgiRead_) ? 200 : 500;
-	}
+		status_code_ = (cgiRead_) ? 200 : 500;
 }
 
 void HttpResponse::setCgiPipe(CgiHandle &cgi)
@@ -608,6 +601,8 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 		pos = body_.find("\r\n\r\n");
 	else if (body_.find("\r\n") != std::string::npos)
 		pos = body_.find("\r\n");
+	else
+		pos = body_.find("\n");
 	if (pos != std::string::npos)
 	{
 		cgiHeaders_ = body_.substr(0, pos);
@@ -619,8 +614,9 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 			body_ = body_.substr(pos + 3);
 		else if ((pos = body_.find("\r\n")) != std::string::npos)
 			body_ = body_.substr(pos + 2);
+		else if ((pos = body_.find("\n")) != std::string::npos)
+			body_ = body_.substr(pos + 1);
 		cgiHeadersParsed_ = true;
-		std::cout << "I work with headers!\n";
 		parseCgiHeaders();
 	}
 	else

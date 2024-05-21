@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/21 17:08:13 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/21 21:38:30 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -406,7 +406,6 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
 			response = client.getResponseString();
-			std::cout << "Response: " << response << std::endl;
 		}
 		
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());

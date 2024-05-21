@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/21 18:26:24 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/21 21:50:17 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,39 +52,46 @@ void CgiHandle::initEnv(){
 
 	std::stringstream ss;
 	
-	if (this->_config->getMethod() == "POST")
-	{
-		this->_env["CONTENT_TYPE"] = this->_config->getHeader("content-type");
-		ss << this->_config->getHeader("content-length");
-		std::string content_length = ss.str();
+	ss << this->_config->getHeader("content-length");
+	std::string content_length = ss.str();
+	this->content_length = atoi(content_length.c_str());
+	if (this->content_length != 0)
 		this->_env["CONTENT_LENGTH"] = content_length;
-		this->content_length = atoi(content_length.c_str());
-		ss.clear();
-	}
-	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
-	// this->_env["REMOTE_ADDR"] = getIp();
-	this->_env["QUERY_STRING"] = this->_config->getQuery();
-	ss << this->_config->getPort();
-	std::string port = ss.str();
-	this->_env["REMOTE_PORT"] = port;
-	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + port + "/cgi-bin" + this->_config->getUri();
-	this->_env["SERVER_PORT"] = port;
+	else
+		this->_env["CONTENT_LENGTH"] = "0";
 	ss.clear();
+	if (this->_config->getHeader("content-type").size() > 0)
+		this->_env["CONTENT_TYPE"] = this->_config->getHeader("content-type");
+	this->_env["QUERY_STRING"] = this->_config->getQuery();
+	this->_env["REQUEST_URI"] = this->_config->getUri() + this->_config->getUriSuffix();
+	this->_env["REDIRECT_STATUS"] = "200";
+	this->_env["SCRIPT_NAME"] = this->_config->getUri();
 	this->_env["PATH_INFO"] = "/" + this->_config->getUriSuffix();
 	this->_env["PATH_TRANSLATED"] = this->_config->getRoot() + this->_env["PATH_INFO"];
-	std::cout << "PATH_TRANSLATED: " << this->_env["PATH_TRANSLATED"] << std::endl;
-	std::cout << "PATH_INFO: " << this->_env["PATH_INFO"] << std::endl;
-	this->_env["HTTP_COOKIE"] = this->_config->getHeader("cookie");
-	std::cout << "COOKIE: " << this->_env["HTTP_COOKIE"] << std::endl;
-	this->_env["REQUEST_URI"] = this->_config->getUri();
-	this->_env["SERVER_SOFTWARE"] = "AMANIX";
-	this->_env["PATH"] = std::string (getenv("PATH"));
-	this->_env["SERVER_PROTOCOL"] = this->_config->getProtocol();
+	this->_env["SCRIPT_FILENAME"] = this->_config->getRoot() + this->_config->getUri();
+	this->_env["DOCUMENT_ROOT"] = this->_config->getRoot();
 	this->_env["REQUEST_METHOD"] = this->_config->getMethod();
-	this->_env["PWD"] = std::string (getenv("PWD"));
-	this->_env["SCRIPT_NAME"] = this->_config->getUri();
-	this->_env["REDIRECT_STATUS"] = "200";
+	this->_env["SERVER_PROTOCOL"] = this->_config->getProtocol();
+	this->_env["SERVER_SOFTWARE"] = "AMANIX";
+	this->_env["GATEWAY_INTERFACE"] = "CGI/1.1";
+	this->_env["REQUEST_SCHEME"] = "http";
+	ss << this->_config->getPort();
+	std::string port = ss.str();
+	this->_env["SERVER_ADDR"] = this->_config->getHost();
+	this->_env["SERVER_PORT"] = port;
 	this->_env["SERVER_NAME"] = "localhost";
+	this->_env["REMOTE_ADDR"] = this->_config->getHost();
+	this->_env["REMOTE_PORT"] = port;
+	this->_env["HTTP_HOST"] = this->_config->getHost() + ":" + port;
+	this->_env["HTTP_CONNECTION"] = this->_config->getHeader("connection");
+	this->_env["HTTP_UPGRADE_INSECURE_REQUESTS"] = this->_config->getHeader("upgrade-insecure-requests");
+	this->_env["HTTP_USER_AGENT"] = this->_config->getHeader("user-agent");
+	this->_env["HTTP_ACCEPT"] = this->_config->getHeader("accept");
+	this->_env["HTTP_ACCEPT_ENCODING"] = this->_config->getHeader("accept-encoding");
+	this->_env["HTTP_ACCEPT_LANGUAGE"] = this->_config->getHeader("accept-language");
+	this->_env["HTTP_REFERER"] = "http://" + this->_config->getHost() + ":" + port + "/cgi-bin" + this->_config->getUri();
+	this->_env["HTTP_COOKIE"] = this->_config->getHeader("cookie");
+	ss.clear();
 }
 
 void CgiHandle::createEnvArray(){
