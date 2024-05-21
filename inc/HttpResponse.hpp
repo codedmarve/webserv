@@ -106,7 +106,8 @@ private:
 
     std::string cgiHeaders_;
     bool cgiHeadersParsed_;
-    bool cgiRead;
+    bool cgiRead_;
+    int  cgi_bytes_read_;
     std::string buildMethodList();
     bool checkAuth();
 };

@@ -10,7 +10,8 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	redirect_ = false;
 	charset_ = "";
 	cgiHeadersParsed_ = false;
-	cgiRead = false;
+	cgiRead_ = false;
+	cgi_bytes_read_ = 0;
 	initMethods();
 }
 
@@ -29,7 +30,8 @@ HttpResponse::HttpResponse(const HttpResponse &rhs)
 	  body_size_(rhs.body_size_), charset_(rhs.charset_),
 	  methods_(rhs.methods_), headers_(rhs.headers_),
 	  cgiHeaders_(rhs.cgiHeaders_), cgiHeadersParsed_(rhs.cgiHeadersParsed_),
-	  cgiRead(rhs.cgiRead)
+	  cgiRead_(rhs.cgiRead_),
+	  cgi_bytes_read_(rhs.cgi_bytes_read_)
 {
 		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
@@ -57,7 +59,8 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
 		headers_ = rhs.headers_;
 		cgiHeaders_ = rhs.cgiHeaders_;
 		cgiHeadersParsed_ = rhs.cgiHeadersParsed_;
-		cgiRead = rhs.cgiRead;
+		cgiRead_ = rhs.cgiRead_;
+		cgi_bytes_read_ = rhs.cgi_bytes_read_;
 
 		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 	}
@@ -73,7 +76,8 @@ void HttpResponse::cleanUp()
 	body_size_ = 0;
 	redirect_ = false;
 	cgiHeadersParsed_ = false;
-	cgiRead = false;
+	cgiRead_ = false;
+	cgi_bytes_read_ = 0;
 	response_.clear();
 	body_.clear();
 	headers_.clear();
@@ -458,11 +462,11 @@ void HttpResponse::HandleCgi()
 {
 	CgiHandle cgi(&config_, file_->getMimeExt());
 	cgi.execCgi();
-	printf("CGI exit status: %d\n", cgi.getExitStatus());
-	// std::cout << "I am here" << std::endl;
-	pid_t exit_status = waitpid(cgi.getPid(), &status_code_, WNOHANG);
-	if ((status_code_ = cgi.getExitStatus()) == 500 || exit_status != 0)
+	pid_t pid = cgi.getPid();
+	pid_t exit_status = waitpid(pid, &status_code_, WNOHANG);
+	if (cgi.getExitStatus() == 500 || status_code_ != 0)
 	{
+		std::cout << "Status code: " << status_code_ << std::endl;
 		status_code_ = 500;
 		closeParentCgiPipe(cgi);
 		return;
@@ -471,15 +475,25 @@ void HttpResponse::HandleCgi()
 	std::string req_body = config_.getBody();
 	while (status_code_ == 0)
 	{
-		// std::cout << "STATUS: " << status_code_ << std::endl;
 		toCgi(cgi, req_body);
 		fromCgi(cgi);
+	// std::cout << "I stopped reading from cgi\n";
 	}
-	waitpid(cgi.getPid(), &exit_status, 0);
+	close(cgi.getPipeOut());
+	if (cgi.getExitStatus() != 500 || waitpid(pid, &exit_status, WNOHANG) == 0)
+		waitpid(pid, &exit_status, 0);
 	closeParentCgiPipe(cgi);
 	std::cout << "EXIT STATUS: " << exit_status << std::endl;
-	if (exit_status == 256 || cgi.getExitStatus() == 500)
+	if (exit_status == 256 || cgi.getExitStatus() == 500 || exit_status == 9)
 		status_code_ = 500;
+	if (config_.getHeader("content-type").empty())
+        headers_["Content-Type"] = "text/plain";
+	if (config_.getHeader("content-length").empty())
+	{
+		std::stringstream ss;
+		ss << cgi_bytes_read_;
+		headers_["Content-Length"] = ss.str();
+	}
 	std::cout << "STATUS: " << status_code_ << std::endl;
 }
 
@@ -513,27 +527,34 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 	FD_SET(cgi.getPipeOut(), &readfds);
 
 	struct timeval tv;
-	tv.tv_sec = 1;
+	tv.tv_sec = 2;
 	tv.tv_usec = 0;
-	if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) > 0)
+	int select_value = select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv);
+	if (select_value > 0)
 	{
 		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
 		{
 			body_.append(buffer, bytesRead);
+			cgi_bytes_read_ += bytesRead;
 			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
-			cgiRead = true;
+			cgiRead_ = true;
 		}
 		else if (bytesRead == -1 || bytesRead == 0)
 		{
 			std::cout << "bytesRead: " << bytesRead << std::endl;
-			status_code_ = (cgiRead) ? 200 : 500;
+			status_code_ = (cgiRead_) ? 200 : 500;
 		}
 	}
-	else if (select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv) == -1)
+	else if (select_value == -1)
 		status_code_ = 500;
 	else
-		status_code_ = (cgiRead) ? 200 :500;
+	{
+		if (kill(cgi.getPid(), SIGKILL) == -1)
+			status_code_ = 500;
+		else
+			status_code_ = (cgiRead_) ? 200 : 500;
+	}
 }
 
 void HttpResponse::setCgiPipe(CgiHandle &cgi)

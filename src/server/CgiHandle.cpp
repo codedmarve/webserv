@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/20 01:30:47 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/21 00:28:32 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,6 +123,7 @@ void CgiHandle::execCgi(){
 		{
 			std::cerr << "Error: execve failed" << std::endl;
 			closePipe();
+			this->_exit_status = 500;
 			exit(1);
 		}
 		closePipe();

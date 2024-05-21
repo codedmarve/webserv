@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/20 02:00:23 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/21 17:08:13 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,6 +191,7 @@ void Servers::handleIncomingConnection(int server_fd){
 	HttpRequest parser;
 	int reqStatus = -1;
 	while (!finish){	
+		std::cout << "I am in a loop here\n";
 		finish = getRequest(new_socket, request);
 		reqStatus = parser.parseRequest(request);
 		if (reqStatus != 200) {
@@ -201,6 +202,8 @@ void Servers::handleIncomingConnection(int server_fd){
 	}
     if (close(new_socket) == -1)
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+	else 
+		std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
 }
 
 void Servers::initEvents(){
@@ -208,6 +211,7 @@ void Servers::initEvents(){
 		try{
 			struct epoll_event events[_server_fds.size()];
 			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size(), -1);
+			
 			if (n == -1) {
 				std::cerr << "Epoll_wait failed" << std::endl;
 				return ;
@@ -373,6 +377,7 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	
 	char buffer[4096];
 	request.clear();
+	std::cout << "I am here\n";
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes > 0)
 	{
@@ -401,6 +406,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
 			response = client.getResponseString();
+			std::cout << "Response: " << response << std::endl;
 		}
 		
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
