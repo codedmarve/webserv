@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/21 00:28:32 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/21 18:26:24 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,8 @@ void CgiHandle::initEnv(){
 	this->_env["SERVER_PORT"] = port;
 	ss.clear();
 	this->_env["PATH_INFO"] = "/" + this->_config->getUriSuffix();
+	this->_env["PATH_TRANSLATED"] = this->_config->getRoot() + this->_env["PATH_INFO"];
+	std::cout << "PATH_TRANSLATED: " << this->_env["PATH_TRANSLATED"] << std::endl;
 	std::cout << "PATH_INFO: " << this->_env["PATH_INFO"] << std::endl;
 	this->_env["HTTP_COOKIE"] = this->_config->getHeader("cookie");
 	std::cout << "COOKIE: " << this->_env["HTTP_COOKIE"] << std::endl;
