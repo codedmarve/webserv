@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 21:14:14 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 21:57:53 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,11 +222,7 @@ void Servers::handleIncomingConnection(int server_fd){
 		return ;
 	}
 	client_to_server[new_socket] = server_fd;
-	_client_data[new_socket].body_offset_ = 0;
-	_client_data[new_socket].chunk_size_ = 0;
-	_client_data[new_socket].buffer_section_ = REQUEST_LINE;
-	_client_data[new_socket].isChunked_ = false;
-	gettimeofday(&(_client_data[new_socket].start_tv_), NULL);
+	_client_data[new_socket] = HttpRequest();
 	
 	
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
@@ -234,23 +230,18 @@ void Servers::handleIncomingConnection(int server_fd){
 }
 
 void Servers::handleIncomingData(int client_fd){
-	HttpRequest parser(_client_data.find(client_fd)->second);
+	// HttpRequest parser(_client_data.find(client_fd)->second);
 	int reqStatus = -1;
 	std::string request;
 	int server_fd = client_to_server[client_fd];
 	bool finish = false;
 	finish = getRequest(client_fd, request);
-	reqStatus = parser.parseRequest(request);
+	reqStatus = _client_data.find(client_fd)->second.parseRequest(request);
 	if (reqStatus != 200) {
 		finish = true;
 	}
-	if (!handleResponse(reqStatus, server_fd, client_fd, parser))
+	if (!handleResponse(reqStatus, server_fd, client_fd, _client_data.find(client_fd)->second))
 		return;
-	_client_data[client_fd].body_offset_ = parser.getBodyOffset();
-	_client_data[client_fd].chunk_size_ = parser.getChunkSize();
-	_client_data[client_fd].isChunked_ = parser.getIsChunked();
-	_client_data[client_fd].buffer_section_ = parser.getBufferSection();
-	_client_data[client_fd].start_tv_ = parser.getStartTv();
 	if (finish)
 		deleteClient(client_fd);
 }

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 21:03:17 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 21:53:51 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Servers {
 		std::map<int, int> server_fd_to_index;
 		std::map<int, int> client_to_server;
 		int	_client_amount;
-		std::map<int, t_client> _client_data;
+		std::map<int, HttpRequest> _client_data;
 			
 	public:
 		

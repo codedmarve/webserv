@@ -3,8 +3,6 @@
 
 #include "./AllHeaders.hpp"
 
-class Servers;
-
 class HttpRequest {
 private:
     std::string method_;
@@ -25,8 +23,16 @@ private:
     int body_offset_;
     struct timeval start_tv_;
     struct timeval last_tv_;
-    
-private:
+
+    enum Section {
+        REQUEST_LINE,
+        HEADERS,
+        SPECIAL_HEADERS,
+        BODY,
+        CHUNK,
+        COMPLETE,
+        ERROR
+    };
     enum ChunkStatus {
         CHUNK_BODY,
         CHUNK_SIZE
@@ -66,7 +72,6 @@ private:
 
 public:
     HttpRequest();
-    HttpRequest(const t_client &client_data);
     ~HttpRequest();
     HttpRequest(const HttpRequest &rhs);
     HttpRequest &operator=(const HttpRequest &rhs);
@@ -95,12 +100,6 @@ public:
     time_t get_last_timer_in_sec();
     
     int getStatus();
-
-    int getBodyOffset();
-    size_t getChunkSize();
-    bool getIsChunked();
-    Section getBufferSection();
-    timeval getStartTv();
 };
 
 #endif

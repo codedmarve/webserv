@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/22 21:02:08 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 21:59:45 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-#include "Section.hpp"
 #include "ConfigDB.hpp"
 #include "Servers.hpp"
 #include "CgiHandle.hpp"

@@ -10,16 +10,6 @@ HttpRequest::HttpRequest()
   gettimeofday(&start_tv_, NULL);
 }
 
-HttpRequest::HttpRequest(const t_client &client_data)
-{
-  body_offset_ = client_data.body_offset_;
-  chunk_size_ = client_data.chunk_size_;
-  protocol_ = "HTTP/1.1";
-  isChunked_ = client_data.isChunked_;
-  buffer_section_ = client_data.buffer_section_;
-  start_tv_ = client_data.start_tv_;
-}
-
 HttpRequest::~HttpRequest() {}
 
 HttpRequest::HttpRequest(const HttpRequest &rhs)
@@ -250,29 +240,4 @@ void HttpRequest::printRequest(HttpRequest parser)
   {
     std::cerr << "Error parsing request: " << e.what() << std::endl;
   }
-}
-
-int HttpRequest::getBodyOffset()
-{
-  return this->body_offset_;
-}
-
-size_t HttpRequest::getChunkSize()
-{
-  return this->chunk_size_;
-}
-
-bool HttpRequest::getIsChunked()
-{
-  return this->isChunked_;
-}
-
-Section HttpRequest::getBufferSection()
-{
-  return this->buffer_section_;
-}
-
-timeval HttpRequest::getStartTv()
-{
-  return this->start_tv_;
 }
