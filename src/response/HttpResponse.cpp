@@ -492,8 +492,8 @@ void HttpResponse::HandleCgi()
 		ss << cgi_bytes_read_;
 		headers_["Content-Length"] = ss.str();
 	}
-	if (config_.getHeader("content-type").empty())
-		headers_["Content-Type"] = "text/html";
+	// if (config_.getHeader("content-type").empty())
+	// 	headers_["Content-Type"] = "text/plain";
 	std::cout << "STATUS: " << status_code_ << std::endl;
 }
 
@@ -536,7 +536,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 		{
 			body_.append(buffer, bytesRead);
 			cgi_bytes_read_ += bytesRead;
-			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos || body_.find("\n") != std::string::npos) && !cgiHeadersParsed_)
+			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
 			cgiRead_ = true;
 		}
@@ -603,8 +603,6 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 		pos = body_.find("\r\n\r\n");
 	else if (body_.find("\r\n") != std::string::npos)
 		pos = body_.find("\r\n");
-	else
-		pos = body_.find("\n");
 	if (pos != std::string::npos)
 	{
 		cgiHeaders_ = body_.substr(0, pos);
@@ -616,8 +614,6 @@ void HttpResponse::handleCgiHeaders(std::string &body_)
 			body_ = body_.substr(pos + 3);
 		else if ((pos = body_.find("\r\n")) != std::string::npos)
 			body_ = body_.substr(pos + 2);
-		else if ((pos = body_.find("\n")) != std::string::npos)
-			body_ = body_.substr(pos + 1);
 		cgiHeadersParsed_ = true;
 		parseCgiHeaders();
 	}

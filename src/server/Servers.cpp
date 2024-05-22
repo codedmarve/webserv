@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 02:44:08 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 16:28:46 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -267,7 +267,7 @@ void Servers::initEvents(){
 				bool server = false;
 				for (std::vector<int>::iterator it2 = _server_fds.begin(); it2 != _server_fds.end(); ++it2) {
 					if (events[i].data.fd == *it2) {
-						// std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
+						std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
 						handleIncomingConnection(*it2);
 						server = true;
 						break ;
