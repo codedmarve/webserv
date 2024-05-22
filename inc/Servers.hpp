@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/20 02:16:58 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 02:07:51 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ class Servers {
 		std::map<std::string, std::vector<std::string> > _keyValues;
 		std::map<int, std::vector<std::string> > server_index;
 		std::map<int, int> server_fd_to_index;
+		std::map<int, int> client_to_server;
+		int	_client_amount;
 	public:
 		
 		//Constructors
@@ -46,7 +48,7 @@ class Servers {
 		// void	bindSocket(int port);
 		int		bindSocket(std::string port);
 		int		listenSocket();
-		int		combineFds();
+		int		combineFds(int socket_fd);
 		void	createEpoll();
 		void	createServers();
 		void	assignDomain(std::string port, int server_fd);
@@ -59,6 +61,7 @@ class Servers {
 
 		//Temporal function until we have a completed config file
 		void handleIncomingConnection(int server_fd);
+		void handleIncomingData(int client_fd);
 		void printServerAddress(int server_fd);
 		size_t handleResponse(int reqStatus, int server_fd, int new_socket, HttpRequest &parser);
 };

@@ -492,6 +492,8 @@ void HttpResponse::HandleCgi()
 		ss << cgi_bytes_read_;
 		headers_["Content-Length"] = ss.str();
 	}
+	if (config_.getHeader("content-type").empty())
+		headers_["Content-Type"] = "text/html";
 	std::cout << "STATUS: " << status_code_ << std::endl;
 }
 

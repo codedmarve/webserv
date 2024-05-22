@@ -6,14 +6,16 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/21 21:38:30 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 02:44:08 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Servers.hpp"
 #include "../../inc/HttpRequest.hpp"
 
-Servers::Servers(ConfigDB &configDB) : _server_fds(), configDB_(configDB){
+Servers::Servers(ConfigDB &configDB) : _server_fds(), _domain_to_server(), _ip_to_server(), 
+	_keyValues(), server_index(), server_fd_to_index(), client_to_server(), _client_amount(0),
+	configDB_(configDB){
 	_keyValues = configDB_.getKeyValue();
 	createServers();
 	initEvents();
@@ -35,7 +37,8 @@ Servers::Servers(const Servers &rhs)
     : _epoll_fds(rhs._epoll_fds),_server_fds(rhs._server_fds), 
       _domain_to_server(rhs._domain_to_server), _ip_to_server(rhs._ip_to_server),
       _keyValues(rhs._keyValues), server_index(rhs.server_index),
-      server_fd_to_index(rhs.server_fd_to_index), configDB_(rhs.configDB_) {}
+      server_fd_to_index(rhs.server_fd_to_index), _client_amount(rhs._client_amount),
+	  configDB_(rhs.configDB_){}
 
 Servers &Servers::operator=(const Servers &rhs) {
     if (this != &rhs) {
@@ -46,6 +49,7 @@ Servers &Servers::operator=(const Servers &rhs) {
         _keyValues = rhs._keyValues;
         server_index = rhs.server_index;
         server_fd_to_index = rhs.server_fd_to_index;
+		_client_amount = rhs._client_amount;
         configDB_ = rhs.configDB_;
     }
     return *this;
@@ -124,14 +128,12 @@ int Servers::listenSocket(){
 	return (1);
 }
 
-int Servers::combineFds(){
-	if (setNonBlocking(_server_fds.back()) == 0)
-		return (0);
+int Servers::combineFds(int socket_fd){
 	struct epoll_event event;
 	std::memset(&event, 0, sizeof(event));
 	event.events = EPOLLIN;
-	event.data.fd = _server_fds.back();
-	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_ADD, _server_fds.back(), &event) == -1) {
+	event.data.fd = socket_fd;
+	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_ADD, socket_fd, &event) == -1) {
 		std::cerr << "Epoll_ctl failed" << std::endl;
 		return (0);
 	}
@@ -147,7 +149,7 @@ void Servers::createServers(){
 	for (std::vector<std::string>::iterator it2 = ports.begin(); it2 != ports.end(); it2++) {
 		if (!checkSocket(*it2)){
 			if (createSocket()){
-				if (!bindSocket(*it2) || !listenSocket() || !combineFds())
+				if (!bindSocket(*it2) || !listenSocket() || !setNonBlocking(_server_fds.back()) || !combineFds(_server_fds.back()))
 					_server_fds.pop_back();
 				else
 				{
@@ -177,51 +179,104 @@ Listen getTargetIpAndPort(std::string requestedUrl) {
 	return Listen (x_ip, port_x);
 }
 
+// void Servers::handleIncomingConnection(int server_fd){
+// 	struct sockaddr_in address;
+// 	std::string request;
+//     socklen_t addrlen = sizeof(address);
+//     int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
+// 	bool finish = false;
+//     if (new_socket == -1) {
+//         std::cerr << "Accept failed." << std::endl;
+//         return;
+//     }
+//     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+// 	HttpRequest parser;
+// 	int reqStatus = -1;
+// 	while (!finish){
+// 		finish = getRequest(new_socket, request);
+// 		reqStatus = parser.parseRequest(request);
+// 		if (reqStatus != 200) {
+// 			finish = true;
+// 		}
+// 		if (!handleResponse(reqStatus, server_fd, new_socket, parser))
+// 			return;
+// 	}
+//     if (close(new_socket) == -1)
+// 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+// 	else 
+// 		std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+// }
+
 void Servers::handleIncomingConnection(int server_fd){
 	struct sockaddr_in address;
-	std::string request;
     socklen_t addrlen = sizeof(address);
     int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
-	bool finish = false;
     if (new_socket == -1) {
         std::cerr << "Accept failed." << std::endl;
         return;
     }
+	if (combineFds(new_socket) == 0)
+	{
+		if (close(new_socket) == -1)
+			std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+		return ;
+	}
+	client_to_server[new_socket] = server_fd;
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+	_client_amount++;
+}
+
+void Servers::handleIncomingData(int client_fd){
 	HttpRequest parser;
 	int reqStatus = -1;
-	while (!finish){	
-		std::cout << "I am in a loop here\n";
-		finish = getRequest(new_socket, request);
+	std::string request;
+	int server_fd = client_to_server[client_fd];
+	bool finish = false;
+	while (!finish){
+		finish = getRequest(client_fd, request);
 		reqStatus = parser.parseRequest(request);
 		if (reqStatus != 200) {
 			finish = true;
 		}
-		if (!handleResponse(reqStatus, server_fd, new_socket, parser))
+		if (!handleResponse(reqStatus, server_fd, client_fd, parser))
 			return;
 	}
-    if (close(new_socket) == -1)
+	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
+        std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
+    }
+    if (close(client_fd) == -1)
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
-	else 
-		std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+	if (_client_amount > 0)
+		_client_amount--;
+	client_to_server.erase(client_fd);
+	std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
 }
+
+
 
 void Servers::initEvents(){
 	while (true){
 		try{
-			struct epoll_event events[_server_fds.size()];
-			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size(), -1);
-			
+			struct epoll_event events[_server_fds.size() + _client_amount];
+			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size() + _client_amount, -1);
 			if (n == -1) {
 				std::cerr << "Epoll_wait failed" << std::endl;
 				return ;
 			}
 			for (int i = 0; i < n; i++) {
+				bool server = false;
 				for (std::vector<int>::iterator it2 = _server_fds.begin(); it2 != _server_fds.end(); ++it2) {
 					if (events[i].data.fd == *it2) {
-						std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
+						// std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
 						handleIncomingConnection(*it2);
+						server = true;
+						break ;
 					}
+				}
+				if (!server && events[i].events & EPOLLIN) {
+					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
+					handleIncomingData(events[i].data.fd);
+					std::cout << "Client amount: " << _client_amount << "\n" << std::endl;
 				}
 			}
 		} catch (std::exception &e){
@@ -377,8 +432,8 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	
 	char buffer[4096];
 	request.clear();
-	std::cout << "I am here\n";
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+	std::cout << "I am here\n";
 	if (bytes > 0)
 	{
 		buffer[bytes] = '\0';
