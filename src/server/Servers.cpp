@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 16:28:46 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 21:14:14 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,34 +222,37 @@ void Servers::handleIncomingConnection(int server_fd){
 		return ;
 	}
 	client_to_server[new_socket] = server_fd;
+	_client_data[new_socket].body_offset_ = 0;
+	_client_data[new_socket].chunk_size_ = 0;
+	_client_data[new_socket].buffer_section_ = REQUEST_LINE;
+	_client_data[new_socket].isChunked_ = false;
+	gettimeofday(&(_client_data[new_socket].start_tv_), NULL);
+	
+	
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
 	_client_amount++;
 }
 
 void Servers::handleIncomingData(int client_fd){
-	HttpRequest parser;
+	HttpRequest parser(_client_data.find(client_fd)->second);
 	int reqStatus = -1;
 	std::string request;
 	int server_fd = client_to_server[client_fd];
 	bool finish = false;
-	while (!finish){
-		finish = getRequest(client_fd, request);
-		reqStatus = parser.parseRequest(request);
-		if (reqStatus != 200) {
-			finish = true;
-		}
-		if (!handleResponse(reqStatus, server_fd, client_fd, parser))
-			return;
+	finish = getRequest(client_fd, request);
+	reqStatus = parser.parseRequest(request);
+	if (reqStatus != 200) {
+		finish = true;
 	}
-	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
-        std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
-    }
-    if (close(client_fd) == -1)
-		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
-	if (_client_amount > 0)
-		_client_amount--;
-	client_to_server.erase(client_fd);
-	std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+	if (!handleResponse(reqStatus, server_fd, client_fd, parser))
+		return;
+	_client_data[client_fd].body_offset_ = parser.getBodyOffset();
+	_client_data[client_fd].chunk_size_ = parser.getChunkSize();
+	_client_data[client_fd].isChunked_ = parser.getIsChunked();
+	_client_data[client_fd].buffer_section_ = parser.getBufferSection();
+	_client_data[client_fd].start_tv_ = parser.getStartTv();
+	if (finish)
+		deleteClient(client_fd);
 }
 
 
@@ -274,7 +277,7 @@ void Servers::initEvents(){
 					}
 				}
 				if (!server && events[i].events & EPOLLIN) {
-					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
+					std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
 					handleIncomingData(events[i].data.fd);
 					std::cout << "Client amount: " << _client_amount << "\n" << std::endl;
 				}
@@ -432,18 +435,14 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	
 	char buffer[4096];
 	request.clear();
+	std::cout << "I read many times!" << std::endl;
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-	std::cout << "I am here\n";
 	if (bytes > 0)
 	{
 		buffer[bytes] = '\0';
 		request.append(buffer, bytes);
 	}
-	if (bytes == 0)
-	{
-		return true;
-	}
-	if (bytes == -1)
+	else if (bytes == -1)
 	{
 		std::cerr << "Recv failed" << std::endl;
 		return true;
@@ -469,6 +468,22 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			return 0;
 		}
 		return 1;
+}
+
+void Servers::deleteClient(int client_fd)
+{
+	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
+        std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
+    }
+    if (close(client_fd) == -1)
+		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+	if (_client_amount > 0)
+		_client_amount--;
+	
+	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
+	_client_data.erase(client_fd);
+	client_to_server.erase(client_fd);
+	
 }
 
 int Servers::setNonBlocking(int fd){

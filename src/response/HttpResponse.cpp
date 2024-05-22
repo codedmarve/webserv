@@ -12,6 +12,7 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 	cgiHeadersParsed_ = false;
 	cgiRead_ = false;
 	cgi_bytes_read_ = 0;
+	cgi_times_read_ = 0;
 	initMethods();
 }
 
@@ -30,8 +31,8 @@ HttpResponse::HttpResponse(const HttpResponse &rhs)
 	  body_size_(rhs.body_size_), charset_(rhs.charset_),
 	  methods_(rhs.methods_), headers_(rhs.headers_),
 	  cgiHeaders_(rhs.cgiHeaders_), cgiHeadersParsed_(rhs.cgiHeadersParsed_),
-	  cgiRead_(rhs.cgiRead_),
-	  cgi_bytes_read_(rhs.cgi_bytes_read_)
+	  cgiRead_(rhs.cgiRead_), cgi_bytes_read_(rhs.cgi_bytes_read_),
+	  cgi_times_read_(rhs.cgi_times_read_)
 {
 		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
@@ -61,6 +62,7 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
 		cgiHeadersParsed_ = rhs.cgiHeadersParsed_;
 		cgiRead_ = rhs.cgiRead_;
 		cgi_bytes_read_ = rhs.cgi_bytes_read_;
+		cgi_times_read_ = rhs.cgi_times_read_;
 
 		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 	}
@@ -479,10 +481,10 @@ void HttpResponse::HandleCgi()
 		fromCgi(cgi);
 	}
 	close(cgi.getPipeOut());
+	closeParentCgiPipe(cgi);
 	kill(cgi.getPid(), SIGKILL);
 	if (cgi.getExitStatus() != 500 || waitpid(pid, &exit_status, WNOHANG) == 0)
 		waitpid(pid, &exit_status, 0);
-	closeParentCgiPipe(cgi);
 	std::cout << "EXIT STATUS: " << exit_status << std::endl;
 	if (exit_status == 256 || cgi.getExitStatus() == 500)
 		status_code_ = 500;
@@ -491,6 +493,7 @@ void HttpResponse::HandleCgi()
 		std::stringstream ss;
 		ss << cgi_bytes_read_;
 		headers_["Content-Length"] = ss.str();
+		std::cout << "Content-Length: " << headers_["Content-Length"] << std::endl;
 	}
 	// if (config_.getHeader("content-type").empty())
 	// 	headers_["Content-Type"] = "text/plain";
@@ -527,7 +530,7 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 	FD_SET(cgi.getPipeOut(), &readfds);
 
 	struct timeval tv;
-	tv.tv_sec = 2;
+	tv.tv_sec = 1;
 	tv.tv_usec = 0;
 	int select_value = select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv);
 	if (select_value > 0)
@@ -539,6 +542,9 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
 			cgiRead_ = true;
+			cgi_times_read_++;
+			if (cgi_times_read_ > 100)
+				status_code_ = 200;
 		}
 		else if (bytesRead == -1 || bytesRead == 0)
 		{

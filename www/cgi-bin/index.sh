@@ -1,5 +1,8 @@
 #!/bin/bash
 a
-ls
-# yes
-cat
+# ls
+# echo "Content-type: text/html"
+yes
+# cat
+# ls
+# cat Makefile

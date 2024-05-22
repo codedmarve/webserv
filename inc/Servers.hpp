@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 02:07:51 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/22 21:03:17 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ class Servers {
 		std::map<int, int> server_fd_to_index;
 		std::map<int, int> client_to_server;
 		int	_client_amount;
+		std::map<int, t_client> _client_data;
+			
 	public:
 		
 		//Constructors
@@ -54,6 +56,7 @@ class Servers {
 		void	assignDomain(std::string port, int server_fd);
 		void	assignLocalDomain(int server_fd);
 		void	initEvents();
+		void	deleteClient(int client_fd);
 		std::vector<std::string> getPorts();
 		std::map<std::string, std::vector<std::string> > getKeyValue() const;
 		bool getRequest(int client_fd, std::string &request);
