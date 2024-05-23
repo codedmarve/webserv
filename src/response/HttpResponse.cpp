@@ -543,8 +543,8 @@ void HttpResponse::fromCgi(CgiHandle &cgi)
 				handleCgiHeaders(body_);
 			cgiRead_ = true;
 			cgi_times_read_++;
-			if (cgi_times_read_ > 100)
-				status_code_ = 200;
+			// if (cgi_times_read_ > 100)
+				// status_code_ = 200;
 		}
 		else if (bytesRead == -1 || bytesRead == 0)
 		{

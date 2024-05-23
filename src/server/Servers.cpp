@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 21:57:53 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/23 12:54:22 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,6 @@ void Servers::handleIncomingConnection(int server_fd){
 	}
 	client_to_server[new_socket] = server_fd;
 	_client_data[new_socket] = HttpRequest();
-	
 	
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
 	_client_amount++;
@@ -452,7 +451,6 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			client.setupResponse();
 			response = client.getResponseString();
 		}
-		
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
@@ -474,7 +472,6 @@ void Servers::deleteClient(int client_fd)
 	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
 	_client_data.erase(client_fd);
 	client_to_server.erase(client_fd);
-	
 }
 
 int Servers::setNonBlocking(int fd){
