@@ -385,7 +385,7 @@ void RequestConfig::setTarget(const std::string &target)
 void RequestConfig::setRoot(const VecStr root)
 {
 
-    root_ = root.empty() ? "html" : root[0];
+    root_ = root.empty() ? "./" : root[0];
 }
 
 void RequestConfig::setAuth(const VecStr &auth)
