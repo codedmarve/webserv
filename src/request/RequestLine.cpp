@@ -11,11 +11,9 @@ int HttpRequest::extractRequestLineData(std::string requestLine)
     uriStart = methodEnd + 1;
     protocolStart = requestLine.rfind(' ');
 
-    // Check if both URI and protocol positions are valid
     if (methodEnd == std::string::npos || protocolStart == std::string::npos || protocolStart <= uriStart)
         return 400;
 
-    // Extract METHOD, URI and Protocol
     method_ = requestLine.substr(0, methodEnd);
     uri_ = requestLine.substr(uriStart, protocolStart - uriStart);
     (uri_.find("?") != std::string::npos) ? setTarget(uri_.substr(0, uri_.find("?"))) : setTarget(uri_);
