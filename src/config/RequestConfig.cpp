@@ -4,6 +4,7 @@ RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Cl
 {
     isLociMatched_ = 0;
     redir_code_ = 0;
+    location_cache_ = "";
 }
 
 RequestConfig::~RequestConfig()
@@ -385,7 +386,7 @@ void RequestConfig::setTarget(const std::string &target)
 void RequestConfig::setRoot(const VecStr root)
 {
 
-    root_ = root.empty() ? "html" : root[0];
+    root_ = root.empty() ? "./" : root[0];
 }
 
 void RequestConfig::setAuth(const VecStr &auth)
@@ -651,19 +652,24 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-    bool methodFlag = false;
+    bool allowedMethod = false;
+
     if (isCgi(request_.getURI())) {
         location_cache_ = findLongestMatch(request_.getURI());
         setMethods(cascadeFilter("allow_methods", location_cache_));
-        methodFlag = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
-    } else {
-        methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
     }
+    location_cache_ = location_cache_.empty() ? target_ : location_cache_;
+    allowedMethod = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
 
-    if (!methodFlag)
+    if (!allowedMethod)
         return true;
+    if (allowed_methods_.empty())
+        return false;
+    bool isAccepted = (allowed_methods_[0] == "none" || method.empty()) 
+        ? false 
+        : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
 
-    return (allowed_methods_[0] == "none" || method.empty()) ? false : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
+    return isAccepted;
 }
 
 void RequestConfig::printConfigSetUp()
