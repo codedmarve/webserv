@@ -410,14 +410,26 @@ void RequestConfig::setUpload(const VecStr &upload)
     upload_ = upload[0];
 }
 
+void RequestConfig::setCgi(bool& val)
+{
+    client_.setCgi(val);
+}
+
+bool RequestConfig::get_Cgi()
+{
+    return client_.getCgi();
+}
+
 bool RequestConfig::isCgi(std::string path)
 {
-    size_t lastDotPos = path.find_last_of(".");
+     size_t lastDotPos = path.find_last_of(".");
     std::string ext = "";
     if (lastDotPos != std::string::npos && lastDotPos != 0)
         ext = path.substr(lastDotPos);
-
-    return std::find(cgi_.begin(), cgi_.end(), ext) != cgi_.end();
+    bool result = std::find(cgi_.begin(), cgi_.end(), ext) != cgi_.end();
+    // client_.is_cgi_ = result;
+    client_.setCgi(result);
+    return result;
 }
 
 void RequestConfig::setAutoIndex(const VecStr autoindex)
@@ -652,24 +664,26 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-    bool allowedMethod = false;
-
+        bool methodFlag = false;
     if (isCgi(request_.getURI())) {
         location_cache_ = findLongestMatch(request_.getURI());
         setMethods(cascadeFilter("allow_methods", location_cache_));
+        methodFlag = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
+    } else {
+        methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
     }
-    location_cache_ = location_cache_.empty() ? target_ : location_cache_;
-    allowedMethod = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
 
-    if (!allowedMethod)
+    if (!methodFlag)
         return true;
-    if (allowed_methods_.empty())
-        return false;
-    bool isAccepted = (allowed_methods_[0] == "none" || method.empty()) 
-        ? false 
-        : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
 
-    return isAccepted;
+    if (allowed_methods_.empty())
+    {
+        allowed_methods_.push_back("GET");
+        allowed_methods_.push_back("POST");
+        allowed_methods_.push_back("DELETE");
+    }
+    
+    return (method.empty()) ? false : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
 }
 
 void RequestConfig::printConfigSetUp()
@@ -702,4 +716,10 @@ void RequestConfig::printConfigSetUp()
     std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
     std::cout << "\n[content-length] " << getContentLength() << "\n"
               << std::endl;
+}
+
+void RequestConfig::setSubstr(int start)
+{
+    std::string body = request_.getBody();
+	body = body.substr(start);
 }

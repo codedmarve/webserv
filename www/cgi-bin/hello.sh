@@ -2,7 +2,7 @@
 
 # Set the Content-Type header to indicate that the response is HTML
 echo "Content-Type: text/html"
-# echo -e "\r\n\r\n"
+echo -e "\r\n\r\n"
 echo ""
 
 # Output the HTML content

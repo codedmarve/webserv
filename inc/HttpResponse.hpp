@@ -82,8 +82,16 @@ public:
 	void handleCgiHeaders(std::string &body);
 	void parseCgiHeaders();
 	void closeParentCgiPipe(CgiHandle &cgi);
-
-
+	void setStatusCode(int code);
+	void setHeader(std::string key, std::string value);
+	void appendBody(char *buffer, int size);
+	std::string& getBody();
+	void setBody(std::string body);
+	File *getFile();
+	std::map<std::string, std::string> getHeaders();
+	void setSubstr(int start, std::size_t end);
+	void setSubstr(int start);
+	void clearBody();
 
 private:
 	RequestConfig &config_;
@@ -109,6 +117,7 @@ private:
 	bool	cgiRead_;
 	int		cgi_bytes_read_;
 	int		cgi_times_read_;
+	bool	cgi_true_;
 	std::string buildMethodList();
 	bool checkAuth();
 };

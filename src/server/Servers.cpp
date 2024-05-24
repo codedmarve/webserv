@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/23 12:54:22 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/24 22:47:59 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -224,7 +224,7 @@ void Servers::handleIncomingConnection(int server_fd){
 	client_to_server[new_socket] = server_fd;
 	_client_data[new_socket] = HttpRequest();
 	
-    std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
+    std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << ", client: " << new_socket << "\n" << std::endl;
 	_client_amount++;
 }
 
@@ -241,7 +241,8 @@ void Servers::handleIncomingData(int client_fd){
 	}
 	if (!handleResponse(reqStatus, server_fd, client_fd, _client_data.find(client_fd)->second))
 		return;
-	if (finish)
+	// handleIncomingCgi(client_fd);
+	if (finish && _cgi_clients.find(client_fd) == _cgi_clients.end())
 		deleteClient(client_fd);
 }
 
@@ -267,9 +268,12 @@ void Servers::initEvents(){
 					}
 				}
 				if (!server && events[i].events & EPOLLIN) {
-					std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
-					handleIncomingData(events[i].data.fd);
-					std::cout << "Client amount: " << _client_amount << "\n" << std::endl;
+					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
+					// std::cout << "Event FD: " << events[i].data.fd << std::endl;
+					if (_cgi_clients_childfd.find(events[i].data.fd) != _cgi_clients_childfd.end())
+						handleIncomingCgi(events[i].data.fd);
+					else if (_client_data.find(events[i].data.fd) != _client_data.end())
+						handleIncomingData(events[i].data.fd);
 				}
 			}
 		} catch (std::exception &e){
@@ -449,6 +453,15 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
+			std::cout << "***isCGI: " << client.getCgi() << std::endl;
+			if (client.getCgi())
+			{
+				_cgi_clients[new_socket] = new CgiClient(&client, this->_epoll_fds);
+				_cgi_clients_childfd[_cgi_clients[new_socket]->getPipeOut()] =  new_socket;
+				std::cout << "CGI PIPE FD: " << _cgi_clients_childfd[new_socket] << std::endl;
+				std::cout << "Client FD: " << new_socket << std::endl;
+				return (1);
+			}
 			response = client.getResponseString();
 		}
 		ssize_t bytes = write(new_socket, response.c_str(), response.size());
@@ -468,10 +481,22 @@ void Servers::deleteClient(int client_fd)
 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
 	if (_client_amount > 0)
 		_client_amount--;
-	
+	if (_cgi_clients.find(client_fd) != _cgi_clients.end())
+	{
+		delete _cgi_clients[client_fd];
+		_cgi_clients.erase(client_fd);
+	}
 	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
 	_client_data.erase(client_fd);
 	client_to_server.erase(client_fd);
+}
+
+void Servers::deleteChild(int child_fd)
+{
+	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, child_fd, NULL) == -1) {
+		std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
+	}
+	_cgi_clients_childfd.erase(child_fd);
 }
 
 int Servers::setNonBlocking(int fd){
@@ -492,4 +517,42 @@ int Servers::setNonBlocking(int fd){
         return (0);
     }
 	return (1);
+}
+
+void Servers::setConnectionTimeout(int client_fd){
+	_client_time[client_fd] = time(NULL);
+}
+
+int Servers::handleIncomingCgi(int child_fd){
+	std::string response;
+	int	client_fd;
+	// while (_cgi_clients[client_fd]->getStatusCode() != 200)
+	
+	for (std::map<int, int>::iterator it = _cgi_clients_childfd.begin(); it != _cgi_clients_childfd.end(); it++)
+	{
+		if (it->first == child_fd)
+		{
+			client_fd = it->second;
+			break;
+		}
+	}
+	std::cout << "True Client FD for CGI: " << client_fd << std::endl;
+	std::cout << "Client FD for CGI: " << child_fd << std::endl;
+	_cgi_clients[client_fd]->HandleCgi();
+	std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
+	if (_cgi_clients[client_fd]->getStatusCode() == 200 || _cgi_clients[client_fd]->getStatusCode() == 500)
+	{
+		_cgi_clients[client_fd]->getResponse().createResponse();
+		response = _cgi_clients[client_fd]->getResponseString();
+		std::cout << "Response: " << response << std::endl;
+		ssize_t bytes = write(client_fd, response.c_str(), response.size());
+		if (bytes == -1) {
+			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
+			return 0;
+		}
+		// deleteClient(client_fd);
+		deleteChild(child_fd);
+	}
+	std::cout << "I stop here\n";
+	return 1;
 }

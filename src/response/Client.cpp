@@ -3,6 +3,7 @@
 Client::Client(DB &db, Listen &host_port, HttpRequest &req_, size_t targetServerIdx, int status) : request_(&req_), host_port_(host_port), config_(NULL), response_(NULL), db_(db), serverId_(targetServerIdx), statusCode_(status)
 {
   setupConfig();
+  is_cgi_ = false;
 }
 
 Client::~Client()
@@ -71,6 +72,16 @@ std::string Client::getResponseString()
   return response_->getSampleResponse();
 }
 
+void Client::setCgi(bool &val)
+{
+  is_cgi_ = val;
+}
+
+bool Client::getCgi()
+{
+  return is_cgi_;
+}
+
 void Client::setupResponse()
 {
   if (!request_)
@@ -120,4 +131,16 @@ HttpRequest *Client::getRequest(bool val) {
 
 HttpResponse *Client::getResponse() {
   return response_;
+}
+
+RequestConfig *Client::getConfig() {
+  return config_;
+}
+
+RequestConfig &Client::getConfigRef() {
+  return *config_;
+}
+
+HttpResponse &Client::getResponseRef() {
+  return *response_;
 }

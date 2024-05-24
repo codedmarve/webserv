@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/22 21:59:45 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/24 19:34:22 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@
 #include "utils.hpp"
 #include "Client.hpp"
 #include "ErrorCodes.hpp"
+#include "CgiClient.hpp"
 
 
 typedef std::map<std::string, std::string> MapStr;

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 21:53:51 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/24 22:28:20 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ class InputArgs;
 struct DB;
 struct Listen;
 class HttpRequest;
+class CgiClient;
 
 class Servers {
 	private:
@@ -32,6 +33,9 @@ class Servers {
 		std::map<int, int> client_to_server;
 		int	_client_amount;
 		std::map<int, HttpRequest> _client_data;
+		std::map<int, CgiClient*> _cgi_clients;
+		std::map<int, int> _cgi_clients_childfd;
+		std::map<int, time_t> _client_time;
 			
 	public:
 		
@@ -57,6 +61,7 @@ class Servers {
 		void	assignLocalDomain(int server_fd);
 		void	initEvents();
 		void	deleteClient(int client_fd);
+		void	deleteChild(int child_fd);
 		std::vector<std::string> getPorts();
 		std::map<std::string, std::vector<std::string> > getKeyValue() const;
 		bool getRequest(int client_fd, std::string &request);
@@ -67,6 +72,9 @@ class Servers {
 		void handleIncomingData(int client_fd);
 		void printServerAddress(int server_fd);
 		size_t handleResponse(int reqStatus, int server_fd, int new_socket, HttpRequest &parser);
+		void setConnectionTimeout(int client_fd);
+		void checkClientTimeout();
+		int handleIncomingCgi(int client_fd);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:32 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/19 21:59:36 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/24 19:50:21 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,11 @@ class CgiHandle{
 		int			pipe_in[2];
 		int			pipe_out[2];
 		int			content_length;
+		int			epoll_fd_;
 		
 	public:
 		CgiHandle();
-		CgiHandle(RequestConfig *config, std::string cgi_ext);
+		CgiHandle(RequestConfig *config, std::string cgi_ext, int epoll_fd);
 		~CgiHandle();
 		CgiHandle(const CgiHandle &other);
 		CgiHandle &operator=(const CgiHandle &other);
@@ -54,6 +55,7 @@ class CgiHandle{
 		void setArgv();
 		void deductContentLength(int length);
 		std::string	checkShebang();
+		int combineFds(int pipe_out);
 };
 
 #endif

@@ -6,16 +6,18 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 00:55:03 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/24 23:21:51 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/Test.hpp"
 
-CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext)
+CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext, int epoll_fd)
 : _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0),
-	_argv(NULL), _envp(NULL), _path(NULL), pipe_in(), pipe_out(), content_length(0){
+	_argv(NULL), _envp(NULL), _path(NULL), pipe_in(), pipe_out(), content_length(0), epoll_fd_(epoll_fd)
+{
 	this->initEnv();
+	this->execCgi();
 }
 
 CgiHandle::~CgiHandle(){
@@ -110,13 +112,18 @@ void CgiHandle::execCgi(){
 	this->setPath();
 	this->setArgv();
 	this->createEnvArray();
-	if (!this->_path || !this->_argv || !this->_envp || this->setPipe() == -1)
+	if (!this->_path || !this->_argv || !this->_envp || this->setPipe() == -1 || combineFds(getPipeOut()) == 0)
 	{
-		std::cerr << "Error: execve argument creation failed" << std::endl;
 		this->_exit_status = 500;
 		closePipe();
 		return ;
 	}
+	// if (combineFds(getPipeOut()) == 0)
+	// {
+	// 	this->_exit_status = 500;
+	// 	closePipe();
+	// 	return ;
+	// }
 	this->_cgi_pid = fork();
 	if (_cgi_pid < 0)
 	{
@@ -227,4 +234,17 @@ std::string CgiHandle::checkShebang(){
 		std::stringstream ss(line);
 		return(line.substr(line.find("#!") + 2));
 	}
+}
+
+int CgiHandle::combineFds(int pipe_out){
+	std::cout << "I am Combining Fds\n";
+	struct epoll_event event;
+	std::memset(&event, 0, sizeof(event));
+	event.events = EPOLLIN;
+	event.data.fd = pipe_out;
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_ADD, pipe_out, &event) == -1) {
+		std::cerr << "Epoll_ctl failed: " << strerror(errno) << std::endl;
+		return (0);
+	}
+	return (1);
 }

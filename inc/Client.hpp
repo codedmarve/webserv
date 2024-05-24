@@ -29,7 +29,12 @@ public:
     void setupResponse();
     HttpRequest *getRequest(bool val = false);
     HttpResponse *getResponse();
+    RequestConfig *getConfig();
     std::string getResponseString();
+    void setCgi(bool &val);
+    bool getCgi();
+    RequestConfig &getConfigRef();
+    HttpResponse &getResponseRef();
 
 private:
     HttpRequest *request_;
@@ -39,6 +44,7 @@ private:
     DB &db_;
     size_t serverId_;
     int statusCode_;
+    bool is_cgi_;
 };
 
 #endif
