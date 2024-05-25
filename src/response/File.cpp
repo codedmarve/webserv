@@ -9,7 +9,6 @@ File::File(std::string path) : fd_(0)
 
 File::~File()
 {
-    std::cout << "File Destructor for object: " << this << std::endl << std::endl;
     closeFile();
 }
 

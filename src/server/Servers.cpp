@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 22:37:34 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 00:48:10 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,7 +223,7 @@ void Servers::handleIncomingConnection(int server_fd){
 	}
 	client_to_server[new_socket] = server_fd;
 	_client_data[new_socket] = HttpRequest();
-	
+	setTimeout(new_socket);
     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << ", client: " << new_socket << "\n" << std::endl;
 	_client_amount++;
 }
@@ -249,10 +249,10 @@ void Servers::handleIncomingData(int client_fd){
 
 
 void Servers::initEvents(){
-	while (true){
+	while (1){
 		try{
 			struct epoll_event events[_server_fds.size() + _client_amount];
-			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size() + _client_amount, -1);
+			int n = epoll_wait(this->_epoll_fds, events, _server_fds.size() + _client_amount, 1000);
 			if (n == -1) {
 				std::cerr << "Epoll_wait failed" << std::endl;
 				return ;
@@ -268,17 +268,23 @@ void Servers::initEvents(){
 					}
 				}
 				if (!server && events[i].events & EPOLLIN) {
-					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
-					// std::cout << "Event FD: " << events[i].data.fd << std::endl;
+					std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
 					if (_cgi_clients_childfd.find(events[i].data.fd) != _cgi_clients_childfd.end())
+					{
+						setTimeout(_cgi_clients_childfd[events[i].data.fd]);
 						handleIncomingCgi(events[i].data.fd);
+					}
 					else if (_client_data.find(events[i].data.fd) != _client_data.end())
+					{
+						setTimeout(events[i].data.fd);
 						handleIncomingData(events[i].data.fd);
+					}
 				}
 			}
 		} catch (std::exception &e){
 			std::cerr << e.what() << std::endl;
 		}
+		checkClientTimeout();
 	}
 }
 
@@ -491,14 +497,8 @@ void Servers::deleteClient(int client_fd)
 	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
 	_client_data.erase(client_fd);
 	client_to_server.erase(client_fd);
-}
-
-void Servers::deleteChild(int child_fd)
-{
-	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, child_fd, NULL) == -1) {
-		std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
-	}
-	_cgi_clients_childfd.erase(child_fd);
+	_client_time.erase(client_fd);
+	std::cout << "I seg here\n";
 }
 
 int Servers::setNonBlocking(int fd){
@@ -521,10 +521,6 @@ int Servers::setNonBlocking(int fd){
 	return (1);
 }
 
-void Servers::setConnectionTimeout(int client_fd){
-	_client_time[client_fd] = time(NULL);
-}
-
 int Servers::handleIncomingCgi(int child_fd){
 	std::string response;
 	int	client_fd;
@@ -544,6 +540,7 @@ int Servers::handleIncomingCgi(int child_fd){
 	// std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
 	if (_cgi_clients[client_fd]->getStatusCode() == 200 || _cgi_clients[client_fd]->getStatusCode() == 500)
 	{
+		std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
 		_cgi_clients[client_fd]->getResponse().createResponse();
 		response = _cgi_clients[client_fd]->getResponseString();
 		// std::cout << "Response: " << response << std::endl;
@@ -553,8 +550,41 @@ int Servers::handleIncomingCgi(int child_fd){
 			return 0;
 		}
 		deleteClient(client_fd);
-		deleteChild(child_fd);
+		_cgi_clients_childfd.erase(child_fd);
 	}
 	std::cout << "I stop here\n";
 	return 1;
+}
+
+void Servers::setTimeout(int client_fd){
+	_client_time[client_fd] = time(NULL);
+}
+
+void Servers::checkClientTimeout(){
+	time_t current_time = time(NULL);
+	for (std::map<int, time_t>::iterator it = _client_time.begin(); it != _client_time.end(); it++)
+	{
+		if (_cgi_clients.find(it->first) != _cgi_clients.end())
+		{
+			if (current_time - it->second >= 5)
+			{
+				// _cgi_clients[it->first]->HandleCgi();
+				for (std::map<int, int>::iterator it2 = _cgi_clients_childfd.begin(); it2 != _cgi_clients_childfd.end(); it2++)
+				{
+					if (it2->second == it->first)
+					{
+						// handleIncomingCgi(it2->first);
+						handleIncomingCgi(it2->first);
+						break;
+					}
+				}
+			}
+		}
+		else
+		if (current_time - it->second > 5)
+		{
+			std::cout << "Client FD: " << it->first << " timed out\n";
+			deleteClient(it->first);
+		}
+	}
 }

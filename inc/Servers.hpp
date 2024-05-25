@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 21:35:05 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 00:06:10 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ class Servers {
 		std::map<int, HttpRequest> _client_data;
 		std::map<int, CgiClient*> _cgi_clients;
 		std::map<int, int> _cgi_clients_childfd;
+		// std::map<int, time_t> _client_time;
 		std::map<int, time_t> _client_time;
 			
 	public:
@@ -61,7 +62,6 @@ class Servers {
 		void	assignLocalDomain(int server_fd);
 		void	initEvents();
 		void	deleteClient(int client_fd);
-		void	deleteChild(int child_fd);
 		std::vector<std::string> getPorts();
 		std::map<std::string, std::vector<std::string> > getKeyValue() const;
 		bool getRequest(int client_fd, std::string &request);
@@ -72,8 +72,8 @@ class Servers {
 		void handleIncomingData(int client_fd);
 		void printServerAddress(int server_fd);
 		size_t handleResponse(int reqStatus, int server_fd, int new_socket, HttpRequest &parser);
-		void setConnectionTimeout(int client_fd);
 		void checkClientTimeout();
+		void setTimeout(int client_fd);
 		int handleIncomingCgi(int client_fd);
 };
 

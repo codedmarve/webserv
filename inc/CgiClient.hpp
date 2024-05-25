@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 00:02:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 21:51:39 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 23:54:18 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ public:
     int getStatusCode();
 	void setContentLength(void);
 	int getPipeOut(void);
+	void deleteChild(int child_fd);
 };
 
 #endif

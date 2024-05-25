@@ -1,8 +1,12 @@
 #!/bin/bash
+# echo "Content-Type: text/html"
+# echo -e "\r\n"
 a
 ls
-# echo "Content-type: text/html"
+ls
+ls
+ls
 # yes
-cat
+# cat
 # ls
 # cat Makefile

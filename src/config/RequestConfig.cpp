@@ -9,7 +9,6 @@ RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Cl
 
 RequestConfig::~RequestConfig()
 {
-    std::cout << "RequestConfig Destructor for object: " << this << std::endl;
     redir_code_ = 0;
     cgi_.clear();
     error_codes_.clear();

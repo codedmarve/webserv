@@ -19,7 +19,6 @@ HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(conf
 
 HttpResponse::~HttpResponse()
 {
-	std::cout << "HttpResponse Destructor for object: " << this << std::endl;
 	cleanUp();
 }
 
@@ -52,19 +51,6 @@ HttpResponse::HttpResponse(const HttpResponse &rhs, RequestConfig &config)
 	  cgiRead_(rhs.cgiRead_), cgi_bytes_read_(rhs.cgi_bytes_read_),
 	  cgi_times_read_(rhs.cgi_times_read_), cgi_true_(rhs.cgi_true_)
 {
-	// for (std::map<std::string, std::string>::const_iterator it = rhs.headers_.begin(); it != rhs.headers_.end(); it++)
-	// {
-	// 	headers_.insert(std::make_pair(it->first, it->second));
-	// 	// std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-	// 	// std::cout << "Key: " << it->first << ", Value: " << headers_[it->first] << std::endl;
-	// 	// std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-	// 	// headers_[it->first] = it->second;
-	// 	// std::cout << "Key: " << headers_[it->first] << ", Value: " << headers_[it->second] << std::endl;
-	// }
-	// for (std::map<std::string, int (HttpResponse::*)()>::const_iterator it = rhs.methods_.begin(); it != rhs.methods_.end(); it++)
-	// {
-	// 	methods_[it->first] = it->second;
-	// }
 	file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
 
@@ -684,8 +670,8 @@ void	HttpResponse::setStatusCode(int code)
 
 void	HttpResponse::setHeader(std::string key, std::string value)
 {
-	headers_.insert(std::pair<std::string, std::string>(key, value));
-	// headers_[key] = value;
+	// headers_.insert(std::pair<std::string, std::string>(key, value));
+	headers_[key] = value;
 }
 
 void	HttpResponse::appendBody(char *buffer, int size)

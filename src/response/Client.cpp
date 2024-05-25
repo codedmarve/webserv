@@ -15,7 +15,6 @@ statusCode_(status)
 
 Client::~Client()
 {
-	std::cout << "Client Destructor for object: " << this << std::endl;
 	delete request_;
 	delete config_;
 	delete response_;
@@ -25,7 +24,6 @@ Client::Client(const Client &rhs) : host_port_(rhs.host_port_), db_(rhs.db_), se
 {
 	// std::cout << "I finished creating the client\n";
 	// std::cout << "Request address2: " << &rhs << std::endl;
-	std::cout << "Request address: " << rhs.request_ << std::endl;
 	if (rhs.request_)
 		request_ = new HttpRequest(*rhs.request_);
 	else

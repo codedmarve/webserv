@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 01:56:20 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 22:32:17 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 00:50:33 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ epoll_fd_(epoll_fd)
 		response_->setStatusCode(500);
     pid_ = cgi_->getPid();
     std::string req_body = config_->getBody();
-	// setCgiPipe(*cgi_);
+	setCgiPipe(*cgi_);
     toCgi(*cgi_, config_->getBody());
 }
 
@@ -51,10 +51,11 @@ CgiClient::~CgiClient()
 {
 	// std::cout << "CgiClient Destructor\n";
     // delete client_;
+	// deleteChild(cgi_->getPipeOut());
     delete cgi_;
-	closeParentCgiPipe(*cgi_);
-	close(cgi_->getPipeOut());
-    kill(pid_, SIGKILL);
+	// closeParentCgiPipe(*cgi_);
+	// close(cgi_->getPipeOut());
+    // kill(pid_, SIGKILL);
 	// delete config_;
 	// delete response_;
 }
@@ -66,11 +67,16 @@ void CgiClient::HandleCgi()
         return ;
 	else if (cgi_->getExitStatus() == 500)
 		status_code_ = 500;
-	// closeParentCgiPipe(*cgi_);
-	// close(cgi_->getPipeOut());
-    // kill(pid_, SIGKILL);
+	deleteChild(cgi_->getPipeOut());
+	closeParentCgiPipe(*cgi_);
+	close(cgi_->getPipeOut());
+    kill(pid_, SIGKILL);
+	pid_t exit_status;
+	if (cgi_->getExitStatus() != 500 || waitpid(pid_, &exit_status, WNOHANG) == 0)
+		waitpid(pid_, &exit_status, 0);
+	response_->setStatusCode(status_code_);
 	// std::cout << "Response status code: " << status_code_ << std::endl;
-	// std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
+	std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
 	setContentLength();
 	// for (std::map<std::string, std::string>::iterator it = response_->getHeaders().begin(); it != response_->getHeaders().end(); it++)
 	// {
@@ -106,44 +112,30 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 {
 	int bytesRead;
 	char buffer[4096];
-	fd_set readfds;
-	FD_ZERO(&readfds);
-	FD_SET(cgi.getPipeOut(), &readfds);
-
-	struct timeval tv;
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
-	int select_value = select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv);
-	if (select_value > 0)
+		std::cout << "I stuck here\n";
+	if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
 	{
-		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
-		{
-			response_->appendBody(buffer, bytesRead);
-			// std::cout << "BUFFER: " << buffer << std::endl;
-			// std::cout << "Config: " << config_->getBody() << std::endl;
-			body_ = response_->getBody();
-			// std::cout << "BODY TWO: " << body_ << std::endl;
-			cgi_bytes_read_ += bytesRead;
-			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
-				handleCgiHeaders(body_);
-			cgiRead_ = true;
-			// cgi_times_read_++;
-			// if (cgi_times_read_ > 200)
-			// 	status_code_ = 200;
-		}
-		else if (bytesRead == -1 || bytesRead == 0)
-		{
-			std::cout << "bytesRead: " << bytesRead << std::endl;
-			status_code_ = (cgiRead_) ? 200 : 500;
-			
-		}
-		if (bytesRead < 4096)
-			status_code_ = 200;
+		response_->appendBody(buffer, bytesRead);
+		// std::cout << "BUFFER: " << buffer << std::endl;
+		// std::cout << "Config: " << config_->getBody() << std::endl;
+		body_ = response_->getBody();
+		// std::cout << "BODY TWO: " << body_ << std::endl;
+		cgi_bytes_read_ += bytesRead;
+		if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
+			handleCgiHeaders(body_);
+		cgiRead_ = true;
+		// cgi_times_read_++;
+		// if (cgi_times_read_ > 200)
+		// 	status_code_ = 200;
 	}
-	else if (select_value == -1)
-		status_code_ = 500;
-	else
+	else if (bytesRead == -1 || bytesRead == 0)
+	{
+		std::cout << "bytesRead: " << bytesRead << std::endl;
 		status_code_ = (cgiRead_) ? 200 : 500;
+	}
+		std::cout << "Bytes read: " << bytesRead << std::endl;
+		// if (bytesRead < 4096)
+		// 	status_code_ = 200;
 	response_->setStatusCode(status_code_);
 }
 
@@ -205,6 +197,7 @@ void CgiClient::handleCgiHeaders(std::string &body_)
 			response_->setBody(body_.substr(pos + 2));
 			// body_ = body_.substr(pos + 2);
 		cgiHeadersParsed_ = true;
+		std::cout << "I am here\n";
 		parseCgiHeaders();
 	}
 	else
@@ -256,4 +249,12 @@ void CgiClient::setContentLength(void)
 
 int CgiClient::getPipeOut(void){
 	return (cgi_->getPipeOut());
+}
+
+void CgiClient::deleteChild(int child_fd)
+{
+	std::cout << "Child FD: " << child_fd << std::endl;
+	if (epoll_ctl(this->epoll_fd_, EPOLL_CTL_DEL, child_fd, NULL) == -1) {
+		std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
+	}
 }
