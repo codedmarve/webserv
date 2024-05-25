@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/24 23:21:51 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 22:01:54 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,6 @@ CgiHandle& CgiHandle::operator=(const CgiHandle &other){
 void CgiHandle::initEnv(){
 
 	std::stringstream ss;
-	
 	ss << this->_config->getHeader("content-length");
 	std::string content_length = ss.str();
 	this->content_length = atoi(content_length.c_str());
@@ -237,7 +236,6 @@ std::string CgiHandle::checkShebang(){
 }
 
 int CgiHandle::combineFds(int pipe_out){
-	std::cout << "I am Combining Fds\n";
 	struct epoll_event event;
 	std::memset(&event, 0, sizeof(event));
 	event.events = EPOLLIN;

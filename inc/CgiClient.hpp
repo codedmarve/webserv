@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 00:02:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/24 22:57:11 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 21:51:39 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ class HttpResponse;
 class CgiClient
 {
 private:
-	Client			*client_;
+	Client			client_;
 	std::string 	cgiHeaders_;
 	bool			cgiHeadersParsed_;
 	bool			cgiRead_;
@@ -39,7 +39,7 @@ private:
     std::string     body_;
 	int				epoll_fd_;
 public:
-	CgiClient(Client *client, int epoll_fd);
+	CgiClient(Client client, int epoll_fd);
 	~CgiClient();
 	CgiClient(const CgiClient &other);
 	CgiClient &operator=(const CgiClient &other);

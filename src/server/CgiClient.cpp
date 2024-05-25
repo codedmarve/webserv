@@ -6,22 +6,37 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 01:56:20 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/24 23:18:57 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 22:32:17 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+//Check private variables!!!!!!!!!!!!!!!!!!!
+
 #include "../../inc/AllHeaders.hpp"
 
-CgiClient::CgiClient(Client *client, int epoll_fd)
-: cgiHeadersParsed_(false), cgiRead_(false), cgi_bytes_read_(0), cgi_times_read_(0), status_code_(0),
+CgiClient::CgiClient(Client client, int epoll_fd)
+: client_(client), cgiHeadersParsed_(false), cgiRead_(false), cgi_bytes_read_(0), cgi_times_read_(0), status_code_(0),
 epoll_fd_(epoll_fd)
 {
-    client_ = new Client(*client);
-    cgi_ext_ = client->getResponse()->getFile()->getMimeExt();
-    config_ = &client->getConfigRef();
-    response_ = &client->getResponseRef();
-	// config_ = new RequestConfig(*client->getConfig());
-	// response_ = new HttpResponse(*client->getResponse());
+	// std::cout << "CgiClient Constructor\n";
+    // client_ = new Client(client);
+	// client_ = client;
+	// client_ = &client;
+	// client_ = client.clone();
+    cgi_ext_ = client_.getResponse()->getFile()->getMimeExt();
+    response_ = &client_.getResponseRef();
+    config_ = &client_.getConfigRef();
+	// I wantv a copy of the client
+	config_->setClient(client_);
+	// response_->setConfig(*config_);
+	// std::cout << "The address of the client: " << &client_ << std::endl;
+	// std::cout << "The address of the response: " << response_ << std::endl;
+	// std::cout << "The address of the config: " << config_ << std::endl << std::endl;
+
+	// std::cout << "The address in the REQUEST: " << &config_->client_ << std::endl << std::endl;
+	
+	// std::cout << "The address of the response: " << response_ << std::endl;
+	// std::cout << "The address of the config: " << config_ << std::endl;
     // cgi_ = CgiHandle(config_, cgi_ext_);
     cgi_ = new CgiHandle(config_, cgi_ext_, epoll_fd_);
 	if (cgi_->getExitStatus() == 500)
@@ -34,8 +49,8 @@ epoll_fd_(epoll_fd)
 
 CgiClient::~CgiClient()
 {
-	std::cout << "CgiClient Destructor\n";
-    delete client_;
+	// std::cout << "CgiClient Destructor\n";
+    // delete client_;
     delete cgi_;
 	closeParentCgiPipe(*cgi_);
 	close(cgi_->getPipeOut());
@@ -54,9 +69,14 @@ void CgiClient::HandleCgi()
 	// closeParentCgiPipe(*cgi_);
 	// close(cgi_->getPipeOut());
     // kill(pid_, SIGKILL);
-	std::cout << "Response status code: " << status_code_ << std::endl;
-	std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
+	// std::cout << "Response status code: " << status_code_ << std::endl;
+	// std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
 	setContentLength();
+	// for (std::map<std::string, std::string>::iterator it = response_->getHeaders().begin(); it != response_->getHeaders().end(); it++)
+	// {
+	// 	std::cout << "I seg here\n";
+	// 	std::cout << "Key!: " << it->first << ", Value!: " << << std::endl;
+	// }
 	// std::cout << "Content-Length: " << config_->getHeader("Content-Length") << std::endl;
 }
 
@@ -102,7 +122,7 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 			// std::cout << "BUFFER: " << buffer << std::endl;
 			// std::cout << "Config: " << config_->getBody() << std::endl;
 			body_ = response_->getBody();
-			std::cout << "BODY TWO: " << body_ << std::endl;
+			// std::cout << "BODY TWO: " << body_ << std::endl;
 			cgi_bytes_read_ += bytesRead;
 			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
 				handleCgiHeaders(body_);
@@ -155,10 +175,11 @@ void CgiClient::parseCgiHeaders()
 			}
 		}
 	}
-	// for (std::map<std::string, std::string>::iterator it = response_->getHeaders().begin(); it != response_->getHeaders().end(); it++)
-	// {
-	// 	std::cout << "Key!: " << it->first << ", Value!: " << it->second << std::endl;
-	// }
+	std::map<std::string, std::string> headers = response_->getHeaders();
+	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
+	{
+		std::cout << "Key!: " << it->first << ", Value!: " << it->second << std::endl;
+	}
 }
 
 void CgiClient::handleCgiHeaders(std::string &body_)
@@ -218,7 +239,7 @@ std::string CgiClient::getResponseString()
 
 HttpResponse &CgiClient::getResponse()
 {
-    return client_->getResponseRef();
+    return client_.getResponseRef();
 }
 
 int CgiClient::getStatusCode()

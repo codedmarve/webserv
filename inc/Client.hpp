@@ -2,6 +2,8 @@
 #define CLIENT_HPP
 
 #include "AllHeaders.hpp"
+#include "Listen.hpp"
+#include "DB.hpp"
 
 #define START_TIMEOUT 300
 #define LAST_TIMEOUT 150
@@ -35,13 +37,15 @@ public:
     bool getCgi();
     RequestConfig &getConfigRef();
     HttpResponse &getResponseRef();
+    HttpRequest &getRequestRef();
+    Client* clone() const;
 
 private:
     HttpRequest *request_;
-    Listen &host_port_;
+    Listen host_port_;
     RequestConfig *config_;
     HttpResponse *response_;
-    DB &db_;
+    DB db_;
     size_t serverId_;
     int statusCode_;
     bool is_cgi_;

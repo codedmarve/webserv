@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/24 22:47:59 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 22:37:34 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -429,7 +429,7 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	
 	char buffer[4096];
 	request.clear();
-	std::cout << "I read many times!" << std::endl;
+	// std::cout << "I read many times!" << std::endl;
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes > 0)
 	{
@@ -453,13 +453,15 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
-			std::cout << "***isCGI: " << client.getCgi() << std::endl;
+			// std::cout << "***isCGI: " << client.getCgi() << std::endl;
 			if (client.getCgi())
 			{
-				_cgi_clients[new_socket] = new CgiClient(&client, this->_epoll_fds);
+				// std::cout << "I am created here\n";
+				// std::cout << "HTTP Request: " << &parser << std::endl;
+				_cgi_clients[new_socket] = new CgiClient(client, this->_epoll_fds);
 				_cgi_clients_childfd[_cgi_clients[new_socket]->getPipeOut()] =  new_socket;
-				std::cout << "CGI PIPE FD: " << _cgi_clients_childfd[new_socket] << std::endl;
-				std::cout << "Client FD: " << new_socket << std::endl;
+				// std::cout << "CGI PIPE FD: " << _cgi_clients_childfd[new_socket] << std::endl;
+				// std::cout << "Client FD: " << new_socket << std::endl;
 				return (1);
 			}
 			response = client.getResponseString();
@@ -536,21 +538,21 @@ int Servers::handleIncomingCgi(int child_fd){
 			break;
 		}
 	}
-	std::cout << "True Client FD for CGI: " << client_fd << std::endl;
-	std::cout << "Client FD for CGI: " << child_fd << std::endl;
+	// std::cout << "True Client FD for CGI: " << client_fd << std::endl;
+	// std::cout << "Client FD for CGI: " << child_fd << std::endl;
 	_cgi_clients[client_fd]->HandleCgi();
-	std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
+	// std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
 	if (_cgi_clients[client_fd]->getStatusCode() == 200 || _cgi_clients[client_fd]->getStatusCode() == 500)
 	{
 		_cgi_clients[client_fd]->getResponse().createResponse();
 		response = _cgi_clients[client_fd]->getResponseString();
-		std::cout << "Response: " << response << std::endl;
+		// std::cout << "Response: " << response << std::endl;
 		ssize_t bytes = write(client_fd, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
 			return 0;
 		}
-		// deleteClient(client_fd);
+		deleteClient(client_fd);
 		deleteChild(child_fd);
 	}
 	std::cout << "I stop here\n";

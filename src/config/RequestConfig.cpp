@@ -9,19 +9,31 @@ RequestConfig::RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Cl
 
 RequestConfig::~RequestConfig()
 {
+    std::cout << "RequestConfig Destructor for object: " << this << std::endl;
     redir_code_ = 0;
     cgi_.clear();
     error_codes_.clear();
 }
 
 RequestConfig::RequestConfig(const RequestConfig &rhs)
-    : request_(rhs.request_), client_(rhs.client_), host_port_(rhs.host_port_), db_(rhs.db_),
+    : request_(rhs.request_), targetServer_(rhs.targetServer_), client_(rhs.client_), host_port_(rhs.host_port_), db_(rhs.db_),
       modifierType_(rhs.modifierType_), target_(rhs.target_), root_(rhs.root_), uri_(rhs.uri_),
       client_max_body_size_(rhs.client_max_body_size_), autoindex_(rhs.autoindex_),
       indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
       allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
       upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
-      isLociMatched_(rhs.isLociMatched_)
+      isLociMatched_(rhs.isLociMatched_), uri_suffix_(rhs.uri_suffix_), redir_code_(rhs.redir_code_)
+{
+}
+
+RequestConfig::RequestConfig(const RequestConfig &rhs, HttpRequest &request, Client &client)
+    : request_(request), targetServer_(rhs.targetServer_), client_(client), host_port_(rhs.host_port_), db_(rhs.db_),
+      modifierType_(rhs.modifierType_), target_(rhs.target_), root_(rhs.root_), uri_(rhs.uri_),
+      client_max_body_size_(rhs.client_max_body_size_), autoindex_(rhs.autoindex_),
+      indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
+      allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
+      upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
+      isLociMatched_(rhs.isLociMatched_), uri_suffix_(rhs.uri_suffix_), redir_code_(rhs.redir_code_)
 {
 }
 
@@ -30,6 +42,7 @@ RequestConfig &RequestConfig::operator=(const RequestConfig &rhs)
     if (this != &rhs)
     {
         request_ = rhs.request_;
+        targetServer_ = rhs.targetServer_;
         client_ = rhs.client_;
         host_port_ = rhs.host_port_;
         modifierType_ = rhs.modifierType_;
@@ -49,6 +62,8 @@ RequestConfig &RequestConfig::operator=(const RequestConfig &rhs)
         cgi_bin_ = rhs.cgi_bin_;
         locationsMap_ = rhs.locationsMap_;
         isLociMatched_ = rhs.isLociMatched_;
+        uri_suffix_ = rhs.uri_suffix_;
+        redir_code_ = rhs.redir_code_;
     }
     return *this;
 }
@@ -722,4 +737,9 @@ void RequestConfig::setSubstr(int start)
 {
     std::string body = request_.getBody();
 	body = body.substr(start);
+}
+
+void RequestConfig::setClient(Client &client)
+{
+    client_ = client;
 }

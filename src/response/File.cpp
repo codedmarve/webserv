@@ -9,13 +9,13 @@ File::File(std::string path) : fd_(0)
 
 File::~File()
 {
+    std::cout << "File Destructor for object: " << this << std::endl << std::endl;
     closeFile();
 }
 
 File::File(const File &rhs)
     : fd_(rhs.fd_), mime_ext_(rhs.mime_ext_), file_name_(rhs.file_name_),
       file_name_full_(rhs.file_name_full_), matches_(rhs.matches_), path_(rhs.path_) {
-
 }
 
 File &File::operator=(const File &rhs) {

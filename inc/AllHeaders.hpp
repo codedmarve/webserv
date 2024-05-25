@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/24 19:34:22 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/25 18:55:55 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,28 +61,8 @@
 #include "Client.hpp"
 #include "ErrorCodes.hpp"
 #include "CgiClient.hpp"
-
-
-typedef std::map<std::string, std::string> MapStr;
-typedef std::vector<std::string> VecStr;
-typedef std::map<std::string, VecStr> KeyValues;
-typedef std::pair<MapStr, VecStr> KeyMapValue;
-typedef std::map<int, std::vector<KeyMapValue> > GroupedDBMap;
-
-struct DB
-{
-  const GroupedDBMap serversDB;
-  const GroupedDBMap rootDB;
-};
-
-struct Listen
-{
-  std::string ip_;
-  uint32_t port_;
-
-  Listen() : ip_("127.0.0.1"), port_(80){};
-  Listen(std::string ip, uint32_t port) : ip_(ip), port_(port){};
-};
+#include "Listen.hpp"
+#include "DB.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);

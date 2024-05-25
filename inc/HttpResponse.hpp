@@ -20,6 +20,7 @@ public:
 	HttpResponse(RequestConfig &config, int error_code = 100);
 	~HttpResponse();
 	HttpResponse(const HttpResponse &rhs);
+	HttpResponse(const HttpResponse &rhs, RequestConfig &config);
 	HttpResponse &operator=(const HttpResponse &rhs);
 
 	typedef int (HttpResponse::*type)();
@@ -92,6 +93,7 @@ public:
 	void setSubstr(int start, std::size_t end);
 	void setSubstr(int start);
 	void clearBody();
+	void setConfig(RequestConfig &config);
 
 private:
 	RequestConfig &config_;

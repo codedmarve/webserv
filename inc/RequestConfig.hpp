@@ -2,6 +2,8 @@
 #define REQUESTCONFIG_HPP
 
 #include "./AllHeaders.hpp"
+#include "./DB.hpp"
+#include "./Listen.hpp"
 
 class HttpRequest;
 class Client;
@@ -29,6 +31,7 @@ public:
   RequestConfig(HttpRequest &request, Listen &host_port, DB &db, Client &client);
   ~RequestConfig();
   RequestConfig(const RequestConfig &rhs);
+  RequestConfig(const RequestConfig &rhs, HttpRequest &request, Client &client);
   RequestConfig &operator=(const RequestConfig &rhs);
 
 
@@ -105,14 +108,15 @@ public:
   void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
 
   void printConfigSetUp();
+  void setClient(Client &client);
   std::string location_cache_;
 
 private:
   HttpRequest &request_;
   std::vector<KeyMapValue> targetServer_;
   Client &client_;
-  Listen &host_port_;
-  DB &db_;
+  Listen host_port_;
+  DB db_;
   LocationModifier modifierType_;
   std::string target_;
   std::string root_;

@@ -3,6 +3,6 @@ a
 ls
 # echo "Content-type: text/html"
 # yes
-# cat
+cat
 # ls
 # cat Makefile
