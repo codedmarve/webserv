@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 01:56:20 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 00:50:33 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 15:55:28 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,11 @@ epoll_fd_(epoll_fd)
     cgi_ext_ = client_.getResponse()->getFile()->getMimeExt();
     response_ = &client_.getResponseRef();
     config_ = &client_.getConfigRef();
-	// I wantv a copy of the client
+	cgiHeadersMap_ = &response_->getHeadersRef();
+
+	response_->setConfig(*config_);
 	config_->setClient(client_);
+	// I wantv a copy of the client
 	// response_->setConfig(*config_);
 	// std::cout << "The address of the client: " << &client_ << std::endl;
 	// std::cout << "The address of the response: " << response_ << std::endl;
@@ -42,41 +45,45 @@ epoll_fd_(epoll_fd)
 	if (cgi_->getExitStatus() == 500)
 		response_->setStatusCode(500);
     pid_ = cgi_->getPid();
-    std::string req_body = config_->getBody();
+    // std::string req_body = config_->getBody();
+	body_ = &response_->getBody();
+	req_body_ = &config_->getBody();
 	setCgiPipe(*cgi_);
-    toCgi(*cgi_, config_->getBody());
+	toCgi(*cgi_, *req_body_);
 }
 
 CgiClient::~CgiClient()
 {
 	// std::cout << "CgiClient Destructor\n";
     // delete client_;
-	// deleteChild(cgi_->getPipeOut());
+	deleteChild(cgi_->getPipeOut());
     delete cgi_;
-	// closeParentCgiPipe(*cgi_);
-	// close(cgi_->getPipeOut());
-    // kill(pid_, SIGKILL);
+	closeParentCgiPipe(*cgi_);
+	close(cgi_->getPipeOut());
+    kill(pid_, SIGKILL);
 	// delete config_;
 	// delete response_;
 }
 
 void CgiClient::HandleCgi()
 {
+	std::cout << "I am here\n";
+	// std::cout << "Request body: " << req_body_ << std::endl;
 	fromCgi(*cgi_);
     if (status_code_ == 0)
         return ;
 	else if (cgi_->getExitStatus() == 500)
 		status_code_ = 500;
-	deleteChild(cgi_->getPipeOut());
-	closeParentCgiPipe(*cgi_);
-	close(cgi_->getPipeOut());
-    kill(pid_, SIGKILL);
-	pid_t exit_status;
-	if (cgi_->getExitStatus() != 500 || waitpid(pid_, &exit_status, WNOHANG) == 0)
-		waitpid(pid_, &exit_status, 0);
+	// deleteChild(cgi_->getPipeOut());
+	// closeParentCgiPipe(*cgi_);
+	// close(cgi_->getPipeOut());
+    // kill(pid_, SIGKILL);
+	// pid_t exit_status;
+	// if (cgi_->getExitStatus() != 500 || waitpid(pid_, &exit_status, WNOHANG) == 0)
+	// 	waitpid(pid_, &exit_status, 0);
 	response_->setStatusCode(status_code_);
 	// std::cout << "Response status code: " << status_code_ << std::endl;
-	std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
+	// std::cout << "RESPONSE BODY: " << response_->getBody() << std::endl;
 	setContentLength();
 	// for (std::map<std::string, std::string>::iterator it = response_->getHeaders().begin(); it != response_->getHeaders().end(); it++)
 	// {
@@ -86,15 +93,15 @@ void CgiClient::HandleCgi()
 	// std::cout << "Content-Length: " << config_->getHeader("Content-Length") << std::endl;
 }
 
-void CgiClient::toCgi(CgiHandle &cgi, std::string req_body)
+void CgiClient::toCgi(CgiHandle &cgi, std::string &req_body)
 {
 	if (cgi.getContentLength() > 0)
 	{
 		int bytesWritten = write(cgi.getPipeIn(), req_body.c_str(), req_body.length());
 		if (bytesWritten >= 0)
 		{
-			config_->setSubstr(bytesWritten);
-			// req_body = req_body.substr(bytesWritten);
+			// config_->setSubstr(bytesWritten);
+			req_body = req_body.substr(bytesWritten);
 			cgi.deductContentLength(bytesWritten);
 			if (cgi.getContentLength() == 0)
 				close(cgi.getPipeIn());
@@ -115,14 +122,13 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 		std::cout << "I stuck here\n";
 	if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
 	{
-		response_->appendBody(buffer, bytesRead);
-		// std::cout << "BUFFER: " << buffer << std::endl;
-		// std::cout << "Config: " << config_->getBody() << std::endl;
-		body_ = response_->getBody();
-		// std::cout << "BODY TWO: " << body_ << std::endl;
+		// response_->appendBody(buffer, bytesRead);
+		body_->append(buffer, bytesRead);
 		cgi_bytes_read_ += bytesRead;
-		if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
-			handleCgiHeaders(body_);
+		// body_ = response_->getBody();
+		// std::cout << "BODY TWO: " << body_ << std::endl;
+		if ((body_->find("\r\n\r\n") != std::string::npos || body_->find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
+			handleCgiHeaders(*body_);
 		cgiRead_ = true;
 		// cgi_times_read_++;
 		// if (cgi_times_read_ > 200)
@@ -133,9 +139,6 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 		std::cout << "bytesRead: " << bytesRead << std::endl;
 		status_code_ = (cgiRead_) ? 200 : 500;
 	}
-		std::cout << "Bytes read: " << bytesRead << std::endl;
-		// if (bytesRead < 4096)
-		// 	status_code_ = 200;
 	response_->setStatusCode(status_code_);
 }
 
@@ -143,6 +146,10 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 void CgiClient::parseCgiHeaders()
 {
 	std::vector<std::string> headerLines = split(cgiHeaders_, '\n');
+	for (std::vector<std::string>::iterator it = headerLines.begin(); it != headerLines.end(); it++)
+	{
+		std::cout << "Header!!!: " << *it << std::endl;
+	}
 	std::string key;
 	std::string value;
 	size_t pos;
@@ -155,7 +162,8 @@ void CgiClient::parseCgiHeaders()
 		{
 			key = header.substr(0, header.find(":"));
 			value = header.substr(header.find(":") + 2);
-            response_->setHeader(key, value);
+            // response_->setHeader(key, value);
+			(*cgiHeadersMap_)[key] = value;
 		}
 		else if (header.find("HTTP/1.1") != std::string::npos)
 		{
@@ -167,10 +175,9 @@ void CgiClient::parseCgiHeaders()
 			}
 		}
 	}
-	std::map<std::string, std::string> headers = response_->getHeaders();
-	for (std::map<std::string, std::string>::iterator it = headers.begin(); it != headers.end(); it++)
+	for (std::map<std::string, std::string>::iterator it = (*cgiHeadersMap_).begin(); it != (*cgiHeadersMap_).end(); it++)
 	{
-		std::cout << "Key!: " << it->first << ", Value!: " << it->second << std::endl;
+		std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
 	}
 }
 
@@ -185,17 +192,17 @@ void CgiClient::handleCgiHeaders(std::string &body_)
 	{
 		cgiHeaders_ = body_.substr(0, pos);
 		if ((pos = body_.find("\r\n\r\n\n")) != std::string::npos)
-			// body_ = body_.substr(pos + 5);
-			response_->setBody(body_.substr(pos + 5));
+			body_ = body_.substr(pos + 5);
+			// response_->setBody(body_.substr(pos + 5));
 		else if ((pos = body_.find("\r\n\r\n")) != std::string::npos)
-			response_->setBody(body_.substr(pos + 4));
-			// body_ = body_.substr(pos + 4);
+			// response_->setBody(body_.substr(pos + 4));
+			body_ = body_.substr(pos + 4);
 		else if ((pos = body_.find("\r\n\n")) != std::string::npos)
-			response_->setBody(body_.substr(pos + 3));
-			// body_ = body_.substr(pos + 3);
+			// response_->setBody(body_.substr(pos + 3));
+			body_ = body_.substr(pos + 3);
 		else if ((pos = body_.find("\r\n")) != std::string::npos)
-			response_->setBody(body_.substr(pos + 2));
-			// body_ = body_.substr(pos + 2);
+			// response_->setBody(body_.substr(pos + 2));
+			body_ = body_.substr(pos + 2);
 		cgiHeadersParsed_ = true;
 		std::cout << "I am here\n";
 		parseCgiHeaders();

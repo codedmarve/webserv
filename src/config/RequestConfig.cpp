@@ -742,3 +742,8 @@ void RequestConfig::setClient(Client &client)
 {
     client_ = client;
 }
+
+std::string &RequestConfig::getBody()
+{
+    return request_.getBody();
+}

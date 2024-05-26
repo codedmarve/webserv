@@ -85,6 +85,7 @@ public:
     std::string &getFragment();
     std::string &getProtocol();
     const std::string &getBody() const;
+    std::string &getBody();
     std::string &getHeader(std::string key);
     std::map<std::string, std::string> getHeaders() const;
     std::string getTarget() const;

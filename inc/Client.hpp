@@ -39,6 +39,9 @@ public:
     HttpResponse &getResponseRef();
     HttpRequest &getRequestRef();
     Client* clone() const;
+    void setConfig(RequestConfig &config);
+    void setResponse(HttpResponse &response);
+    bool getCgiResponse();
 
 private:
     HttpRequest *request_;

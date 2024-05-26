@@ -99,6 +99,12 @@ void Client::setCgi(bool &val)
 	is_cgi_ = val;
 }
 
+bool Client::getCgiResponse()
+{
+	is_cgi_ = response_->getCgiStatus();
+	return (is_cgi_);
+}
+
 bool Client::getCgi()
 {
 	return is_cgi_;
@@ -169,4 +175,12 @@ HttpResponse &Client::getResponseRef() {
 
 HttpRequest &Client::getRequestRef() {
 	return *request_;
+}
+
+void Client::setConfig(RequestConfig &config) {
+	config_ = &config;
+}
+
+void Client::setResponse(HttpResponse &response) {
+	response_ = &response;
 }

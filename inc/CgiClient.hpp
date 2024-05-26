@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 00:02:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 23:54:18 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 14:47:20 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class CgiClient
 private:
 	Client			client_;
 	std::string 	cgiHeaders_;
+	std::map<std::string, std::string> *cgiHeadersMap_;
 	bool			cgiHeadersParsed_;
 	bool			cgiRead_;
 	int				cgi_bytes_read_;
@@ -35,8 +36,8 @@ private:
     HttpResponse    *response_;
 	pid_t			pid_;
     int				status_code_;
-    std::string     req_body_;
-    std::string     body_;
+    std::string     *req_body_;
+    std::string     *body_;
 	int				epoll_fd_;
 public:
 	CgiClient(Client client, int epoll_fd);
@@ -45,7 +46,7 @@ public:
 	CgiClient &operator=(const CgiClient &other);
 	void HandleCgi();
 	void setCgiPipe(CgiHandle &cgi);
-	void toCgi(CgiHandle &cgi, std::string req_body);
+	void toCgi(CgiHandle &cgi, std::string &req_body);
 	void fromCgi(CgiHandle &cgi);
 	void handleCgiHeaders(std::string &body);
 	void parseCgiHeaders();

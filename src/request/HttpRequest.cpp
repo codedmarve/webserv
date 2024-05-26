@@ -241,3 +241,8 @@ void HttpRequest::printRequest(HttpRequest parser)
     std::cerr << "Error parsing request: " << e.what() << std::endl;
   }
 }
+
+std::string &HttpRequest::getBody()
+{
+  return body_;
+}

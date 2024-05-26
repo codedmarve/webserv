@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 00:48:10 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 15:57:11 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,7 +234,7 @@ void Servers::handleIncomingData(int client_fd){
 	std::string request;
 	int server_fd = client_to_server[client_fd];
 	bool finish = false;
-	finish = getRequest(client_fd, request);
+	getRequest(client_fd, request);
 	reqStatus = _client_data.find(client_fd)->second.parseRequest(request);
 	if (reqStatus != 200) {
 		finish = true;
@@ -245,8 +245,6 @@ void Servers::handleIncomingData(int client_fd){
 	if (finish && _cgi_clients.find(client_fd) == _cgi_clients.end())
 		deleteClient(client_fd);
 }
-
-
 
 void Servers::initEvents(){
 	while (1){
@@ -460,12 +458,15 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
 			// std::cout << "***isCGI: " << client.getCgi() << std::endl;
-			if (client.getCgi())
+			std::cout << "Client: " << new_socket << " is CGI: " << client.getCgi() << std::endl;
+			if (client.getCgi() || client.getCgiResponse())
 			{
+				std::cout << "I am here\n";
 				// std::cout << "I am created here\n";
 				// std::cout << "HTTP Request: " << &parser << std::endl;
 				_cgi_clients[new_socket] = new CgiClient(client, this->_epoll_fds);
 				_cgi_clients_childfd[_cgi_clients[new_socket]->getPipeOut()] =  new_socket;
+				// _cgi_clients[new_socket]->HandleCgi();
 				// std::cout << "CGI PIPE FD: " << _cgi_clients_childfd[new_socket] << std::endl;
 				// std::cout << "Client FD: " << new_socket << std::endl;
 				return (1);
@@ -498,7 +499,6 @@ void Servers::deleteClient(int client_fd)
 	_client_data.erase(client_fd);
 	client_to_server.erase(client_fd);
 	_client_time.erase(client_fd);
-	std::cout << "I seg here\n";
 }
 
 int Servers::setNonBlocking(int fd){
@@ -581,7 +581,7 @@ void Servers::checkClientTimeout(){
 			}
 		}
 		else
-		if (current_time - it->second > 5)
+		if (current_time - it->second > 30)
 		{
 			std::cout << "Client FD: " << it->first << " timed out\n";
 			deleteClient(it->first);

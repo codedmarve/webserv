@@ -94,6 +94,8 @@ public:
 	void setSubstr(int start);
 	void clearBody();
 	void setConfig(RequestConfig &config);
+	std::map<std::string, std::string> &getHeadersRef();
+	bool getCgiStatus();
 
 private:
 	RequestConfig &config_;

@@ -718,3 +718,13 @@ void HttpResponse::setConfig(RequestConfig &config)
 {
 	config_ = config;
 }
+
+std::map<std::string, std::string>	&HttpResponse::getHeadersRef()
+{
+	return headers_;
+}
+
+bool	HttpResponse::getCgiStatus()
+{
+	return cgi_true_;
+}

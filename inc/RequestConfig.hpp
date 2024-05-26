@@ -103,6 +103,7 @@ public:
   void setCgi(bool& val);
   bool get_Cgi();
   void setSubstr(int start);
+  std::string &getBody();
 
   void setMap(const VecStr &vec, std::map<int, std::string> &resultMap, std::string &codes);
   void assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap);
