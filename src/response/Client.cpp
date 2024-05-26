@@ -22,31 +22,20 @@ Client::~Client()
 
 Client::Client(const Client &rhs) : host_port_(rhs.host_port_), db_(rhs.db_), serverId_(rhs.serverId_), statusCode_(rhs.statusCode_)
 {
-	// std::cout << "I finished creating the client\n";
-	// std::cout << "Request address2: " << &rhs << std::endl;
 	if (rhs.request_)
 		request_ = new HttpRequest(*rhs.request_);
 	else
 	{
-		// std::cout << "I am NULL\n";
 		request_ = NULL;
 	}
-	// std::cout << "***Request address: " << request_ << std::endl;
-	// std::cout << "Config address: " << config_ << std::endl;
 	if (rhs.config_)
 		config_ = new RequestConfig(*rhs.config_);
 	else
 		config_ = NULL;
-	// std::cout << "Config address2: " << config_ << std::endl;
-	// std::cout << "Current address: " << this << std::endl;
 	if (rhs.response_)
 		response_ = new HttpResponse(*rhs.response_, *config_);
 	else
 		response_ = NULL;
-	// for (std::map<std::string, std::string>::const_iterator it = response_->getHeaders().begin(); it != response_->getHeaders().end(); it++)
-	// {
-	// 	std::cout << "Key: " << it->first << ", Value: " << response_->getHeaders()[it->first] << std::endl;
-	// }
 }
 
 Client* Client::clone() const {

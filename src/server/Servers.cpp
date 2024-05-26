@@ -6,23 +6,37 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 15:57:11 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 17:33:43 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/Servers.hpp"
-#include "../../inc/HttpRequest.hpp"
+#include "../../inc/AllHeaders.hpp"
+// #include "../../inc/Servers.hpp"
+// #include "../../inc/HttpRequest.hpp"
 
-Servers::Servers(ConfigDB &configDB) : _server_fds(), _domain_to_server(), _ip_to_server(), 
+Servers::Servers(ConfigDB &configDB) : _epoll_fds(-1), _server_fds(), _domain_to_server(), _ip_to_server(), 
 	_keyValues(), server_index(), server_fd_to_index(), client_to_server(), _client_amount(0),
-	configDB_(configDB){
+	_client_data(), _cgi_clients_childfd(), _client_time(), configDB_(configDB)
+{
+	servers = this;
+	stop_fd = -1;
+	_cgi_clients = std::map<int, CgiClient*>();
 	_keyValues = configDB_.getKeyValue();
 	createServers();
 	initEvents();
 }
 
 Servers::~Servers() {
-	std::cout << "Destructor called for servers!" << std::endl;
+	for (std::map<int, CgiClient*>::iterator it = _cgi_clients.begin(); it != _cgi_clients.end(); it++)
+	{
+		if (it->second != NULL)
+			delete it->second;
+	}
+	for (std::map<int, int>::iterator it = client_to_server.begin(); it != client_to_server.end(); it++)
+	{
+		if (close(it->first) == -1)
+			std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+	}
 	for (std::vector<int>::iterator it = _server_fds.begin(); it != _server_fds.end(); ++it)
 	{
 		if (*it != -1)
@@ -179,34 +193,6 @@ Listen getTargetIpAndPort(std::string requestedUrl) {
 	return Listen (x_ip, port_x);
 }
 
-// void Servers::handleIncomingConnection(int server_fd){
-// 	struct sockaddr_in address;
-// 	std::string request;
-//     socklen_t addrlen = sizeof(address);
-//     int new_socket = accept(server_fd, (struct sockaddr *)&address, &addrlen);
-// 	bool finish = false;
-//     if (new_socket == -1) {
-//         std::cerr << "Accept failed." << std::endl;
-//         return;
-//     }
-//     std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
-// 	HttpRequest parser;
-// 	int reqStatus = -1;
-// 	while (!finish){
-// 		finish = getRequest(new_socket, request);
-// 		reqStatus = parser.parseRequest(request);
-// 		if (reqStatus != 200) {
-// 			finish = true;
-// 		}
-// 		if (!handleResponse(reqStatus, server_fd, new_socket, parser))
-// 			return;
-// 	}
-//     if (close(new_socket) == -1)
-// 		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
-// 	else 
-// 		std::cout << "Connection closed on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << "\n" << std::endl;
-// }
-
 void Servers::handleIncomingConnection(int server_fd){
 	struct sockaddr_in address;
     socklen_t addrlen = sizeof(address);
@@ -229,7 +215,6 @@ void Servers::handleIncomingConnection(int server_fd){
 }
 
 void Servers::handleIncomingData(int client_fd){
-	// HttpRequest parser(_client_data.find(client_fd)->second);
 	int reqStatus = -1;
 	std::string request;
 	int server_fd = client_to_server[client_fd];
@@ -241,7 +226,6 @@ void Servers::handleIncomingData(int client_fd){
 	}
 	if (!handleResponse(reqStatus, server_fd, client_fd, _client_data.find(client_fd)->second))
 		return;
-	// handleIncomingCgi(client_fd);
 	if (finish && _cgi_clients.find(client_fd) == _cgi_clients.end())
 		deleteClient(client_fd);
 }
@@ -333,7 +317,6 @@ std::vector<std::string> Servers::getPorts(){
 	return (ports);
 }
 
-// Getting local domains and saving them to a map for each server
 void Servers::assignLocalDomain(int server_fd){
 	std::map<std::string, std::vector<std::string> > config = getKeyValue();
 	for (std::map<std::string, std::vector<std::string> >::iterator it_domain = config.begin(); it_domain != config.end(); it_domain++){
@@ -353,7 +336,6 @@ void Servers::assignLocalDomain(int server_fd){
 	}
 }
 
-// Getting domains and saving them to a map for each server
 void Servers::assignDomain(std::string port, int server_fd){
 	if (port == "80")
 		assignLocalDomain(server_fd);
@@ -383,12 +365,10 @@ void Servers::assignDomain(std::string port, int server_fd){
 	}
 }
 
-// Getter for config file
 std::map<std::string, std::vector<std::string> > Servers::getKeyValue() const {
 	return (this->_keyValues);
 }
 
-// Check if port is valid
 int Servers::checkSocketPort(std::string port){
 	for (std::string::iterator it = port.begin(); it != port.end(); it++)
 	{
@@ -401,7 +381,6 @@ int Servers::checkSocketPort(std::string port){
 	return (0);
 }
 
-// Check if ip is valid
 int Servers::checkSocket(std::string ip){
 	std::string ip_string;
 	std::string port_string;
@@ -433,7 +412,6 @@ bool Servers::getRequest(int client_fd, std::string &request){
 	
 	char buffer[4096];
 	request.clear();
-	// std::cout << "I read many times!" << std::endl;
 	int bytes = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes > 0)
 	{
@@ -457,18 +435,10 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
-			// std::cout << "***isCGI: " << client.getCgi() << std::endl;
-			std::cout << "Client: " << new_socket << " is CGI: " << client.getCgi() << std::endl;
 			if (client.getCgi() || client.getCgiResponse())
 			{
-				std::cout << "I am here\n";
-				// std::cout << "I am created here\n";
-				// std::cout << "HTTP Request: " << &parser << std::endl;
 				_cgi_clients[new_socket] = new CgiClient(client, this->_epoll_fds);
 				_cgi_clients_childfd[_cgi_clients[new_socket]->getPipeOut()] =  new_socket;
-				// _cgi_clients[new_socket]->HandleCgi();
-				// std::cout << "CGI PIPE FD: " << _cgi_clients_childfd[new_socket] << std::endl;
-				// std::cout << "Client FD: " << new_socket << std::endl;
 				return (1);
 			}
 			response = client.getResponseString();
@@ -479,26 +449,6 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			return 0;
 		}
 		return 1;
-}
-
-void Servers::deleteClient(int client_fd)
-{
-	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
-        std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
-    }
-    if (close(client_fd) == -1)
-		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
-	if (_client_amount > 0)
-		_client_amount--;
-	if (_cgi_clients.find(client_fd) != _cgi_clients.end())
-	{
-		delete _cgi_clients[client_fd];
-		_cgi_clients.erase(client_fd);
-	}
-	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
-	_client_data.erase(client_fd);
-	client_to_server.erase(client_fd);
-	_client_time.erase(client_fd);
 }
 
 int Servers::setNonBlocking(int fd){
@@ -523,9 +473,7 @@ int Servers::setNonBlocking(int fd){
 
 int Servers::handleIncomingCgi(int child_fd){
 	std::string response;
-	int	client_fd;
-	// while (_cgi_clients[client_fd]->getStatusCode() != 200)
-	
+	int	client_fd;	
 	for (std::map<int, int>::iterator it = _cgi_clients_childfd.begin(); it != _cgi_clients_childfd.end(); it++)
 	{
 		if (it->first == child_fd)
@@ -534,16 +482,11 @@ int Servers::handleIncomingCgi(int child_fd){
 			break;
 		}
 	}
-	// std::cout << "True Client FD for CGI: " << client_fd << std::endl;
-	// std::cout << "Client FD for CGI: " << child_fd << std::endl;
 	_cgi_clients[client_fd]->HandleCgi();
-	// std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
 	if (_cgi_clients[client_fd]->getStatusCode() == 200 || _cgi_clients[client_fd]->getStatusCode() == 500)
 	{
-		std::cout << "Status code: " << _cgi_clients[client_fd]->getStatusCode() << std::endl;
 		_cgi_clients[client_fd]->getResponse().createResponse();
 		response = _cgi_clients[client_fd]->getResponseString();
-		// std::cout << "Response: " << response << std::endl;
 		ssize_t bytes = write(client_fd, response.c_str(), response.size());
 		if (bytes == -1) {
 			std::cerr << "Write failed with error: " << strerror(errno) << std::endl;
@@ -566,14 +509,12 @@ void Servers::checkClientTimeout(){
 	{
 		if (_cgi_clients.find(it->first) != _cgi_clients.end())
 		{
-			if (current_time - it->second >= 5)
+			if (current_time - it->second >= 2)
 			{
-				// _cgi_clients[it->first]->HandleCgi();
 				for (std::map<int, int>::iterator it2 = _cgi_clients_childfd.begin(); it2 != _cgi_clients_childfd.end(); it2++)
 				{
 					if (it2->second == it->first)
 					{
-						// handleIncomingCgi(it2->first);
 						handleIncomingCgi(it2->first);
 						break;
 					}
@@ -587,4 +528,27 @@ void Servers::checkClientTimeout(){
 			deleteClient(it->first);
 		}
 	}
+}
+
+void Servers::deleteClient(int client_fd)
+{
+	if (epoll_ctl(this->_epoll_fds, EPOLL_CTL_DEL, client_fd, NULL) == -1) {
+        std::cerr << "Failed to remove client file descriptor from epoll instance." << std::endl;
+    }
+    if (close(client_fd) == -1)
+		std::cerr << "Close failed with error: " << strerror(errno) << std::endl;
+	if (_client_amount > 0)
+		_client_amount--;
+	if (_cgi_clients.find(client_fd) != _cgi_clients.end())
+	{
+		delete _cgi_clients[client_fd];
+		_cgi_clients.erase(client_fd);
+	}
+	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
+	if (_client_data.find(client_fd) != _client_data.end())
+		_client_data.erase(client_fd);
+	if (client_to_server.find(client_fd) != client_to_server.end())
+		client_to_server.erase(client_fd);
+	if (_client_time.find(client_fd) != _client_time.end())
+		_client_time.erase(client_fd);
 }

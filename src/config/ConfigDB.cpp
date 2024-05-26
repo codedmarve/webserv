@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigFileDB.cpp                                   :+:      :+:    :+:   */
+/*   ConfigDB.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/03/31 18:37:48 by drey             ###   ########.fr       */
+/*   Updated: 2024/05/26 17:23:48 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ std::string ConfigDB::readFile(char **argv)
         configData += lastLine;
     if (checkCurly(configData))
         ft_errors("curly ", 3);
+    file.close();
     return configData;
 }
 

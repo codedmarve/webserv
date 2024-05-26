@@ -209,14 +209,12 @@ int HttpResponse::handleMethods()
 	{
 		if (file_->is_directory())
 		{
-			// std::cout << "Handling directory request\n";
 			int ret = handleDirectoryRequest();
 			if (ret == 200 || ret == 404)
 				return ret;
 		}
 		if (!file_->is_directory())
 		{
-			// std::cout << "Handling file request\n";
 			int ret = handleFileRequest();
 			if (ret == 403 || ret == 404)
 				return ret;
@@ -225,8 +223,6 @@ int HttpResponse::handleMethods()
 
 	if (isCgi(file_->getMimeExt()))
 	{
-		std::cout << "I think I am a cgi!\n";
-		// HandleCgi();
 		cgi_true_ = true;
 		return status_code_;
 	}
@@ -414,7 +410,6 @@ void HttpResponse::createResponse()
 	{
 		body_.clear();
 	}
-	// std::cout << "Response body: " << body_ << std::endl;
 	if (status_code_ < 400 && redirect_code_)
 	{
 		status_code_ = redirect_code_;
@@ -440,7 +435,6 @@ void HttpResponse::createResponse()
 	header_size_ = status_line.size() + header_block.size();
 	body_size_ = body_.size();
 	body_.clear();
-	// std::cout << "RESPONSE: " << response_ << std::endl;
 }
 
 std::string HttpResponse::getSampleResponse()
@@ -478,191 +472,6 @@ bool HttpResponse::isCgi(std::string ext)
 	return std::find(cgi.begin(), cgi.end(), ext) != cgi.end();
 }
 
-// void HttpResponse::HandleCgi()
-// {
-// 	CgiHandle cgi(&config_, file_->getMimeExt(), 0);
-// 	cgi.execCgi();
-// 	pid_t pid = cgi.getPid();
-// 	pid_t exit_status = waitpid(pid, &status_code_, WNOHANG);
-// 	if (cgi.getExitStatus() == 500 || status_code_ != 0)
-// 	{
-// 		std::cout << "Status code: " << status_code_ << std::endl;
-// 		status_code_ = 500;
-// 		closeParentCgiPipe(cgi);
-// 		return;
-// 	}
-// 	setCgiPipe(cgi);
-// 	std::string req_body = config_.getBody();
-// 	while (status_code_ == 0)
-// 	{
-// 		toCgi(cgi, req_body);
-// 		fromCgi(cgi);
-// 	}
-// 	close(cgi.getPipeOut());
-// 	closeParentCgiPipe(cgi);
-// 	kill(cgi.getPid(), SIGKILL);
-// 	if (cgi.getExitStatus() != 500 || waitpid(pid, &exit_status, WNOHANG) == 0)
-// 		waitpid(pid, &exit_status, 0);
-// 	std::cout << "EXIT STATUS: " << exit_status << std::endl;
-// 	if (exit_status == 256 || cgi.getExitStatus() == 500)
-// 		status_code_ = 500;
-// 	// if (config_.getHeader("content-length").empty())
-// 	{
-// 		std::stringstream ss;
-// 		ss << cgi_bytes_read_;
-// 		headers_["Content-Length"] = ss.str();
-// 		std::cout << "Content-Length: " << headers_["Content-Length"] << std::endl;
-// 	}
-// 	// if (config_.getHeader("content-type").empty())
-// 	// 	headers_["Content-Type"] = "text/plain";
-// 	std::cout << "STATUS: " << status_code_ << std::endl;
-// }
-
-// void HttpResponse::toCgi(CgiHandle &cgi, std::string &req_body)
-// {
-// 	if (cgi.getContentLength() > 0)
-// 	{
-// 		int bytesWritten = write(cgi.getPipeIn(), req_body.c_str(), req_body.length());
-// 		if (bytesWritten >= 0)
-// 		{
-// 			req_body = req_body.substr(bytesWritten);
-// 			cgi.deductContentLength(bytesWritten);
-// 			if (cgi.getContentLength() == 0)
-// 				close(cgi.getPipeIn());
-// 		}
-// 		if (bytesWritten == -1)
-// 		{
-// 			std::cerr << "write : " << strerror(errno) << std::endl;
-// 			status_code_ = 500;
-// 		}
-// 	}
-// }
-
-// void HttpResponse::fromCgi(CgiHandle &cgi)
-// {
-// 	int bytesRead;
-// 	char buffer[4096];
-// 	fd_set readfds;
-// 	FD_ZERO(&readfds);
-// 	FD_SET(cgi.getPipeOut(), &readfds);
-
-// 	struct timeval tv;
-// 	tv.tv_sec = 1;
-// 	tv.tv_usec = 0;
-// 	int select_value = select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv);
-// 	if (select_value > 0)
-// 	{
-// 		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
-// 		{
-// 			body_.append(buffer, bytesRead);
-// 			cgi_bytes_read_ += bytesRead;
-// 			if ((body_.find("\r\n\r\n") != std::string::npos || body_.find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
-// 				handleCgiHeaders(body_);
-// 			cgiRead_ = true;
-// 			cgi_times_read_++;
-// 			// if (cgi_times_read_ > 100)
-// 				// status_code_ = 200;
-// 		}
-// 		else if (bytesRead == -1 || bytesRead == 0)
-// 		{
-// 			std::cout << "bytesRead: " << bytesRead << std::endl;
-// 			status_code_ = (cgiRead_) ? 200 : 500;
-// 		}
-// 	}
-// 	else if (select_value == -1)
-// 		status_code_ = 500;
-// 	else
-// 		status_code_ = (cgiRead_) ? 200 : 500;
-// }
-
-// void HttpResponse::setCgiPipe(CgiHandle &cgi)
-// {
-// 	int flags;
-// 	if ((flags = fcntl(cgi.getPipeOut(), F_GETFL, 0)) == -1 || fcntl(cgi.getPipeOut(), F_SETFL, flags | O_NONBLOCK) == -1)
-// 	{
-// 		std::cerr << "fcntl error" << std::endl;
-// 		status_code_ = 500;
-// 		return;
-// 	}
-// }
-
-// void HttpResponse::parseCgiHeaders()
-// {
-// 	std::vector<std::string> headerLines = split(cgiHeaders_, '\n');
-// 	std::string key;
-// 	std::string value;
-// 	size_t pos;
-// 	std::string header;
-// 	for (size_t i = 0; i < headerLines.size(); i++)
-// 	{
-// 		header = headerLines[i];
-// 		pos = header.find(":");
-// 		if (pos != std::string::npos && pos <= header.length() - 2)
-// 		{
-// 			key = header.substr(0, header.find(":"));
-// 			value = header.substr(header.find(":") + 2);
-// 			headers_[key] = value;
-// 		}
-// 		else if (header.find("HTTP/1.1") != std::string::npos)
-// 		{
-// 			pos = header.find(" ");
-// 			if (pos != std::string::npos && pos <= header.length() - 2)
-// 			{
-// 				std::string status = header.substr(header.find(" ") + 1, 3);
-// 				status_code_ = atoi(status.c_str());
-// 			}
-// 		}
-// 	}
-// 	for (std::map<std::string, std::string>::iterator it = headers_.begin(); it != headers_.end(); it++)
-// 	{
-// 		std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-// 	}
-// }
-
-// void HttpResponse::handleCgiHeaders(std::string &body_)
-// {
-// 	std::string::size_type pos;
-// 	if (body_.find("\r\n\r\n") != std::string::npos)
-// 		pos = body_.find("\r\n\r\n");
-// 	else if (body_.find("\r\n") != std::string::npos)
-// 		pos = body_.find("\r\n");
-// 	if (pos != std::string::npos)
-// 	{
-// 		cgiHeaders_ = body_.substr(0, pos);
-// 		if ((pos = body_.find("\r\n\r\n\n")) != std::string::npos)
-// 			body_ = body_.substr(pos + 5);
-// 		else if ((pos = body_.find("\r\n\r\n")) != std::string::npos)
-// 			body_ = body_.substr(pos + 4);
-// 		else if ((pos = body_.find("\r\n\n")) != std::string::npos)
-// 			body_ = body_.substr(pos + 3);
-// 		else if ((pos = body_.find("\r\n")) != std::string::npos)
-// 			body_ = body_.substr(pos + 2);
-// 		cgiHeadersParsed_ = true;
-// 		parseCgiHeaders();
-// 	}
-// 	else
-// 	{
-// 		cgiHeaders_ = body_;
-// 		body_.clear();
-// 	}
-// 	// std::vector<std::string> headerLines = split(headers, "\r\n");
-// 	// for (size_t i = 0; i < headerLines.size(); i++)
-// 	// {
-// 	// 	std::string header = headerLines[i];
-// 	// 	std::string key = header.substr(0, header.find(":"));
-// 	// 	std::string value = header.substr(header.find(":") + 2);
-// 	// 	headers_[key] = value;
-// 	// }
-// }
-
-// void HttpResponse::closeParentCgiPipe(CgiHandle &cgi)
-// {
-// 	if (cgi.getPipeIn() != -1)
-// 		close(cgi.getPipeIn());
-// 	if (cgi.getPipeOut() != -1)
-// 		close(cgi.getPipeOut());
-// }
-
 void	HttpResponse::setStatusCode(int code)
 {
 	status_code_ = code;
@@ -670,7 +479,6 @@ void	HttpResponse::setStatusCode(int code)
 
 void	HttpResponse::setHeader(std::string key, std::string value)
 {
-	// headers_.insert(std::pair<std::string, std::string>(key, value));
 	headers_[key] = value;
 }
 

@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/25 18:55:55 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 17:17:30 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,5 +108,7 @@ void printMap(const std::map<KeyType, ValueType> &m);
 
 template<typename T>
 void printVec(const std::vector<T> &value, const std::string &callingFunction);
+
+extern Servers* servers;
 
 #endif

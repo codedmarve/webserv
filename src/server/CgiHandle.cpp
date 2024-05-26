@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/25 22:01:54 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 17:25:17 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,12 +117,6 @@ void CgiHandle::execCgi(){
 		closePipe();
 		return ;
 	}
-	// if (combineFds(getPipeOut()) == 0)
-	// {
-	// 	this->_exit_status = 500;
-	// 	closePipe();
-	// 	return ;
-	// }
 	this->_cgi_pid = fork();
 	if (_cgi_pid < 0)
 	{

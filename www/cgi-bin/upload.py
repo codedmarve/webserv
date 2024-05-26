@@ -20,9 +20,9 @@ def handle_file_upload(form, current_directory):
         with open(save_path, 'wb') as f:
             f.write(fileitem.file.read())
         
-        return submission_directory, f'The file "{filename_base}" was uploaded to {save_path}'
+        return submission_directory, filename_base, f'The file "{filename_base}" was uploaded to {save_path}'
     else:
-        return None, 'No file uploaded or field name "uploadFile" is missing'
+        return None, None, 'No file uploaded or field name "uploadFile" is missing'
 
 def save_form_fields_as_json(form, submission_directory):
     json_file_path = os.path.join(submission_directory, 'submission_details.json')
@@ -37,13 +37,14 @@ form = cgi.FieldStorage()
 
 current_directory = os.getcwd() + '/www'
 
-submission_directory, _ = handle_file_upload(form, current_directory)
+submission_directory, uploaded_file, _ = handle_file_upload(form, current_directory)
 
 if submission_directory:
     save_form_fields_as_json(form, submission_directory)
 
 response = {
-    "submission_directory": submission_directory if submission_directory else None
+    "submission_directory": submission_directory if submission_directory else None,
+    "uploaded_file": uploaded_file if uploaded_file else None
 }
 
 print("Content-Type: application/json;charset=utf-8\r\n\r\n")

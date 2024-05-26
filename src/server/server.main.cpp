@@ -6,39 +6,41 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/22 00:16:10 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 17:33:36 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/AllHeaders.hpp"
 
-// int	g_signal;
-// Servers *servers = NULL;
+int	g_signal;
+Servers *servers = NULL;
+void	handle_servers(int signo)
+{
+	if (signo == SIGINT) {
+		std::cout << "Servers are being stopped!" << std::endl;
+		if (servers != NULL)
+		{
+			delete servers;
+			servers = NULL;
+		}
+		exit(0);
+	}
+}
 
-// void	handle_servers(int signo)
-// {
-// 	if (signo == SIGINT) {
-// 		std::cout << "server address: " << servers << std::endl;
-// 		delete servers;
-// 		std::cout << "Server stopped" << std::endl;
-// 		servers = NULL;
-// 		exit(0);
-// 	}
-// }
+void	handle_signal(void)
+{
+	struct sigaction	sa;
 
-// void	handle_signal(void)
-// {
-// 	struct sigaction	sa;
-
-// 	sa.sa_handler = handle_servers;
-// 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
-// 	sigemptyset(&sa.sa_mask);
-// 	sigaction(SIGINT, &sa, NULL);
-// }
+	sa.sa_handler = handle_servers;
+	sa.sa_flags = SA_RESTART;
+	sigemptyset(&sa.sa_mask);
+	sigaction(SIGINT, &sa, NULL);
+}
 
 int serverMain(int argc, char **argv) {
 	if (argc < 2)
 		ft_errors(argv[0],1); 
+	handle_signal();
 	ConfigDB base;
 	base.execParser(argv);    
 	/**
@@ -52,10 +54,12 @@ int serverMain(int argc, char **argv) {
 	 * @return NULL;
 	 */
 	base.printChoice(false, -1, false, -1, false);
-	// handle_signal();
-	Servers servers(base);
-	// servers = new Servers(base);
-	// delete servers;
-	// servers = NULL;
+	// Servers servers(base);
+	servers = new Servers(base);
+	if (servers != NULL)
+	{
+		delete servers;
+		servers = NULL;
+	}
 	return 0;
 }

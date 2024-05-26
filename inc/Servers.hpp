@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:30 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 00:06:10 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 17:30:09 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,9 @@ class Servers {
 		std::map<int, HttpRequest> _client_data;
 		std::map<int, CgiClient*> _cgi_clients;
 		std::map<int, int> _cgi_clients_childfd;
-		// std::map<int, time_t> _client_time;
 		std::map<int, time_t> _client_time;
+
+		int stop_fd;
 			
 	public:
 		
@@ -52,7 +53,6 @@ class Servers {
 		int		checkSocket(std::string port);
 		int		checkSocketPort(std::string port);
 		int		createSocket();
-		// void	bindSocket(int port);
 		int		bindSocket(std::string port);
 		int		listenSocket();
 		int		combineFds(int socket_fd);
@@ -67,7 +67,6 @@ class Servers {
 		bool getRequest(int client_fd, std::string &request);
 		int setNonBlocking(int fd);
 
-		//Temporal function until we have a completed config file
 		void handleIncomingConnection(int server_fd);
 		void handleIncomingData(int client_fd);
 		void printServerAddress(int server_fd);
