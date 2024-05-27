@@ -3,9 +3,8 @@
 pthread_mutex_t g_write;
 
 int HttpResponse::GET()
-{
+{ 
     pthread_mutex_lock(&g_write);
-
     if (!file_)
     {
         std::cerr << "File not found" << std::endl;
@@ -32,7 +31,6 @@ int HttpResponse::GET()
     }
     headers_["Content-Length"] = ftos(body_.length());
     headers_["Cache-Control"] = "no-cache";
-
     pthread_mutex_unlock(&g_write);
 
     return 200;
@@ -48,6 +46,7 @@ int HttpResponse::POST()
     if (!file_->exists())
     {
         file_->createFile(body_);
+        std::cout << "*******201 ******" << std::endl;
         status_code = 201;
     }
     else
@@ -61,9 +60,10 @@ int HttpResponse::POST()
             status_code = 415;
         }
         else
-            {
+        {
+            std::cout << "&&&&&&& 201 ******" << std::endl;
             file_->appendFile(body_, ext);
-                status_code = 200;
+            status_code = 201;
         }
     }
     pthread_mutex_unlock(&g_write);

@@ -50,7 +50,6 @@ public:
 	std::string accept_charset(std::vector<std::string> &matches);
 	bool getRedirect();
 	std::string redirect_target();
-	bool shouldDisconnect();
 	void printMethodMap();
 	void setErrorPageHeaders(int status_code);
 	int checkCustomErrorPage(int status_code);
@@ -96,6 +95,7 @@ public:
 	void setConfig(RequestConfig &config);
 	std::map<std::string, std::string> &getHeadersRef();
 	bool getCgiStatus();
+	bool foundIndex;
 
 private:
 	RequestConfig &config_;

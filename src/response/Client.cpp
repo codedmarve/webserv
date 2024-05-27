@@ -11,6 +11,19 @@ statusCode_(status)
 {
 	setupConfig();
 	is_cgi_ = false;
+	if (!request_->getMethod().empty() || !request_->getTarget().empty())
+	{
+		if (request_->getMethod() ==  "GET" || request_->getMethod() ==  "HEAD")
+			std::cout << HIBGWHITE;
+		else if (request_->getMethod() ==  "POST" || request_->getMethod() ==  "PUT")
+			std::cout << HIBGYELLOW;
+		else if (request_->getMethod() ==  "DELETE")
+			std::cout << HIBGRED;
+
+
+
+		std::cout << request_->getMethod() << RESET << " " << request_->getTarget() << " " << request_->getProtocol() << std::endl;
+	}
 }
 
 Client::~Client()
@@ -99,6 +112,28 @@ bool Client::getCgi()
 	return is_cgi_;
 }
 
+void Client::printRouting() {
+	std::string redir = config_->getRoot() + response_->redirect_target();
+	int statusCode = config_->getRedirCode();
+	switch (statusCode)
+	{
+	case 0:
+		std::cout << HIBGWHITE << "Rerouting:" << RESET << " "  << " " << redir;	
+		break;
+	case 301:
+		std::cout << HIBGRED << "Permanent Redirection " <<RESET;	
+		break;
+	case 302:
+		std::cout << HIBGYELLOW << "Temporary Redirection" << RESET << " " << redir ;	
+		break;
+	
+	default:
+		break;
+	}
+	if (statusCode != 301)
+		std::cout << ", " << HIBGGREEN << "Port: " << host_port_.port_ << RESET << std::endl;
+}
+
 void Client::setupResponse()
 {
 	if (!request_)
@@ -119,7 +154,7 @@ void Client::setupResponse()
 		if (response_->getRedirect())
 		{
 			config_->redirectLocation(response_->redirect_target());
-			std::cout << "REDIRECTED TO: " << response_->redirect_target() << std::endl;
+			printRouting();
 			response_->cleanUp();
 			ret = 1;
 		}

@@ -111,7 +111,7 @@ void File::createFile(const std::string &body)
     {
         std::string errorStr = "write: ";
         errorStr += strerror(errno);
-        std::cout << "Error: " << errorStr << std::endl;
+        std::cout << CURSIVE_GRAY << "Error: " << errorStr << RESET << std::endl;
     }
 
     close(fd_);
@@ -140,7 +140,7 @@ bool File::openFile(bool create)
     {
         std::string errorStr = "open: ";
         errorStr += strerror(errno);
-        std::cout << "Error: " << errorStr << std::endl;
+        std::cout << CURSIVE_GRAY << "Error: " << errorStr << RESET << std::endl;
         return false;
     }
 

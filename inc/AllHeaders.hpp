@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   AllHeaders.hpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/26 17:17:30 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/27 21:57:04 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@
 #include "ConfigDB.hpp"
 #include "Servers.hpp"
 #include "CgiHandle.hpp"
-#include "DomainResolve.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "File.hpp"
@@ -59,10 +58,10 @@
 #include "RequestConfig.hpp"
 #include "utils.hpp"
 #include "Client.hpp"
-#include "ErrorCodes.hpp"
 #include "CgiClient.hpp"
 #include "Listen.hpp"
 #include "DB.hpp"
+#include "Colors.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);

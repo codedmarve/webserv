@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   CgiHandle.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 17:25:17 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/27 22:46:29 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/Test.hpp"
+#include  "../../inc/AllHeaders.hpp"
 
 CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext, int epoll_fd)
 : _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0),
