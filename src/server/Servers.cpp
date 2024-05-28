@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/27 18:42:30 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/28 12:29:17 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,26 +154,42 @@ int Servers::combineFds(int socket_fd){
 	return (1);
 }
 
-void Servers::createServers(){
-	
-	std::cout << "Creating servers" << std::endl;
-	std::vector<std::string> ports;
-	createEpoll();
-	ports = getPorts();
-	for (std::vector<std::string>::iterator it2 = ports.begin(); it2 != ports.end(); it2++) {
-		if (!checkSocket(*it2)){
-			if (createSocket()){
-				if (!bindSocket(*it2) || !listenSocket() || !setNonBlocking(_server_fds.back()) || !combineFds(_server_fds.back()))
-					_server_fds.pop_back();
-				else
-				{
-					assignDomain(*it2, _server_fds.back());
-					std::cout << "Server created on port " << _ip_to_server[_server_fds.back()] << ", server:" << _server_fds.back() << std::endl;
-				}
-			}
-		}
-	}
+
+void printRow(int width, int serverNum, int ipWidth, std::string ip) {
+	std::cout << "| " << std::left << std::setw(width) << serverNum << " | " << std::setw(ipWidth) << ip << " |" << std::endl;	
 }
+
+
+void Servers::createServers() {
+    std::cout << "|" << std::string(8, ' ') << CURSIVE_GRAY << " Creating servers..." << RESET << std::string(8, ' ') << "|" << std::endl;
+    std::vector<std::string> ports;
+    createEpoll();
+    ports = getPorts();
+
+    const int serverNumberWidth = 15;
+    const int portWidth = 20;
+
+    std::cout << BHWHITE << "+---------------+--------------------+" << std::endl;
+    std::cout << "| " << std::left << std::setw(serverNumberWidth - 2) << "Server ID" << " | " << std::setw(portWidth - 2) << "Port" << " |" << std::endl;
+    std::cout << "+---------------+--------------------+" << std::endl;
+
+    for (std::vector<std::string>::iterator it2 = ports.begin(); it2 != ports.end(); it2++) {
+        if (!checkSocket(*it2)) {
+            if (createSocket()) {
+                if (!bindSocket(*it2) || !listenSocket() || !setNonBlocking(_server_fds.back()) || !combineFds(_server_fds.back()))
+                    _server_fds.pop_back();
+                else {
+                    assignDomain(*it2, _server_fds.back());
+					printRow(serverNumberWidth - 2,_server_fds.back() - 3, portWidth - 2,_ip_to_server[_server_fds.back()]);
+
+                }
+            }
+        }
+    }
+
+    std::cout << "+---------------+--------------------+" << RESET << std::endl;
+}
+
 
 Listen getTargetIpAndPort(std::string requestedUrl) {
 	size_t pos = requestedUrl.find(":");
@@ -210,7 +226,7 @@ void Servers::handleIncomingConnection(int server_fd){
 	client_to_server[new_socket] = server_fd;
 	_client_data[new_socket] = HttpRequest();
 	setTimeout(new_socket);
-    std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << ", client: " << new_socket << "\n" << std::endl;
+    // std::cout << "Connection established on IP: " << _ip_to_server[server_fd] << ", server:" << server_fd << ", client: " << new_socket << "\n" << std::endl;
 	_client_amount++;
 }
 
@@ -243,14 +259,14 @@ void Servers::initEvents(){
 				bool server = false;
 				for (std::vector<int>::iterator it2 = _server_fds.begin(); it2 != _server_fds.end(); ++it2) {
 					if (events[i].data.fd == *it2) {
-						std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
+						// std::cout << "\nIncoming connection on server: " << *it2 << std::endl;
 						handleIncomingConnection(*it2);
 						server = true;
 						break ;
 					}
 				}
 				if (!server && events[i].events & EPOLLIN) {
-					std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
+					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
 					if (_cgi_clients_childfd.find(events[i].data.fd) != _cgi_clients_childfd.end())
 					{
 						setTimeout(_cgi_clients_childfd[events[i].data.fd]);
@@ -543,7 +559,7 @@ void Servers::deleteClient(int client_fd)
 		delete _cgi_clients[client_fd];
 		_cgi_clients.erase(client_fd);
 	}
-	std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
+	// std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
 	if (_client_data.find(client_fd) != _client_data.end())
 		_client_data.erase(client_fd);
 	if (client_to_server.find(client_fd) != client_to_server.end())

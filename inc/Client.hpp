@@ -42,6 +42,7 @@ public:
     void setConfig(RequestConfig &config);
     void setResponse(HttpResponse &response);
     bool getCgiResponse();
+    void printRouting();
 
 private:
     HttpRequest *request_;

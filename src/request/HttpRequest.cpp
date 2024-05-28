@@ -99,7 +99,7 @@ int HttpRequest::parseRequest(std::string &buffer)
   catch (const std::exception &e)
   {
     buffer_section_ = ERROR;
-    std::cerr << "Exception in parseRequest: " << e.what() << std::endl;
+    std::cerr << CURSIVE_GRAY << "Exception in parseRequest: " << e.what() << RESET << std::endl;
     return 500;
   }
 

@@ -112,10 +112,7 @@ bool RequestConfig::directiveExists(std::string directive, std::string location)
             std::string loc = locIt->second;
 
             if (loc == location && dir == directive)
-            {
-                std::cout << "Checking: Directive = " << dir << ", Location = " << loc << std::endl;
                 return true;
-            }
         }
     }
     return false; // Directive not found in the specified location

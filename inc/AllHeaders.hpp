@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/26 23:30:19 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/28 12:28:40 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,10 +58,10 @@
 #include "RequestConfig.hpp"
 #include "utils.hpp"
 #include "Client.hpp"
-#include "ErrorCodes.hpp"
 #include "CgiClient.hpp"
 #include "Listen.hpp"
 #include "DB.hpp"
+#include "Colors.hpp"
 
 // void
 void trimWordFromEnd(int &start, int &end, std::string line);

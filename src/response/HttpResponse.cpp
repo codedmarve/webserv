@@ -35,7 +35,7 @@ HttpResponse::HttpResponse(const HttpResponse &rhs)
 	  cgiRead_(rhs.cgiRead_), cgi_bytes_read_(rhs.cgi_bytes_read_),
 	  cgi_times_read_(rhs.cgi_times_read_), cgi_true_(rhs.cgi_true_)
 {
-		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
+	file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
 
 HttpResponse::HttpResponse(const HttpResponse &rhs, RequestConfig &config)
@@ -109,10 +109,6 @@ void HttpResponse::cleanUp()
 	}
 }
 
-bool HttpResponse::shouldDisconnect()
-{
-	return headers_.find("Connection") != headers_.end() && headers_["Connection"] == "close";
-}
 
 void HttpResponse::printMethodMap()
 {
@@ -238,8 +234,9 @@ int HttpResponse::handleDirectoryRequest()
 	std::vector<std::string> indexes = config_.getIndexes();
 	std::string index = file_->find_index(indexes);
 	std::string newPath;
+	foundIndex = !index.empty();
 
-	if (!index.empty())
+	if (foundIndex)
 	{
 		redirect_ = true;
 		newPath = "/" + config_.getTarget();
@@ -400,7 +397,8 @@ void HttpResponse::createResponse()
 	{
 		redirect_code_ = config_.getRedirCode();
 
-		if (redirect_code_ == 301) {
+		if (redirect_code_ == 301)
+		{
 			std::map<int, std::string> m = config_.getRedirectionMap();
 			headers_["Location"] = m[redirect_code_];
 		}
@@ -419,7 +417,6 @@ void HttpResponse::createResponse()
 	std::string status_line = "HTTP/1.1 " + ftos(status_code_) + " " + status_code_phrase + "\r\n";
 
 	headers_["Date"] = get_http_date();
-	
 
 	std::string header_block;
 	for (std::map<std::string, std::string>::iterator it = headers_.begin(); it != headers_.end(); it++)
@@ -435,6 +432,11 @@ void HttpResponse::createResponse()
 	header_size_ = status_line.size() + header_block.size();
 	body_size_ = body_.size();
 	body_.clear();
+
+	std::cout << status_code_ << " " << ((status_code_ < 400) ? BGREEN : BRED) << status_code_phrase << RESET << std::endl;
+
+	if (!foundIndex && config_.getAutoIndex())
+		std::cout << CURSIVE_GRAY << "Displaying AutoIndex!!!" << RESET << std::endl;
 }
 
 std::string HttpResponse::getSampleResponse()
@@ -472,27 +474,27 @@ bool HttpResponse::isCgi(std::string ext)
 	return std::find(cgi.begin(), cgi.end(), ext) != cgi.end();
 }
 
-void	HttpResponse::setStatusCode(int code)
+void HttpResponse::setStatusCode(int code)
 {
 	status_code_ = code;
 }
 
-void	HttpResponse::setHeader(std::string key, std::string value)
+void HttpResponse::setHeader(std::string key, std::string value)
 {
 	headers_[key] = value;
 }
 
-void	HttpResponse::appendBody(char *buffer, int size)
+void HttpResponse::appendBody(char *buffer, int size)
 {
 	body_.append(buffer, size);
 }
 
-std::string&	HttpResponse::getBody()
+std::string &HttpResponse::getBody()
 {
 	return body_;
 }
 
-File	*HttpResponse::getFile()
+File *HttpResponse::getFile()
 {
 	return file_;
 }
@@ -502,7 +504,7 @@ void HttpResponse::setBody(std::string body)
 	body_ = body;
 }
 
-std::map<std::string, std::string>	HttpResponse::getHeaders()
+std::map<std::string, std::string> HttpResponse::getHeaders()
 {
 	return headers_;
 }
@@ -527,12 +529,12 @@ void HttpResponse::setConfig(RequestConfig &config)
 	config_ = config;
 }
 
-std::map<std::string, std::string>	&HttpResponse::getHeadersRef()
+std::map<std::string, std::string> &HttpResponse::getHeadersRef()
 {
 	return headers_;
 }
 
-bool	HttpResponse::getCgiStatus()
+bool HttpResponse::getCgiStatus()
 {
 	return cgi_true_;
 }

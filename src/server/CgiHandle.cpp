@@ -6,11 +6,11 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:28:35 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/27 18:42:41 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/28 12:28:54 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../inc/Test.hpp"
+#include  "../../inc/AllHeaders.hpp"
 
 CgiHandle::CgiHandle(RequestConfig *config, std::string cgi_ext, int epoll_fd)
 : _config(config), _cgi_path(""), _cgi_pid(-1), _cgi_ext(cgi_ext), _exit_status(0),

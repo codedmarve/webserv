@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ConfigDB.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*   By: drey <drey@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/09 11:19:53 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/26 17:23:48 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/27 21:52:51 by drey             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -314,7 +314,7 @@ void ConfigDB::splitDB(const KeyValues &keyValues)
             }
             else
             {
-                std::cout << "UNEXPECTED KEY: " << key << "\n";
+                std::cout << CURSIVE_GRAY << "UNEXPECTED KEY: " << key << RESET << "\n";
             }
         }
     }
