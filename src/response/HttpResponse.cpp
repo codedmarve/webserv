@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   HttpResponse.cpp                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/28 23:16:06 by alappas           #+#    #+#             */
+/*   Updated: 2024/05/28 23:16:07 by alappas          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../inc/HttpResponse.hpp"
 
 HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(config), error_code_(error_code)

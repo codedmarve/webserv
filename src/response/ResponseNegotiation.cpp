@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ResponseNegotiation.cpp                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/05/28 23:16:31 by alappas           #+#    #+#             */
+/*   Updated: 2024/05/28 23:16:32 by alappas          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../../inc/HttpResponse.hpp"
 
 std::pair<std::string, double> HttpResponse::extractLangAndQ(const std::string &langAndQ)

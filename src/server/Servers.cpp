@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/28 12:29:17 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 00:34:59 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,6 @@ void Servers::createServers() {
                 else {
                     assignDomain(*it2, _server_fds.back());
 					printRow(serverNumberWidth - 2,_server_fds.back() - 3, portWidth - 2,_ip_to_server[_server_fds.back()]);
-
                 }
             }
         }
