@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 14:47:30 by nikitos           #+#    #+#             */
-/*   Updated: 2024/05/26 17:17:30 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/26 23:30:19 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@
 #include "ConfigDB.hpp"
 #include "Servers.hpp"
 #include "CgiHandle.hpp"
-#include "DomainResolve.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
 #include "File.hpp"

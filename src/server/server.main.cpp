@@ -6,13 +6,12 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/29 01:23:03 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 17:33:36 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/27 16:50:56 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/AllHeaders.hpp"
 
-int	g_signal;
 Servers *servers = NULL;
 void	handle_servers(int signo)
 {

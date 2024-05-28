@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/26 17:33:43 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/27 18:42:30 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -495,7 +495,6 @@ int Servers::handleIncomingCgi(int child_fd){
 		deleteClient(client_fd);
 		_cgi_clients_childfd.erase(child_fd);
 	}
-	std::cout << "I stop here\n";
 	return 1;
 }
 
@@ -516,16 +515,16 @@ void Servers::checkClientTimeout(){
 					if (it2->second == it->first)
 					{
 						handleIncomingCgi(it2->first);
-						break;
+						return ;
 					}
 				}
 			}
 		}
-		else
-		if (current_time - it->second > 30)
+		if (current_time - it->second > 10)
 		{
 			std::cout << "Client FD: " << it->first << " timed out\n";
 			deleteClient(it->first);
+			return ;
 		}
 	}
 }

@@ -106,7 +106,6 @@ void Client::setupResponse()
 
 	if (!config_)
 		setupConfig();
-
 	response_ = new HttpResponse(*config_, statusCode_);
 
 	int loop = 0;
