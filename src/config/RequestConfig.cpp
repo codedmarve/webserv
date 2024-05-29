@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 23:15:28 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/28 23:15:29 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 20:28:43 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -424,7 +424,7 @@ void RequestConfig::setUri(const std::string uri)
 
 void RequestConfig::setClientMaxBodySize(const VecStr size)
 {
-    size_t val = size.empty() ? 20971520 : (std::istringstream(size[0]) >> val, val);
+    size_t val = size.empty() ? 209715200 : (std::istringstream(size[0]) >> val, val);
     client_max_body_size_ = val;
 }
 

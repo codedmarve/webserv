@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/29 18:54:04 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 21:15:51 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -268,12 +268,12 @@ void Servers::initEvents(){
 					// std::cout << "\nIncoming data on client: " << events[i].data.fd << std::endl;
 					if (_cgi_clients_childfd.find(events[i].data.fd) != _cgi_clients_childfd.end())
 					{
-						// setTimeout(_cgi_clients_childfd[events[i].data.fd]);
+						setTimeout(_cgi_clients_childfd[events[i].data.fd]);
 						handleIncomingCgi(events[i].data.fd);
 					}
 					else if (_client_data.find(events[i].data.fd) != _client_data.end())
 					{
-						// setTimeout(events[i].data.fd);
+						setTimeout(events[i].data.fd);
 						handleIncomingData(events[i].data.fd);
 					}
 				}
@@ -453,6 +453,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			client.setupResponse();
 			if (client.getCgi() || client.getCgiResponse())
 			{
+				_cgi_clients[new_socket] = NULL;
 				_cgi_clients[new_socket] = new CgiClient(client, this->_epoll_fds);
 				_cgi_clients_childfd[_cgi_clients[new_socket]->getPipeOut()] =  new_socket;
 				return (1);
@@ -502,15 +503,19 @@ int Servers::handleIncomingCgi(int child_fd){
 	{
 		removeFromEpoll(child_fd);
 		deleteClient(client_fd);
-		for (std::map<int, int>::iterator it = _cgi_clients_childfd.begin(); it != _cgi_clients_childfd.end(); it++)
+		for (std::map<int, int>::iterator it = _cgi_clients_childfd.begin(); it != _cgi_clients_childfd.end();)
 		{
 			if (it->second == client_fd)
 			{
 				removeFromEpoll(it->first);	
-				_cgi_clients_childfd.erase(it->first);
+				std::map<int, int>::iterator eraseIt = it;
+				// _cgi_clients_childfd.erase(it->first);
+				it++;
+				_cgi_clients_childfd.erase(eraseIt);
 			}
+			else
+				it++;
 		}
-		// _cgi_clients_childfd.erase(child_fd);
 		return 0;
 	}
 	_cgi_clients[client_fd]->HandleCgi();
@@ -572,7 +577,6 @@ void Servers::deleteClient(int client_fd)
 		delete _cgi_clients[client_fd];
 		_cgi_clients.erase(client_fd);
 	}
-	// std::cout << "Connection closed on IP: " << _ip_to_server[client_to_server[client_fd]] << ", server:" << client_to_server[client_fd] << "\n" << std::endl;
 	if (_client_data.find(client_fd) != _client_data.end())
 		_client_data.erase(client_fd);
 	if (client_to_server.find(client_fd) != client_to_server.end())

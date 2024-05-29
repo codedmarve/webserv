@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 01:56:20 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/27 16:25:57 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 20:01:19 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,18 +76,33 @@ void CgiClient::fromCgi(CgiHandle &cgi)
 {
 	int bytesRead;
 	char buffer[4096];
-	if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
-	{
-		body_->append(buffer, bytesRead);
-		cgi_bytes_read_ += bytesRead;
-		if ((body_->find("\r\n\r\n") != std::string::npos || body_->find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
-			handleCgiHeaders(*body_);
-		cgiRead_ = true;
-	}
-	else if (bytesRead == -1 || bytesRead == 0)
-	{
-		status_code_ = (cgiRead_) ? 200 : 500;
-	}
+	// fd_set readfds;
+	// FD_ZERO(&readfds);
+	// FD_SET(cgi.getPipeOut(), &readfds);
+
+	// struct timeval tv;
+	// tv.tv_sec = 1;
+	// tv.tv_usec = 0;
+	// int select_value = select(cgi.getPipeOut() + 1, &readfds, NULL, NULL, &tv);
+	// if (select_value > 0)
+	// 	{
+		if ((bytesRead = read(cgi.getPipeOut(), buffer, sizeof(buffer))) > 0)
+		{
+			body_->append(buffer, bytesRead);
+			cgi_bytes_read_ += bytesRead;
+			if ((body_->find("\r\n\r\n") != std::string::npos || body_->find("\r\n") != std::string::npos) && !cgiHeadersParsed_)
+				handleCgiHeaders(*body_);
+			cgiRead_ = true;
+		}
+		else if (bytesRead == -1 || bytesRead == 0)
+		{
+			status_code_ = (cgiRead_) ? 200 : 500;
+		}
+	// }
+	// else if (select_value == -1)
+	// 	status_code_ = 500;
+	// else
+	// 	status_code_ = (cgiRead_) ? 200 : 500;
 	response_->setStatusCode(status_code_);
 }
 

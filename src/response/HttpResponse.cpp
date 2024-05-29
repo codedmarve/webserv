@@ -6,26 +6,32 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 23:16:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/28 23:16:07 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 21:19:08 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../inc/HttpResponse.hpp"
 
-HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(config), error_code_(error_code)
+HttpResponse::HttpResponse(RequestConfig &config, int error_code) : config_(config), file_(NULL), error_code_(error_code)
 {
-	status_code_ = 0;
+	worker_id_ = 0;
 	total_sent_ = 0;
+	status_code_ = 0;
+	response_ = "";
+	body_ = "";
+	redirect_ = false;
+	redirect_target_ = "";
+	redirect_code_ = 0;
 	header_size_ = 0;
 	body_size_ = 0;
-	redirect_code_ = 0;
-	redirect_ = false;
 	charset_ = "";
+	cgiHeaders_ = "";
 	cgiHeadersParsed_ = false;
 	cgiRead_ = false;
 	cgi_true_ = false;
 	cgi_bytes_read_ = 0;
 	cgi_times_read_ = 0;
+	foundIndex = false;
 	initMethods();
 }
 
@@ -47,6 +53,7 @@ HttpResponse::HttpResponse(const HttpResponse &rhs)
 	  cgiRead_(rhs.cgiRead_), cgi_bytes_read_(rhs.cgi_bytes_read_),
 	  cgi_times_read_(rhs.cgi_times_read_), cgi_true_(rhs.cgi_true_)
 {
+	foundIndex = rhs.foundIndex;
 	file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
 
@@ -63,6 +70,7 @@ HttpResponse::HttpResponse(const HttpResponse &rhs, RequestConfig &config)
 	  cgiRead_(rhs.cgiRead_), cgi_bytes_read_(rhs.cgi_bytes_read_),
 	  cgi_times_read_(rhs.cgi_times_read_), cgi_true_(rhs.cgi_true_)
 {
+	foundIndex = rhs.foundIndex;
 	file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 }
 
@@ -93,6 +101,7 @@ HttpResponse &HttpResponse::operator=(const HttpResponse &rhs)
 		cgi_bytes_read_ = rhs.cgi_bytes_read_;
 		cgi_times_read_ = rhs.cgi_times_read_;
 		cgi_true_ = rhs.cgi_true_;
+		foundIndex = rhs.foundIndex;
 
 		file_ = (rhs.file_) ? new File(*rhs.file_) : NULL;
 	}
@@ -415,7 +424,6 @@ void HttpResponse::createResponse()
 			headers_["Location"] = m[redirect_code_];
 		}
 	}
-
 	if (config_.getMethod() == "HEAD")
 	{
 		body_.clear();
@@ -425,12 +433,13 @@ void HttpResponse::createResponse()
 		status_code_ = redirect_code_;
 	}
 
-	std::string status_code_phrase = file_->getStatusCode(status_code_);
+	std::string status_code_phrase = "";
+	if (file_ != NULL)
+		status_code_phrase = file_->getStatusCode(status_code_);
 	std::string status_line = "HTTP/1.1 " + ftos(status_code_) + " " + status_code_phrase + "\r\n";
 
 	headers_["Date"] = get_http_date();
-
-	std::string header_block;
+	std::string header_block = "";
 	for (std::map<std::string, std::string>::iterator it = headers_.begin(); it != headers_.end(); it++)
 	{
 		header_block += it->first + ": " + it->second + "\r\n";
