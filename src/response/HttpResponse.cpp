@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 23:16:06 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/29 21:19:08 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 21:53:40 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -558,4 +558,8 @@ std::map<std::string, std::string> &HttpResponse::getHeadersRef()
 bool HttpResponse::getCgiStatus()
 {
 	return cgi_true_;
+}
+
+int HttpResponse::getStatus(){
+	return status_code_;
 }

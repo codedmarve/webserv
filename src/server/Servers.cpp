@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/11 16:28:07 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/29 21:15:51 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 21:55:29 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -451,7 +451,7 @@ size_t Servers::handleResponse(int reqStatus, int server_fd, int new_socket, Htt
 			DB db = {configDB_.getServers(), configDB_.getRootConfig()};
 			Client client(db, host_port, parser, server_fd_to_index[server_fd], reqStatus);
 			client.setupResponse();
-			if (client.getCgi() || client.getCgiResponse())
+			if (client.getResponseRef().getStatus() <= 400 && (client.getCgi() || client.getCgiResponse()))
 			{
 				_cgi_clients[new_socket] = NULL;
 				_cgi_clients[new_socket] = new CgiClient(client, this->_epoll_fds);

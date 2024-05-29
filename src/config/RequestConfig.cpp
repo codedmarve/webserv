@@ -6,7 +6,7 @@
 /*   By: alappas <alappas@student.42wolfsburg.de    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 23:15:28 by alappas           #+#    #+#             */
-/*   Updated: 2024/05/29 20:28:43 by alappas          ###   ########.fr       */
+/*   Updated: 2024/05/29 21:41:13 by alappas          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -685,28 +685,51 @@ std::map<std::string, int> &RequestConfig::getLocationsMap()
     return locationsMap_;
 }
 
+// bool RequestConfig::isMethodAccepted(std::string &method)
+// {
+//         bool methodFlag = false;
+//     if (isCgi(request_.getURI())) {
+//         location_cache_ = findLongestMatch(request_.getURI());
+//         setMethods(cascadeFilter("allow_methods", location_cache_));
+//         methodFlag = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
+//     } else {
+//         methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
+//     }
+
+//     if (!methodFlag)
+//         return true;
+
+//     if (allowed_methods_.empty())
+//     {
+//         allowed_methods_.push_back("GET");
+//         allowed_methods_.push_back("POST");
+//         allowed_methods_.push_back("DELETE");
+//     }
+    
+//     return (method.empty()) ? false : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
+// }
+
+
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
-        bool methodFlag = false;
+    bool allowedMethod = false;
+
     if (isCgi(request_.getURI())) {
         location_cache_ = findLongestMatch(request_.getURI());
         setMethods(cascadeFilter("allow_methods", location_cache_));
-        methodFlag = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
-    } else {
-        methodFlag = directiveExists("allow_methods", target_) || directiveExists("limit_except", target_);
     }
+    location_cache_ = location_cache_.empty() ? target_ : location_cache_;
+    allowedMethod = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
 
-    if (!methodFlag)
+    if (!allowedMethod)
         return true;
-
     if (allowed_methods_.empty())
-    {
-        allowed_methods_.push_back("GET");
-        allowed_methods_.push_back("POST");
-        allowed_methods_.push_back("DELETE");
-    }
-    
-    return (method.empty()) ? false : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
+        return false;
+    bool isAccepted = (allowed_methods_[0] == "none" || method.empty()) 
+        ? false 
+        : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
+
+    return isAccepted;
 }
 
 void RequestConfig::printConfigSetUp()
