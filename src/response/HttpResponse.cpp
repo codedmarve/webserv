@@ -202,7 +202,8 @@ void HttpResponse::build()
 		status_code_ = 405;
 		headers_["Allow"] = buildMethodList();
 	}
-	else if (config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
+	else if ((config_.getMethod() == "POST" || config_.getMethod() == "PUT") \
+		&& config_.getClientMaxBodySize() > 0 && config_.getBody().length() > config_.getClientMaxBodySize())
 	{
 		status_code_ = 413;
 	}
