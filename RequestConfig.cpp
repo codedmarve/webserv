@@ -32,7 +32,7 @@ RequestConfig::RequestConfig(const RequestConfig &rhs)
       client_max_body_size_(rhs.client_max_body_size_), autoindex_(rhs.autoindex_),
       indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
       allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
-      upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
+      upload_(rhs.upload_), cgi_(rhs.cgi_), locationsMap_(rhs.locationsMap_),
       isLociMatched_(rhs.isLociMatched_), uri_suffix_(rhs.uri_suffix_), redir_code_(rhs.redir_code_)
 {
 }
@@ -43,7 +43,7 @@ RequestConfig::RequestConfig(const RequestConfig &rhs, HttpRequest &request, Cli
       client_max_body_size_(rhs.client_max_body_size_), autoindex_(rhs.autoindex_),
       indexes_(rhs.indexes_), error_codes_(rhs.error_codes_), redirectMap_(rhs.redirectMap_),
       allowed_methods_(rhs.allowed_methods_), serverId(rhs.serverId), auth_(rhs.auth_),
-      upload_(rhs.upload_), cgi_(rhs.cgi_), cgi_bin_(rhs.cgi_bin_), locationsMap_(rhs.locationsMap_),
+      upload_(rhs.upload_), cgi_(rhs.cgi_), locationsMap_(rhs.locationsMap_),
       isLociMatched_(rhs.isLociMatched_), uri_suffix_(rhs.uri_suffix_), redir_code_(rhs.redir_code_)
 {
 }
@@ -70,7 +70,6 @@ RequestConfig &RequestConfig::operator=(const RequestConfig &rhs)
         auth_ = rhs.auth_;
         upload_ = rhs.upload_;
         cgi_ = rhs.cgi_;
-        cgi_bin_ = rhs.cgi_bin_;
         locationsMap_ = rhs.locationsMap_;
         isLociMatched_ = rhs.isLociMatched_;
         uri_suffix_ = rhs.uri_suffix_;
@@ -127,7 +126,7 @@ bool RequestConfig::directiveExists(std::string directive, std::string location)
                 return true;
         }
     }
-    return false; // Directive not found in the specified location
+    return false;
 }
 
 const VecStr &RequestConfig::checkRootDB(std::string directive)
@@ -153,12 +152,6 @@ const VecStr &RequestConfig::checkRootDB(std::string directive)
 
 const VecStr &RequestConfig::cascadeFilter(std::string directive, std::string location = "")
 {
-    /// @note important to first pre-populate data in cascades:
-    // 1. preffered settings
-    // 2. http level
-    // 3. server level(locatn == "" == server-default settings)
-    // 4. location level
-
     const VecStr &dirValue = filterDataByDirectives(targetServer_, directive, location);
     if (!dirValue.empty())
         return dirValue;
@@ -392,7 +385,6 @@ void RequestConfig::setUp(size_t targetServerIdx)
     setMethods(cascadeFilter("allow_methods", newTarget));
     setAuth(cascadeFilter("auth", newTarget));
     setCgi(cascadeFilter("cgi", newTarget));
-    setCgiBin(cascadeFilter("cgi-bin", newTarget));
 }
 
 void RequestConfig::redirectLocation(std::string target)
@@ -450,7 +442,6 @@ bool RequestConfig::isCgi(std::string path)
     if (lastDotPos != std::string::npos && lastDotPos != 0)
         ext = path.substr(lastDotPos);
     bool result = std::find(cgi_.begin(), cgi_.end(), ext) != cgi_.end();
-    // client_.is_cgi_ = result;
     client_.setCgi(result);
     return result;
 }
@@ -480,11 +471,6 @@ void RequestConfig::setCgi(const VecStr &cgi)
     cgi_ = cgi;
 }
 
-void RequestConfig::setCgiBin(const VecStr &cgi)
-{
-    cgi_bin_ = (cgi_bin_.empty()) ? "" : cgi[0];
-}
-
 void RequestConfig::assignCodes(const std::string &codes, const std::string &page, std::map<int, std::string> &resultMap)
 {
     std::istringstream codeStream(codes);
@@ -505,7 +491,6 @@ void RequestConfig::setMap(const VecStr &vec, std::map<int, std::string> &result
             int code;
             if (iss >> code)
             {
-                // Its a code. concatenate it
                 if (!codes.empty())
                     codes += " ";
                 codes += vec[i];
@@ -520,7 +505,6 @@ void RequestConfig::setMap(const VecStr &vec, std::map<int, std::string> &result
             }
         }
 
-        // Assign the last page to remaining codes
         if (!codes.empty())
             assignCodes(codes, vec.back(), resultMap);
     }
@@ -675,38 +659,10 @@ std::vector<std::string> &RequestConfig::getCgi()
     return cgi_;
 }
 
-std::string &RequestConfig::getCgiBin()
-{
-    return cgi_bin_;
-}
-
 std::map<std::string, int> &RequestConfig::getLocationsMap()
 {
     return locationsMap_;
 }
-
-
-// bool RequestConfig::isMethodAccepted(std::string &method)
-// {
-//     bool allowedMethod = false;
-
-//     if (isCgi(request_.getURI())) {
-//         location_cache_ = findLongestMatch(request_.getURI());
-//         setMethods(cascadeFilter("allow_methods", location_cache_));
-//     }
-//     location_cache_ = location_cache_.empty() ? target_ : location_cache_;
-//     allowedMethod = directiveExists("allow_methods", location_cache_) || directiveExists("limit_except", location_cache_);
-
-//     if (!allowedMethod)
-//         return true;
-//     if (allowed_methods_.empty())
-//         return false;
-//     bool isAccepted = (allowed_methods_[0] == "none" || method.empty()) 
-//         ? false 
-//         : (std::find(allowed_methods_.begin(), allowed_methods_.end(), method) != allowed_methods_.end());
-
-//     return isAccepted;
-// }
 
 bool RequestConfig::isMethodAccepted(std::string &method)
 {
@@ -729,7 +685,6 @@ bool RequestConfig::isMethodAccepted(std::string &method)
 
 void RequestConfig::printConfigSetUp()
 {
-    /// @note debugging purpose
     std::cout << "\nTarget: " << getTarget() << std::endl;
     std::cout << "\nURI: " << getUri() << std::endl;
     std::cout << "\nROOT: " << getRoot() << std::endl;
@@ -752,7 +707,6 @@ void RequestConfig::printConfigSetUp()
     std::cout << "\nCGI\n";
     printVec(cgi_, "SETUP");
     std::cout << std::endl;
-    std::cout << "\nCGI-BIN: " << getCgiBin() << std::endl;
 
     std::cout << "\n[Accepted Method] " << isMethodAccepted(getMethod());
     std::cout << "\n[content-length] " << getContentLength() << "\n"
